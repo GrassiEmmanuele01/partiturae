@@ -31,6 +31,8 @@ public class Banda {
     @Column(columnDefinition = "TEXT")
     private String descrizione;
 
+    private String logoNome;
+
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] logo;

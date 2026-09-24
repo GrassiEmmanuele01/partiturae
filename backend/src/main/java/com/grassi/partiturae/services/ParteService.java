@@ -1,10 +1,6 @@
 package com.grassi.partiturae.services;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.grassi.partiturae.dto.FileDownloadResponse;
 import com.grassi.partiturae.dto.ParteRequest;
 import com.grassi.partiturae.dto.ParteResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
@@ -13,6 +9,12 @@ import com.grassi.partiturae.model.Partitura;
 import com.grassi.partiturae.model.StrumentoFiglio;
 import com.grassi.partiturae.repositories.ParteRepository;
 import com.grassi.partiturae.repositories.StrumentoFiglioRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ParteService {
@@ -81,6 +83,25 @@ public class ParteService {
     public void delete(Long id) {
         Parte parte = findEntityById(id);
         parteRepository.delete(parte);
+    }
+
+    @Transactional
+    public void uploadPdf(Long id, MultipartFile file) throws IOException {
+        Parte parte = findEntityById(id);
+        parte.setPdfNome(file.getOriginalFilename());
+        parte.setPdfFile(file.getBytes());
+        parteRepository.save(parte);
+    }
+
+    @Transactional(readOnly = true)
+    public FileDownloadResponse getPdf(Long id) {
+        Parte parte = findEntityById(id);
+
+        if (parte.getPdfFile() == null) {
+            throw new ResourceNotFoundException("Nessun PDF caricato per la parte con id: " + id);
+        }
+
+        return new FileDownloadResponse(parte.getPdfNome(), parte.getPdfFile());
     }
 
     Parte findEntityById(Long id) {
