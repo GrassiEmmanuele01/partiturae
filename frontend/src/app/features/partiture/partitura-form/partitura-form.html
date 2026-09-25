@@ -1,0 +1,52 @@
+<div class="page-header">
+  <h2>{{ partituraId() ? 'Modifica partitura' : 'Nuova partitura' }}</h2>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="nome">Nome</label>
+      <input id="nome" type="text" formControlName="nome">
+      @if (form.controls.nome.invalid && form.controls.nome.touched) {
+        <span class="field-error">Il nome è obbligatorio</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="descrizione">Descrizione</label>
+      <textarea id="descrizione" formControlName="descrizione" rows="3"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="anno">Anno</label>
+      <input id="anno" type="number" formControlName="anno">
+    </div>
+
+    <div class="field">
+      <label for="autoreId">Autore</label>
+      <select id="autoreId" formControlName="autoreId">
+        <option [ngValue]="null" disabled>Seleziona un autore</option>
+        @for (autore of autori(); track autore.id) {
+          <option [ngValue]="autore.id">{{ autore.nominativo }}</option>
+        }
+      </select>
+      @if (form.controls.autoreId.invalid && form.controls.autoreId.touched) {
+        <span class="field-error">L'autore è obbligatorio</span>
+      }
+      @if (autori().length === 0) {
+        <span class="field-hint">Nessun autore ancora presente — creane uno via Postman su POST /api/autori.</span>
+      }
+    </div>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
+      <a routerLink="/partiture" class="btn-secondary">Annulla</a>
+    </div>
+  </form>
+}

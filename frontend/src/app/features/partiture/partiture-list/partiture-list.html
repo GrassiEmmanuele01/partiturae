@@ -1,0 +1,36 @@
+<div class="page-header">
+  <h2>Partiture</h2>
+  <a routerLink="/partiture/nuovo" class="btn-primary">+ Nuova partitura</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (partiture().length === 0) {
+  <p>Nessuna partitura registrata.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Autore</th>
+        <th>Anno</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (partitura of partiture(); track partitura.id) {
+        <tr>
+          <td>{{ partitura.nome }}</td>
+          <td>{{ partitura.autore.nominativo }}</td>
+          <td>{{ partitura.anno || '-' }}</td>
+          <td class="actions">
+            <a [routerLink]="['/partiture', partitura.id]">Modifica</a>
+            <button (click)="remove(partitura.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
