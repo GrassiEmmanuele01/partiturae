@@ -1,0 +1,36 @@
+<div class="page-header">
+  <h2>Bandisti</h2>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (bandisti().length === 0) {
+  <p>Nessun bandista registrato.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Cognome</th>
+        <th>Email</th>
+        <th>Telefono</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (bandista of bandisti(); track bandista.id) {
+        <tr>
+          <td>{{ bandista.nome }}</td>
+          <td>{{ bandista.cognome }}</td>
+          <td>{{ bandista.mail }}</td>
+          <td>{{ bandista.telefono || '-' }}</td>
+          <td class="actions">
+            <button (click)="remove(bandista.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
