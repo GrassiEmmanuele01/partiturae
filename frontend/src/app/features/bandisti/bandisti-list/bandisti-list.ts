@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
-import { Bandista } from './bandista.model';
-import { BandistaService } from './bandista.service';
+import { Bandista } from '../bandista.model';
+import { BandistaService } from '../bandista.service';
 
 @Component({
   selector: 'app-bandisti-list',
+  imports: [RouterLink],
   templateUrl: './bandisti-list.html',
   styleUrl: './bandisti-list.scss'
 })

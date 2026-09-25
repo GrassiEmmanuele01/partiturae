@@ -1,0 +1,52 @@
+<div class="page-header">
+  <h2>{{ bandistaId() ? 'Modifica bandista' : 'Nuovo bandista' }}</h2>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="nome">Nome</label>
+      <input id="nome" type="text" formControlName="nome">
+      @if (form.controls.nome.invalid && form.controls.nome.touched) {
+        <span class="field-error">Il nome è obbligatorio</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="cognome">Cognome</label>
+      <input id="cognome" type="text" formControlName="cognome">
+      @if (form.controls.cognome.invalid && form.controls.cognome.touched) {
+        <span class="field-error">Il cognome è obbligatorio</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="mail">Email</label>
+      <input id="mail" type="email" formControlName="mail">
+      @if (form.controls.mail.invalid && form.controls.mail.touched) {
+        <span class="field-error">Email obbligatoria e valida</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="codiceFiscale">Codice fiscale</label>
+      <input id="codiceFiscale" type="text" formControlName="codiceFiscale" maxlength="16">
+    </div>
+
+    <div class="field">
+      <label for="telefono">Telefono</label>
+      <input id="telefono" type="text" formControlName="telefono">
+    </div>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
+      <a routerLink="/bandisti" class="btn-secondary">Annulla</a>
+    </div>
+  </form>
+}

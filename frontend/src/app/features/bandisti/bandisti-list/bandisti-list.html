@@ -1,5 +1,6 @@
 <div class="page-header">
   <h2>Bandisti</h2>
+  <a routerLink="/bandisti/nuovo" class="btn-primary">+ Nuovo bandista</a>
 </div>
 
 @if (loading()) {
@@ -27,6 +28,7 @@
           <td>{{ bandista.mail }}</td>
           <td>{{ bandista.telefono || '-' }}</td>
           <td class="actions">
+            <a [routerLink]="['/bandisti', bandista.id]">Modifica</a>
             <button (click)="remove(bandista.id)">Elimina</button>
           </td>
         </tr>
