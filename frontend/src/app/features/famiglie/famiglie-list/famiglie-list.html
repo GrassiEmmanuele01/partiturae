@@ -1,0 +1,32 @@
+<div class="page-header">
+  <h2>Famiglie strumenti</h2>
+  <a routerLink="/famiglie/nuovo" class="btn-primary">+ Nuova famiglia</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (famiglie().length === 0) {
+  <p>Nessuna famiglia registrata.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (famiglia of famiglie(); track famiglia.id) {
+        <tr>
+          <td>{{ famiglia.nome }}</td>
+          <td class="actions">
+            <a [routerLink]="['/famiglie', famiglia.id]">Modifica</a>
+            <button (click)="remove(famiglia.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

@@ -1,0 +1,34 @@
+<div class="page-header">
+  <h2>Strumenti (dettaglio)</h2>
+  <a routerLink="/strumenti-figli/nuovo" class="btn-primary">+ Nuovo</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (strumentiFigli().length === 0) {
+  <p>Nessun elemento registrato.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Strumento</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (sf of strumentiFigli(); track sf.id) {
+        <tr>
+          <td>{{ sf.nome }}</td>
+          <td>{{ sf.strumentoNome }}</td>
+          <td class="actions">
+            <a [routerLink]="['/strumenti-figli', sf.id]">Modifica</a>
+            <button (click)="remove(sf.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

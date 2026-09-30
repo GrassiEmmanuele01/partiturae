@@ -6,6 +6,12 @@ import { PartitureList } from './features/partiture/partiture-list/partiture-lis
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
 import { AutoriList } from './features/autori/autori-list/autori-list';
 import { AutoreForm } from './features/autori/autore-form/autore-form';
+import { FamiglieList } from './features/famiglie/famiglie-list/famiglie-list';
+import { FamigliaForm } from './features/famiglie/famiglia-form/famiglia-form';
+import { StrumentiList } from './features/strumenti/strumenti-list/strumenti-list';
+import { StrumentoForm } from './features/strumenti/strumento-form/strumento-form';
+import { StrumentiFigliList } from './features/strumenti-figli/strumenti-figli-list/strumenti-figli-list';
+import { StrumentoFiglioForm } from './features/strumenti-figli/strumento-figlio-form/strumento-figlio-form';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -18,5 +24,14 @@ export const routes: Routes = [
   { path: 'autori', component: AutoriList },
   { path: 'autori/nuovo', component: AutoreForm },
   { path: 'autori/:id', component: AutoreForm },
+  { path: 'famiglie', component: FamiglieList },
+  { path: 'famiglie/nuovo', component: FamigliaForm },
+  { path: 'famiglie/:id', component: FamigliaForm },
+  { path: 'strumenti', component: StrumentiList },
+  { path: 'strumenti/nuovo', component: StrumentoForm },
+  { path: 'strumenti/:id', component: StrumentoForm },
+  { path: 'strumenti-figli', component: StrumentiFigliList },
+  { path: 'strumenti-figli/nuovo', component: StrumentoFiglioForm },
+  { path: 'strumenti-figli/:id', component: StrumentoFiglioForm },
   { path: '**', redirectTo: '' }
 ];
