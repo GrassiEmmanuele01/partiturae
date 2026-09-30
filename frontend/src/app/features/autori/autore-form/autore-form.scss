@@ -21,7 +21,6 @@ form {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  position: relative;
 
   label {
     font-size: 0.85rem;
@@ -29,13 +28,11 @@ form {
     color: #374151;
   }
 
-  input,
-  textarea {
+  input {
     padding: 0.5rem 0.75rem;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     font-size: 0.95rem;
-    font-family: inherit;
 
     &:focus {
       outline: none;
@@ -44,42 +41,8 @@ form {
   }
 }
 
-.autocomplete {
-  .suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 0.25rem 0 0;
-    padding: 0.25rem 0;
-    list-style: none;
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-height: 180px;
-    overflow-y: auto;
-    z-index: 10;
-
-    li {
-      padding: 0.5rem 0.75rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-
-      &:hover {
-        background: #f3f4f6;
-      }
-    }
-  }
-}
-
 .field-error {
   color: #dc2626;
-  font-size: 0.8rem;
-}
-
-.field-hint {
-  color: #9ca3af;
   font-size: 0.8rem;
 }
 

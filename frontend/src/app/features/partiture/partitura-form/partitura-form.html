@@ -24,19 +24,32 @@
       <input id="anno" type="number" formControlName="anno">
     </div>
 
-    <div class="field">
-      <label for="autoreId">Autore</label>
-      <select id="autoreId" formControlName="autoreId">
-        <option [ngValue]="null" disabled>Seleziona un autore</option>
-        @for (autore of autori(); track autore.id) {
-          <option [ngValue]="autore.id">{{ autore.nominativo }}</option>
-        }
-      </select>
-      @if (form.controls.autoreId.invalid && form.controls.autoreId.touched) {
+    <div class="field autocomplete">
+      <label for="autoreNome">Autore</label>
+      <input
+        id="autoreNome"
+        type="text"
+        formControlName="autoreNome"
+        autocomplete="off"
+        placeholder="Scrivi il nome dell'autore..."
+        (input)="onAutoreInput()"
+        (focus)="onAutoreInput()"
+        (blur)="hideSuggestionsDelayed()"
+      >
+
+      @if (suggestions().length > 0) {
+        <ul class="suggestions">
+          @for (autore of suggestions(); track autore.id) {
+            <li (mousedown)="selectAutore(autore)">{{ autore.nominativo }}</li>
+          }
+        </ul>
+      }
+
+      @if (form.controls.autoreNome.invalid && form.controls.autoreNome.touched) {
         <span class="field-error">L'autore è obbligatorio</span>
       }
-      @if (autori().length === 0) {
-        <span class="field-hint">Nessun autore ancora presente — creane uno via Postman su POST /api/autori.</span>
+      @if (willCreateNewAutore()) {
+        <span class="field-hint">Verrà creato un nuovo autore "{{ form.controls.autoreNome.value }}"</span>
       }
     </div>
 

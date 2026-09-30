@@ -1,0 +1,32 @@
+<div class="page-header">
+  <h2>Autori</h2>
+  <a routerLink="/autori/nuovo" class="btn-primary">+ Nuovo autore</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (autori().length === 0) {
+  <p>Nessun autore registrato.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nominativo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (autore of autori(); track autore.id) {
+        <tr>
+          <td>{{ autore.nominativo }}</td>
+          <td class="actions">
+            <a [routerLink]="['/autori', autore.id]">Modifica</a>
+            <button (click)="remove(autore.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
