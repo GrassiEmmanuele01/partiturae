@@ -1,0 +1,107 @@
+<div class="page-header">
+  <a routerLink="/partiture" class="back-link">&larr; Torna alle partiture</a>
+  @if (partitura(); as p) {
+    <h2>{{ p.nome }}</h2>
+    <p class="subtitle">{{ p.autore.nominativo }} @if (p.anno) { · {{ p.anno }} }</p>
+  }
+</div>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+<section class="add-parte">
+  <h3>Aggiungi parte</h3>
+  <form [formGroup]="form" (ngSubmit)="addParte()">
+    <div class="field">
+      <label for="nome">Nome parte</label>
+      <input id="nome" type="text" formControlName="nome" placeholder="es. Clarinetto 1">
+      @if (form.controls.nome.invalid && form.controls.nome.touched) {
+        <span class="field-error">Il nome è obbligatorio</span>
+      }
+    </div>
+
+    <div class="field autocomplete">
+      <label for="strumentoFiglioNome">Strumento</label>
+      <input
+        id="strumentoFiglioNome"
+        type="text"
+        formControlName="strumentoFiglioNome"
+        autocomplete="off"
+        placeholder="Scrivi il nome dello strumento..."
+        (input)="onStrumentoInput()"
+        (focus)="onStrumentoInput()"
+        (blur)="hideSuggestionsDelayed()"
+      >
+
+      @if (suggestions().length > 0) {
+        <ul class="suggestions">
+          @for (sf of suggestions(); track sf.id) {
+            <li (mousedown)="selectStrumento(sf)">{{ sf.nome }}</li>
+          }
+        </ul>
+      }
+
+      @if (form.controls.strumentoFiglioNome.invalid && form.controls.strumentoFiglioNome.touched) {
+        <span class="field-error">Lo strumento è obbligatorio</span>
+      }
+      @if (strumentiFigli().length === 0) {
+        <span class="field-hint">Nessuno strumento presente — <a routerLink="/strumenti-figli/nuovo">creane uno</a>.</span>
+      }
+    </div>
+
+    <div class="field-checkbox">
+      <label>
+        <input type="checkbox" formControlName="libretto">
+        È un libretto
+      </label>
+    </div>
+
+    <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Aggiungi parte' }}</button>
+  </form>
+</section>
+
+<section class="parti-list">
+  <h3>Parti</h3>
+
+  @if (loading()) {
+    <p>Caricamento...</p>
+  } @else if (parti().length === 0) {
+    <p>Nessuna parte ancora aggiunta.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Strumento</th>
+          <th>Libretto</th>
+          <th>PDF</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (parte of parti(); track parte.id) {
+          <tr>
+            <td>{{ parte.nome }}</td>
+            <td>{{ parte.strumentoFiglioNome }}</td>
+            <td>{{ parte.libretto ? 'Sì' : 'No' }}</td>
+            <td>
+              @if (parte.pdfNome) {
+                <a [href]="pdfUrl(parte.id)" target="_blank">{{ parte.pdfNome }}</a>
+              } @else {
+                <span class="no-pdf">Nessun PDF</span>
+              }
+              <label class="upload-label">
+                {{ uploadingId() === parte.id ? 'Caricamento...' : (parte.pdfNome ? 'Sostituisci' : 'Carica') }}
+                <input type="file" accept="application/pdf" (change)="onFileSelected($event, parte.id)" [disabled]="uploadingId() === parte.id">
+              </label>
+            </td>
+            <td class="actions">
+              <button (click)="removeParte(parte.id)">Elimina</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

@@ -26,6 +26,7 @@
           <td>{{ partitura.autore.nominativo }}</td>
           <td>{{ partitura.anno || '-' }}</td>
           <td class="actions">
+            <a [routerLink]="['/partiture', partitura.id, 'parti']">Parti</a>
             <a [routerLink]="['/partiture', partitura.id]">Modifica</a>
             <button (click)="remove(partitura.id)">Elimina</button>
           </td>
