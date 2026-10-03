@@ -1,6 +1,9 @@
 package com.grassi.partiturae.services;
 
+import java.time.Year;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,15 +12,23 @@ import com.grassi.partiturae.dto.BandistaRequest;
 import com.grassi.partiturae.dto.BandistaResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
 import com.grassi.partiturae.model.Bandista;
+import com.grassi.partiturae.model.Strumento;
 import com.grassi.partiturae.repositories.BandistaRepository;
+import com.grassi.partiturae.repositories.TesseramentoRepository;
 
 @Service
 public class BandistaService {
 
     private final BandistaRepository bandistaRepository;
+    private final TesseramentoRepository tesseramentoRepository;
+    private final StrumentoService strumentoService;
 
-    public BandistaService(BandistaRepository bandistaRepository) {
+    public BandistaService(BandistaRepository bandistaRepository,
+                            TesseramentoRepository tesseramentoRepository,
+                            StrumentoService strumentoService) {
         this.bandistaRepository = bandistaRepository;
+        this.tesseramentoRepository = tesseramentoRepository;
+        this.strumentoService = strumentoService;
     }
 
     @Transactional(readOnly = true)
@@ -64,12 +75,31 @@ public class BandistaService {
         bandistaRepository.delete(bandista);
     }
 
-    private Bandista findEntityById(Long id) {
+    @Transactional
+    public BandistaResponse updateStrumenti(Long id, List<Long> strumentoIds) {
+        Bandista bandista = findEntityById(id);
+
+        Set<Strumento> strumenti = new HashSet<>();
+        for (Long strumentoId : strumentoIds) {
+            strumenti.add(strumentoService.findEntityById(strumentoId));
+        }
+
+        bandista.setStrumenti(strumenti);
+
+        return toResponse(bandistaRepository.save(bandista));
+    }
+
+    Bandista findEntityById(Long id) {
         return bandistaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bandista non trovato con id: " + id));
     }
 
     private BandistaResponse toResponse(Bandista bandista) {
+        int annoCorrente = Year.now().getValue();
+        boolean tesserato = tesseramentoRepository.findByBandistaIdAndAnno(bandista.getId(), annoCorrente)
+                .map(t -> Boolean.TRUE.equals(t.getTesserato()))
+                .orElse(false);
+
         return BandistaResponse.builder()
                 .id(bandista.getId())
                 .nome(bandista.getNome())
@@ -77,6 +107,10 @@ public class BandistaService {
                 .mail(bandista.getMail())
                 .codiceFiscale(bandista.getCodiceFiscale())
                 .telefono(bandista.getTelefono())
+                .strumenti(bandista.getStrumenti().stream()
+                        .map(strumentoService::toResponse)
+                        .toList())
+                .tesseratoAnnoCorrente(tesserato)
                 .build();
     }
 }

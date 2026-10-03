@@ -1,5 +1,7 @@
 package com.grassi.partiturae.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,4 +20,6 @@ public class BandistaResponse {
     private String mail;
     private String codiceFiscale;
     private String telefono;
+    private List<StrumentoResponse> strumenti;
+    private boolean tesseratoAnnoCorrente;
 }

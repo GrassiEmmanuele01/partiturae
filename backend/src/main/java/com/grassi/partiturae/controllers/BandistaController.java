@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.grassi.partiturae.dto.BandistaRequest;
 import com.grassi.partiturae.dto.BandistaResponse;
+import com.grassi.partiturae.dto.BandistaStrumentiRequest;
 import com.grassi.partiturae.services.BandistaService;
 
 import jakarta.validation.Valid;
@@ -47,6 +48,11 @@ public class BandistaController {
     @PutMapping("/{id}")
     public ResponseEntity<BandistaResponse> update(@PathVariable Long id, @Valid @RequestBody BandistaRequest request) {
         return ResponseEntity.ok(bandistaService.update(id, request));
+    }
+
+    @PutMapping("/{id}/strumenti")
+    public ResponseEntity<BandistaResponse> updateStrumenti(@PathVariable Long id, @Valid @RequestBody BandistaStrumentiRequest request) {
+        return ResponseEntity.ok(bandistaService.updateStrumenti(id, request.getStrumentoIds()));
     }
 
     @DeleteMapping("/{id}")
