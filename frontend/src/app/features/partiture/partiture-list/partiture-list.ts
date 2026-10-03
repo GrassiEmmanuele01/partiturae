@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { Partitura } from '../partitura.model';
+import { Partitura, TIPO_PARTITURA_LABELS } from '../partitura.model';
 import { PartituraService } from '../partitura.service';
 
 @Component({
@@ -16,6 +16,7 @@ export class PartitureList {
   partiture = signal<Partitura[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  tipoLabels = TIPO_PARTITURA_LABELS;
 
   constructor() {
     this.load();

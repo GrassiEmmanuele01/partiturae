@@ -24,6 +24,19 @@
       <input id="anno" type="number" formControlName="anno">
     </div>
 
+    <div class="field">
+      <label for="tipo">Tipologia</label>
+      <select id="tipo" formControlName="tipo">
+        <option [ngValue]="null" disabled>Seleziona una tipologia</option>
+        @for (t of tipi; track t[0]) {
+          <option [ngValue]="t[0]">{{ t[1] }}</option>
+        }
+      </select>
+      @if (form.controls.tipo.invalid && form.controls.tipo.touched) {
+        <span class="field-error">La tipologia è obbligatoria</span>
+      }
+    </div>
+
     <div class="field autocomplete">
       <label for="autoreNome">Autore</label>
       <input

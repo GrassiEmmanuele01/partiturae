@@ -6,6 +6,7 @@ import { Observable, map, of } from 'rxjs';
 import { Autore } from '../../autori/autore.model';
 import { AutoreService } from '../../autori/autore.service';
 import { PartituraService } from '../partitura.service';
+import { TIPO_PARTITURA_LABELS, TipoPartitura } from '../partitura.model';
 
 @Component({
   selector: 'app-partitura-form',
@@ -28,10 +29,13 @@ export class PartituraForm {
   saving = signal(false);
   error = signal<string | null>(null);
 
+  tipi = Object.entries(TIPO_PARTITURA_LABELS) as [TipoPartitura, string][];
+
   form = this.fb.nonNullable.group({
     nome: ['', Validators.required],
     descrizione: [''],
     anno: this.fb.control<number | null>(null),
+    tipo: this.fb.control<TipoPartitura | null>(null, Validators.required),
     autoreNome: ['', Validators.required]
   });
 
@@ -61,6 +65,7 @@ export class PartituraForm {
             nome: partitura.nome,
             descrizione: partitura.descrizione ?? '',
             anno: partitura.anno,
+            tipo: partitura.tipo,
             autoreNome: partitura.autore.nominativo
           });
           this.selectedAutoreId.set(partitura.autore.id);
@@ -97,7 +102,6 @@ export class PartituraForm {
   }
 
   hideSuggestionsDelayed(): void {
-    // ritardo per lasciare il tempo al (mousedown) di registrare il click prima che il blur nasconda la lista
     setTimeout(() => this.suggestions.set([]), 150);
   }
 
@@ -118,6 +122,7 @@ export class PartituraForm {
           nome: value.nome,
           descrizione: value.descrizione || null,
           anno: value.anno,
+          tipo: value.tipo as TipoPartitura,
           autoreId
         };
 
