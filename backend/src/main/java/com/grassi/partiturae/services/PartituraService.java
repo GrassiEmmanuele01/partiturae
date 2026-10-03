@@ -43,6 +43,7 @@ public class PartituraService {
                 .nome(request.getNome())
                 .descrizione(request.getDescrizione())
                 .anno(request.getAnno())
+                .tipo(request.getTipo())
                 .autore(autore)
                 .build();
 
@@ -57,6 +58,7 @@ public class PartituraService {
         partitura.setNome(request.getNome());
         partitura.setDescrizione(request.getDescrizione());
         partitura.setAnno(request.getAnno());
+        partitura.setTipo(request.getTipo());
         partitura.setAutore(autore);
 
         return toResponse(partituraRepository.save(partitura));
@@ -73,12 +75,13 @@ public class PartituraService {
                 .orElseThrow(() -> new ResourceNotFoundException("Partitura non trovata con id: " + id));
     }
 
-    private PartituraResponse toResponse(Partitura partitura) {
+    PartituraResponse toResponse(Partitura partitura) {
         return PartituraResponse.builder()
                 .id(partitura.getId())
                 .nome(partitura.getNome())
                 .descrizione(partitura.getDescrizione())
                 .anno(partitura.getAnno())
+                .tipo(partitura.getTipo())
                 .autore(autoreService.toResponse(partitura.getAutore()))
                 .build();
     }

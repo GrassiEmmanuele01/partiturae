@@ -1,5 +1,7 @@
 package com.grassi.partiturae.dto;
 
+import com.grassi.partiturae.model.TipoPartitura;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +18,6 @@ public class PartituraResponse {
     private String nome;
     private String descrizione;
     private Integer anno;
+    private TipoPartitura tipo;
     private AutoreResponse autore;
 }

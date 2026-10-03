@@ -1,5 +1,6 @@
 package com.grassi.partiturae.dto;
 
+import com.grassi.partiturae.model.TipoPartitura;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -27,6 +28,9 @@ public class PartituraRequest {
     @Min(value = 1000, message = "Anno non valido")
     @Max(value = 2100, message = "Anno non valido")
     private Integer anno;
+
+    @NotNull(message = "La tipologia è obbligatoria")
+    private TipoPartitura tipo;
 
     @NotNull(message = "L'autore è obbligatorio")
     private Long autoreId;
