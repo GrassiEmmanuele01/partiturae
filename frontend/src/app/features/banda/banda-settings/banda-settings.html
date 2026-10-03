@@ -1,0 +1,47 @@
+<div class="page-header">
+  <h2>Impostazioni banda</h2>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else {
+  <section class="logo-section">
+    <h3>Logo</h3>
+    @if (hasLogo()) {
+      <img [src]="logoUrl()" alt="Logo banda" class="logo-preview">
+    } @else {
+      <p class="no-logo">Nessun logo caricato.</p>
+    }
+    <label class="upload-label">
+      {{ uploadingLogo() ? 'Caricamento...' : (hasLogo() ? 'Sostituisci logo' : 'Carica logo') }}
+      <input type="file" accept="image/png,image/jpeg,image/svg+xml" (change)="onLogoSelected($event)" [disabled]="uploadingLogo()">
+    </label>
+  </section>
+
+  <section class="data-section">
+    <h3>Dati banda</h3>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="nome">Nome</label>
+        <input id="nome" type="text" formControlName="nome">
+        @if (form.controls.nome.invalid && form.controls.nome.touched) {
+          <span class="field-error">Il nome è obbligatorio</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="descrizione">Descrizione</label>
+        <textarea id="descrizione" formControlName="descrizione" rows="4"></textarea>
+      </div>
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+      @if (success()) {
+        <p class="success">{{ success() }}</p>
+      }
+
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
+    </form>
+  </section>
+}

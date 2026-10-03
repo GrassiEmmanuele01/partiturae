@@ -13,6 +13,7 @@ import { StrumentiList } from './features/strumenti/strumenti-list/strumenti-lis
 import { StrumentoForm } from './features/strumenti/strumento-form/strumento-form';
 import { StrumentiFigliList } from './features/strumenti-figli/strumenti-figli-list/strumenti-figli-list';
 import { StrumentoFiglioForm } from './features/strumenti-figli/strumento-figlio-form/strumento-figlio-form';
+import { BandaSettings } from './features/banda/banda-settings/banda-settings';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -35,5 +36,6 @@ export const routes: Routes = [
   { path: 'strumenti-figli', component: StrumentiFigliList },
   { path: 'strumenti-figli/nuovo', component: StrumentoFiglioForm },
   { path: 'strumenti-figli/:id', component: StrumentoFiglioForm },
+  { path: 'banda', component: BandaSettings },
   { path: '**', redirectTo: '' }
 ];
