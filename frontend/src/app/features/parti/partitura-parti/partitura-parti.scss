@@ -95,6 +95,23 @@ section {
   }
 }
 
+.cascade {
+  flex-basis: 100%;
+  border-left: 3px solid #bfdbfe;
+  padding-left: 1rem;
+  margin-left: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cascade-hint {
+  flex-basis: 100%;
+  margin: 0;
+  color: #2563eb;
+  font-size: 0.85rem;
+}
+
 .autocomplete .suggestions {
   position: absolute;
   top: 100%;
@@ -122,13 +139,13 @@ section {
   }
 }
 
-.field-error {
-  color: #dc2626;
+.muted {
+  color: #9ca3af;
   font-size: 0.8rem;
 }
 
-.field-hint {
-  color: #9ca3af;
+.field-error {
+  color: #dc2626;
   font-size: 0.8rem;
 }
 

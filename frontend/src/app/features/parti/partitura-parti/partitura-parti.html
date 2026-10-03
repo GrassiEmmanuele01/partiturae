@@ -15,7 +15,7 @@
   <form [formGroup]="form" (ngSubmit)="addParte()">
     <div class="field">
       <label for="nome">Nome parte</label>
-      <input id="nome" type="text" formControlName="nome" placeholder="es. Clarinetto 1">
+      <input id="nome" type="text" formControlName="nome" placeholder="es. Flicorno tenore 2">
       @if (form.controls.nome.invalid && form.controls.nome.touched) {
         <span class="field-error">Il nome è obbligatorio</span>
       }
@@ -29,15 +29,15 @@
         formControlName="strumentoFiglioNome"
         autocomplete="off"
         placeholder="Scrivi il nome dello strumento..."
-        (input)="onStrumentoInput()"
-        (focus)="onStrumentoInput()"
-        (blur)="hideSuggestionsDelayed()"
+        (input)="onStrumentoFiglioInput()"
+        (focus)="onStrumentoFiglioInput()"
+        (blur)="hideSfSuggestionsDelayed()"
       >
 
-      @if (suggestions().length > 0) {
+      @if (sfSuggestions().length > 0) {
         <ul class="suggestions">
-          @for (sf of suggestions(); track sf.id) {
-            <li (mousedown)="selectStrumento(sf)">{{ sf.nome }}</li>
+          @for (sf of sfSuggestions(); track sf.id) {
+            <li (mousedown)="selectStrumentoFiglio(sf)">{{ sf.nome }} <span class="muted">({{ sf.strumentoNome }})</span></li>
           }
         </ul>
       }
@@ -45,16 +45,76 @@
       @if (form.controls.strumentoFiglioNome.invalid && form.controls.strumentoFiglioNome.touched) {
         <span class="field-error">Lo strumento è obbligatorio</span>
       }
-      @if (strumentiFigli().length === 0) {
-        <span class="field-hint">Nessuno strumento presente — <a routerLink="/strumenti-figli/nuovo">creane uno</a>.</span>
-      }
     </div>
+
+    @if (creatingStrumentoFiglio()) {
+      <div class="cascade">
+        <p class="cascade-hint">
+          "{{ form.controls.strumentoFiglioNome.value }}" non esiste ancora — verrà creato. A quale strumento appartiene?
+        </p>
+
+        <div class="field autocomplete">
+          <label for="strumentoNome">Strumento generico</label>
+          <input
+            id="strumentoNome"
+            type="text"
+            autocomplete="off"
+            placeholder="es. Flicorno tenore"
+            [value]="strumentoNome()"
+            (input)="onStrumentoInput($any($event.target).value)"
+            (blur)="hideStrumentoSuggestionsDelayed()"
+          >
+
+          @if (strumentoSuggestions().length > 0) {
+            <ul class="suggestions">
+              @for (s of strumentoSuggestions(); track s.id) {
+                <li (mousedown)="selectStrumento(s)">{{ s.nome }} <span class="muted">({{ s.famigliaNome }})</span></li>
+              }
+            </ul>
+          }
+        </div>
+
+        @if (creatingStrumento()) {
+          <div class="cascade">
+            <p class="cascade-hint">
+              Anche "{{ strumentoNome() }}" non esiste ancora — verrà creato. Di che famiglia fa parte?
+            </p>
+
+            <div class="field autocomplete">
+              <label for="famigliaNome">Famiglia</label>
+              <input
+                id="famigliaNome"
+                type="text"
+                autocomplete="off"
+                placeholder="es. Ottoni"
+                [value]="famigliaNome()"
+                (input)="onFamigliaInput($any($event.target).value)"
+                (blur)="hideFamigliaSuggestionsDelayed()"
+              >
+
+              @if (famigliaSuggestions().length > 0) {
+                <ul class="suggestions">
+                  @for (f of famigliaSuggestions(); track f.id) {
+                    <li (mousedown)="selectFamiglia(f)">{{ f.nome }}</li>
+                  }
+                </ul>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
 
     <div class="field-checkbox">
       <label>
         <input type="checkbox" formControlName="libretto">
         È un libretto
       </label>
+    </div>
+
+    <div class="field">
+      <label for="pdfNuovaParte">PDF (opzionale, puoi caricarlo anche dopo)</label>
+      <input id="pdfNuovaParte" type="file" accept="application/pdf" (change)="onFileSelectedForNewParte($event)">
     </div>
 
     <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Aggiungi parte' }}</button>
