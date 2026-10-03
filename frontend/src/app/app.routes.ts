@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 import { BandistiList } from './features/bandisti/bandisti-list/bandisti-list';
 import { BandistaForm } from './features/bandisti/bandista-form/bandista-form';
+import { BandistaMusicale } from './features/bandisti/bandista-musicale/bandista-musicale';
 import { PartitureList } from './features/partiture/partiture-list/partiture-list';
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
 import { PartituraParti } from './features/parti/partitura-parti/partitura-parti';
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: '', component: Home },
   { path: 'bandisti', component: BandistiList },
   { path: 'bandisti/nuovo', component: BandistaForm },
+  { path: 'bandisti/:id/musicale', component: BandistaMusicale },
   { path: 'bandisti/:id', component: BandistaForm },
   { path: 'partiture', component: PartitureList },
   { path: 'partiture/nuovo', component: PartituraForm },

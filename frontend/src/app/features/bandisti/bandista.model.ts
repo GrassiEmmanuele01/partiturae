@@ -1,3 +1,5 @@
+import { Strumento } from '../strumenti/strumento.model';
+
 export interface Bandista {
   id: number;
   nome: string;
@@ -5,6 +7,8 @@ export interface Bandista {
   mail: string;
   codiceFiscale: string | null;
   telefono: string | null;
+  strumenti: Strumento[];
+  tesseratoAnnoCorrente: boolean;
 }
 
 export interface BandistaRequest {
@@ -13,4 +17,15 @@ export interface BandistaRequest {
   mail: string;
   codiceFiscale?: string | null;
   telefono?: string | null;
+}
+
+export interface Tesseramento {
+  anno: number;
+  tesserato: boolean;
+}
+
+export interface TesseramentoSummary {
+  tesseratoAnnoCorrente: boolean;
+  anniTesserato: number;
+  anni: number[];
 }

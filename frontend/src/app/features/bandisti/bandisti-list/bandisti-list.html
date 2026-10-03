@@ -16,7 +16,8 @@
         <th>Nome</th>
         <th>Cognome</th>
         <th>Email</th>
-        <th>Telefono</th>
+        <th>Strumenti</th>
+        <th>Tesserato {{ annoCorrente }}</th>
         <th></th>
       </tr>
     </thead>
@@ -26,8 +27,20 @@
           <td>{{ bandista.nome }}</td>
           <td>{{ bandista.cognome }}</td>
           <td>{{ bandista.mail }}</td>
-          <td>{{ bandista.telefono || '-' }}</td>
+          <td>
+            @if (bandista.strumenti.length === 0) {
+              <span class="muted">-</span>
+            } @else {
+              {{ bandista.strumenti.map(s => s.nome).join(', ') }}
+            }
+          </td>
+          <td>
+            <span class="badge" [class.ok]="bandista.tesseratoAnnoCorrente" [class.ko]="!bandista.tesseratoAnnoCorrente">
+              {{ bandista.tesseratoAnnoCorrente ? 'Sì' : 'No' }}
+            </span>
+          </td>
           <td class="actions">
+            <a [routerLink]="['/bandisti', bandista.id, 'musicale']">Musicale</a>
             <a [routerLink]="['/bandisti', bandista.id]">Modifica</a>
             <button (click)="remove(bandista.id)">Elimina</button>
           </td>

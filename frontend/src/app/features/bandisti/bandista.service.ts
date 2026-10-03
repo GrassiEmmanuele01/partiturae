@@ -26,6 +26,10 @@ export class BandistaService {
     return this.http.put<Bandista>(`${this.baseUrl}/${id}`, request);
   }
 
+  updateStrumenti(id: number, strumentoIds: number[]): Observable<Bandista> {
+    return this.http.put<Bandista>(`${this.baseUrl}/${id}/strumenti`, { strumentoIds });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
