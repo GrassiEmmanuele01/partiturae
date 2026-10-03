@@ -6,6 +6,9 @@ import { BandistaMusicale } from './features/bandisti/bandista-musicale/bandista
 import { PartitureList } from './features/partiture/partiture-list/partiture-list';
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
 import { PartituraParti } from './features/parti/partitura-parti/partitura-parti';
+import { LibrettiList } from './features/libretti/libretti-list/libretti-list';
+import { LibrettoForm } from './features/libretti/libretto-form/libretto-form';
+import { LibrettoDettaglio } from './features/libretti/libretto-dettaglio/libretto-dettaglio';
 import { AutoriList } from './features/autori/autori-list/autori-list';
 import { AutoreForm } from './features/autori/autore-form/autore-form';
 import { FamiglieList } from './features/famiglie/famiglie-list/famiglie-list';
@@ -26,6 +29,10 @@ export const routes: Routes = [
   { path: 'partiture/nuovo', component: PartituraForm },
   { path: 'partiture/:id/parti', component: PartituraParti },
   { path: 'partiture/:id', component: PartituraForm },
+  { path: 'libretti', component: LibrettiList },
+  { path: 'libretti/nuovo', component: LibrettoForm },
+  { path: 'libretti/:id/modifica', component: LibrettoForm },
+  { path: 'libretti/:id', component: LibrettoDettaglio },
   { path: 'autori', component: AutoriList },
   { path: 'autori/nuovo', component: AutoreForm },
   { path: 'autori/:id', component: AutoreForm },

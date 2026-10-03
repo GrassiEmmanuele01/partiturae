@@ -1,0 +1,37 @@
+<div class="page-header">
+  <h2>Libretti</h2>
+  <a routerLink="/libretti/nuovo" class="btn-primary">+ Nuovo libretto</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (libretti().length === 0) {
+  <p>Nessun libretto registrato.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Anno</th>
+        <th>Partiture</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (libretto of libretti(); track libretto.id) {
+        <tr>
+          <td>{{ libretto.nome }}</td>
+          <td>{{ libretto.anno || '-' }}</td>
+          <td>{{ libretto.numeroPartiture }}</td>
+          <td class="actions">
+            <a [routerLink]="['/libretti', libretto.id]">Gestisci</a>
+            <a [routerLink]="['/libretti', libretto.id, 'modifica']">Modifica</a>
+            <button (click)="remove(libretto.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

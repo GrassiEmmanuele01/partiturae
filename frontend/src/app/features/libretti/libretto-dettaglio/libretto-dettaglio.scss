@@ -1,0 +1,153 @@
+.page-header {
+  margin-bottom: 1.5rem;
+
+  .back-link {
+    display: inline-block;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  .subtitle {
+    color: #6b7280;
+    margin: 0.25rem 0 0;
+  }
+}
+
+.error {
+  color: #dc2626;
+}
+
+section {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+  max-width: 560px;
+
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+  }
+}
+
+.field {
+  position: relative;
+
+  input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+}
+
+.autocomplete .suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+
+  li {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:hover {
+      background: #f3f4f6;
+    }
+  }
+}
+
+.muted {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.empty {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.partiture-ordinate {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #e5e7eb;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .ordine {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .nome {
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  .tipo {
+    color: #9ca3af;
+    font-size: 0.8rem;
+  }
+
+  .row-actions {
+    display: flex;
+    gap: 0.35rem;
+
+    button {
+      background: #f3f4f6;
+      border: none;
+      border-radius: 4px;
+      width: 1.75rem;
+      height: 1.75rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      &.remove {
+        color: #dc2626;
+      }
+    }
+  }
+}
