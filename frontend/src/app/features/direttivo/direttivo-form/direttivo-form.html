@@ -1,0 +1,74 @@
+<div class="page-header">
+  <h2>{{ membroId() ? 'Modifica carica' : 'Nuova carica' }}</h2>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field autocomplete">
+      <label for="socioNome">Socio</label>
+      <input
+        id="socioNome"
+        type="text"
+        formControlName="socioNome"
+        autocomplete="off"
+        placeholder="Scrivi nome o cognome..."
+        (input)="onSocioInput()"
+        (focus)="onSocioInput()"
+        (blur)="hideSuggestionsDelayed()"
+      >
+
+      @if (suggestions().length > 0) {
+        <ul class="suggestions">
+          @for (s of suggestions(); track s.id) {
+            <li (mousedown)="selectSocio(s)">{{ s.nome }} {{ s.cognome }}</li>
+          }
+        </ul>
+      }
+
+      @if (form.controls.socioNome.invalid && form.controls.socioNome.touched) {
+        <span class="field-error">Il socio è obbligatorio</span>
+      }
+      @if (soci().length === 0) {
+        <span class="field-hint">Nessun socio nel sistema — <a routerLink="/soci/nuovo">creane uno</a>.</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="carica">Carica</label>
+      <input id="carica" type="text" formControlName="carica" placeholder="es. Presidente, Segretario...">
+      @if (form.controls.carica.invalid && form.controls.carica.touched) {
+        <span class="field-error">La carica è obbligatoria</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="annoInizio">Anno di inizio mandato</label>
+      <input id="annoInizio" type="number" formControlName="annoInizio">
+    </div>
+
+    <div class="field-checkbox">
+      <label>
+        <input type="checkbox" formControlName="mandatoInCorso">
+        Mandato ancora in corso
+      </label>
+    </div>
+
+    @if (!form.controls.mandatoInCorso.value) {
+      <div class="field">
+        <label for="annoFine">Anno di fine mandato</label>
+        <input id="annoFine" type="number" formControlName="annoFine">
+      </div>
+    }
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
+      <a routerLink="/direttivo" class="btn-secondary">Annulla</a>
+    </div>
+  </form>
+}
