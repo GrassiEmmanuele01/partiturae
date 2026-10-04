@@ -1,7 +1,7 @@
 <div class="page-header">
   <a routerLink="/bandisti" class="back-link">&larr; Torna ai bandisti</a>
   @if (bandista(); as b) {
-    <h2>{{ b.nome }} {{ b.cognome }} — sezione musicale</h2>
+    <h2>{{ b.socio.nome }} {{ b.socio.cognome }} — sezione musicale</h2>
   }
 </div>
 

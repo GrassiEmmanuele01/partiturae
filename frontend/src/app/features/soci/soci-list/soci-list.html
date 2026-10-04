@@ -1,0 +1,46 @@
+<div class="page-header">
+  <h2>Libro soci</h2>
+  <a routerLink="/soci/nuovo" class="btn-primary">+ Nuovo socio</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (soci().length === 0) {
+  <p>Nessun socio registrato.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Cognome</th>
+        <th>Email</th>
+        <th>Telefono</th>
+        <th>Tipo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (socio of soci(); track socio.id) {
+        <tr>
+          <td>{{ socio.nome }}</td>
+          <td>{{ socio.cognome }}</td>
+          <td>{{ socio.mail }}</td>
+          <td>{{ socio.telefono || '-' }}</td>
+          <td>
+            @if (socio.aggiunto) {
+              <span class="badge">Aggiunto</span>
+            } @else {
+              <span class="muted">Socio</span>
+            }
+          </td>
+          <td class="actions">
+            <a [routerLink]="['/soci', socio.id]">Modifica</a>
+            <button (click)="remove(socio.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

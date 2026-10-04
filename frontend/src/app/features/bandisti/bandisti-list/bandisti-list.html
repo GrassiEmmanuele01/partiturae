@@ -24,9 +24,12 @@
     <tbody>
       @for (bandista of bandisti(); track bandista.id) {
         <tr>
-          <td>{{ bandista.nome }}</td>
-          <td>{{ bandista.cognome }}</td>
-          <td>{{ bandista.mail }}</td>
+          <td>
+            {{ bandista.socio.nome }}
+            @if (bandista.socio.aggiunto) { <span class="badge-aggiunto">aggiunto</span> }
+          </td>
+          <td>{{ bandista.socio.cognome }}</td>
+          <td>{{ bandista.socio.mail }}</td>
           <td>
             @if (bandista.strumenti.length === 0) {
               <span class="muted">-</span>
@@ -41,7 +44,7 @@
           </td>
           <td class="actions">
             <a [routerLink]="['/bandisti', bandista.id, 'musicale']">Musicale</a>
-            <a [routerLink]="['/bandisti', bandista.id]">Modifica</a>
+            <a [routerLink]="['/soci', bandista.socio.id]">Anagrafica</a>
             <button (click)="remove(bandista.id)">Elimina</button>
           </td>
         </tr>

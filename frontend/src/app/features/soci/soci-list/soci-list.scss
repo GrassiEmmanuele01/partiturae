@@ -42,36 +42,19 @@ table {
   }
 }
 
-.muted {
-  color: #9ca3af;
-}
-
-.badge-aggiunto {
-  display: inline-block;
-  margin-left: 0.4rem;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  background: #fef3c7;
-  color: #b45309;
-}
-
 .badge {
   display: inline-block;
   padding: 0.15rem 0.6rem;
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
+  background: #fef3c7;
+  color: #b45309;
+}
 
-  &.ok {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-
-  &.ko {
-    background: #fee2e2;
-    color: #dc2626;
-  }
+.muted {
+  color: #9ca3af;
+  font-size: 0.85rem;
 }
 
 .actions {

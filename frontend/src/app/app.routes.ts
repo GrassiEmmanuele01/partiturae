@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
+import { SociList } from './features/soci/soci-list/soci-list';
+import { SocioForm } from './features/soci/socio-form/socio-form';
 import { BandistiList } from './features/bandisti/bandisti-list/bandisti-list';
 import { BandistaForm } from './features/bandisti/bandista-form/bandista-form';
 import { BandistaMusicale } from './features/bandisti/bandista-musicale/bandista-musicale';
@@ -21,6 +23,9 @@ import { BandaSettings } from './features/banda/banda-settings/banda-settings';
 
 export const routes: Routes = [
   { path: '', component: Home },
+  { path: 'soci', component: SociList },
+  { path: 'soci/nuovo', component: SocioForm },
+  { path: 'soci/:id', component: SocioForm },
   { path: 'bandisti', component: BandistiList },
   { path: 'bandisti/nuovo', component: BandistaForm },
   { path: 'bandisti/:id/musicale', component: BandistaMusicale },

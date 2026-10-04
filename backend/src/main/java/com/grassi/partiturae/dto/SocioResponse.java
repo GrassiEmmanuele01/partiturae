@@ -1,6 +1,5 @@
 package com.grassi.partiturae.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BandistaRequest {
-
-    @NotNull(message = "Il socio è obbligatorio")
-    private Long socioId;
+public class SocioResponse {
+    private Long id;
+    private String nome;
+    private String cognome;
+    private String mail;
+    private String codiceFiscale;
+    private String telefono;
+    private boolean aggiunto;
 }

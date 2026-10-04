@@ -1,20 +1,20 @@
 package com.grassi.partiturae.services;
 
-import java.time.Year;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.grassi.partiturae.dto.BandistaRequest;
 import com.grassi.partiturae.dto.BandistaResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
 import com.grassi.partiturae.model.Bandista;
+import com.grassi.partiturae.model.Socio;
 import com.grassi.partiturae.model.Strumento;
 import com.grassi.partiturae.repositories.BandistaRepository;
 import com.grassi.partiturae.repositories.TesseramentoRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Year;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class BandistaService {
@@ -22,13 +22,16 @@ public class BandistaService {
     private final BandistaRepository bandistaRepository;
     private final TesseramentoRepository tesseramentoRepository;
     private final StrumentoService strumentoService;
+    private final SocioService socioService;
 
     public BandistaService(BandistaRepository bandistaRepository,
                             TesseramentoRepository tesseramentoRepository,
-                            StrumentoService strumentoService) {
+                            StrumentoService strumentoService,
+                            SocioService socioService) {
         this.bandistaRepository = bandistaRepository;
         this.tesseramentoRepository = tesseramentoRepository;
         this.strumentoService = strumentoService;
+        this.socioService = socioService;
     }
 
     @Transactional(readOnly = true)
@@ -45,12 +48,10 @@ public class BandistaService {
 
     @Transactional
     public BandistaResponse create(BandistaRequest request) {
+        Socio socio = socioService.findEntityById(request.getSocioId());
+
         Bandista bandista = Bandista.builder()
-                .nome(request.getNome())
-                .cognome(request.getCognome())
-                .mail(request.getMail())
-                .codiceFiscale(request.getCodiceFiscale())
-                .telefono(request.getTelefono())
+                .socio(socio)
                 .build();
 
         return toResponse(bandistaRepository.save(bandista));
@@ -59,12 +60,8 @@ public class BandistaService {
     @Transactional
     public BandistaResponse update(Long id, BandistaRequest request) {
         Bandista bandista = findEntityById(id);
-
-        bandista.setNome(request.getNome());
-        bandista.setCognome(request.getCognome());
-        bandista.setMail(request.getMail());
-        bandista.setCodiceFiscale(request.getCodiceFiscale());
-        bandista.setTelefono(request.getTelefono());
+        Socio socio = socioService.findEntityById(request.getSocioId());
+        bandista.setSocio(socio);
 
         return toResponse(bandistaRepository.save(bandista));
     }
@@ -102,11 +99,7 @@ public class BandistaService {
 
         return BandistaResponse.builder()
                 .id(bandista.getId())
-                .nome(bandista.getNome())
-                .cognome(bandista.getCognome())
-                .mail(bandista.getMail())
-                .codiceFiscale(bandista.getCodiceFiscale())
-                .telefono(bandista.getTelefono())
+                .socio(socioService.toResponse(bandista.getSocio()))
                 .strumenti(bandista.getStrumenti().stream()
                         .map(strumentoService::toResponse)
                         .toList())
