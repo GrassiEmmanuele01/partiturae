@@ -5,55 +5,125 @@
 @if (loading()) {
   <p>Caricamento...</p>
 } @else {
-  <form [formGroup]="form" (ngSubmit)="submit()">
-    <div class="field">
-      <label for="nome">Nome</label>
-      <input id="nome" type="text" formControlName="nome">
-      @if (form.controls.nome.invalid && form.controls.nome.touched) {
-        <span class="field-error">Il nome è obbligatorio</span>
+  <section>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="nome">Nome</label>
+        <input id="nome" type="text" formControlName="nome">
+        @if (form.controls.nome.invalid && form.controls.nome.touched) {
+          <span class="field-error">Il nome è obbligatorio</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="cognome">Cognome</label>
+        <input id="cognome" type="text" formControlName="cognome">
+        @if (form.controls.cognome.invalid && form.controls.cognome.touched) {
+          <span class="field-error">Il cognome è obbligatorio</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="mail">Email</label>
+        <input id="mail" type="email" formControlName="mail">
+        @if (form.controls.mail.invalid && form.controls.mail.touched) {
+          <span class="field-error">Email obbligatoria e valida</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="codiceFiscale">Codice fiscale</label>
+        <input id="codiceFiscale" type="text" formControlName="codiceFiscale" maxlength="16">
+      </div>
+
+      <div class="field">
+        <label for="telefono">Telefono</label>
+        <input id="telefono" type="text" formControlName="telefono">
+      </div>
+
+      <div class="field-checkbox">
+        <label>
+          <input type="checkbox" formControlName="aggiunto">
+          Aggiunto (musicista temporaneo, non conta nel libro soci ufficiale)
+        </label>
+      </div>
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
       }
-    </div>
 
-    <div class="field">
-      <label for="cognome">Cognome</label>
-      <input id="cognome" type="text" formControlName="cognome">
-      @if (form.controls.cognome.invalid && form.controls.cognome.touched) {
-        <span class="field-error">Il cognome è obbligatorio</span>
+      <div class="form-actions">
+        <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
+        <a routerLink="/soci" class="btn-secondary">Annulla</a>
+      </div>
+    </form>
+  </section>
+
+  @if (socioId()) {
+    <section class="iscrizioni-section">
+      <h3>Iscrizione libro soci e tesseramento</h3>
+
+      @if (summary(); as s) {
+        <p class="summary">
+          Quest'anno:
+          <strong [class.ok]="s.iscrittoAnnoCorrente" [class.ko]="!s.iscrittoAnnoCorrente">
+            {{ s.iscrittoAnnoCorrente ? 'Iscritto' : 'Non iscritto' }}
+          </strong>
+          ({{ s.anniIscritto }} {{ s.anniIscritto === 1 ? 'anno' : 'anni' }}) —
+          <strong [class.ok]="s.tesseratoAnnoCorrente" [class.ko]="!s.tesseratoAnnoCorrente">
+            {{ s.tesseratoAnnoCorrente ? 'Tesserato' : 'Non tesserato' }}
+          </strong>
+          ({{ s.anniTesserato }} {{ s.anniTesserato === 1 ? 'anno' : 'anni' }})
+        </p>
       }
-    </div>
 
-    <div class="field">
-      <label for="mail">Email</label>
-      <input id="mail" type="email" formControlName="mail">
-      @if (form.controls.mail.invalid && form.controls.mail.touched) {
-        <span class="field-error">Email obbligatoria e valida</span>
+      @if (iscrizioni().length === 0) {
+        <p class="empty">Nessuna iscrizione registrata.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Anno</th>
+              <th>Socio</th>
+              <th>Tesserato</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of iscrizioni(); track i.anno) {
+              <tr>
+                <td>{{ i.anno }}</td>
+                <td>{{ i.iscritto ? 'Sì' : 'No' }}</td>
+                <td>{{ i.tesserato ? 'Sì' : 'No' }}</td>
+                <td class="actions">
+                  <button (click)="removeIscrizione(i.anno)">Elimina</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       }
-    </div>
 
-    <div class="field">
-      <label for="codiceFiscale">Codice fiscale</label>
-      <input id="codiceFiscale" type="text" formControlName="codiceFiscale" maxlength="16">
-    </div>
-
-    <div class="field">
-      <label for="telefono">Telefono</label>
-      <input id="telefono" type="text" formControlName="telefono">
-    </div>
-
-    <div class="field-checkbox">
-      <label>
-        <input type="checkbox" formControlName="aggiunto">
-        Aggiunto (musicista temporaneo, non conta nel libro soci ufficiale)
-      </label>
-    </div>
-
-    @if (error()) {
-      <p class="error">{{ error() }}</p>
-    }
-
-    <div class="form-actions">
-      <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
-      <a routerLink="/soci" class="btn-secondary">Annulla</a>
-    </div>
-  </form>
+      <div class="add-iscrizione">
+        <div class="field">
+          <label for="anno">Anno</label>
+          <input id="anno" type="number" [value]="nuovoAnno()" (input)="nuovoAnno.set($any($event.target).valueAsNumber)">
+        </div>
+        <div class="field-checkbox">
+          <label>
+            <input type="checkbox" [checked]="nuovoIscritto()" (change)="nuovoIscritto.set($any($event.target).checked)">
+            Iscritto
+          </label>
+        </div>
+        <div class="field-checkbox">
+          <label>
+            <input type="checkbox" [checked]="nuovoTesserato()" (change)="nuovoTesserato.set($any($event.target).checked)">
+            Tesserato
+          </label>
+        </div>
+        <button type="button" (click)="addIscrizione()">Salva</button>
+      </div>
+      <p class="field-hint">Spuntare "Tesserato" imposta automaticamente anche "Iscritto".</p>
+    </section>
+  }
 }

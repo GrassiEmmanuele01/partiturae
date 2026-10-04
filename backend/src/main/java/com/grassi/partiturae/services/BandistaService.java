@@ -7,11 +7,9 @@ import com.grassi.partiturae.model.Bandista;
 import com.grassi.partiturae.model.Socio;
 import com.grassi.partiturae.model.Strumento;
 import com.grassi.partiturae.repositories.BandistaRepository;
-import com.grassi.partiturae.repositories.TesseramentoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Year;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,16 +18,13 @@ import java.util.Set;
 public class BandistaService {
 
     private final BandistaRepository bandistaRepository;
-    private final TesseramentoRepository tesseramentoRepository;
     private final StrumentoService strumentoService;
     private final SocioService socioService;
 
     public BandistaService(BandistaRepository bandistaRepository,
-                            TesseramentoRepository tesseramentoRepository,
                             StrumentoService strumentoService,
                             SocioService socioService) {
         this.bandistaRepository = bandistaRepository;
-        this.tesseramentoRepository = tesseramentoRepository;
         this.strumentoService = strumentoService;
         this.socioService = socioService;
     }
@@ -92,18 +87,12 @@ public class BandistaService {
     }
 
     private BandistaResponse toResponse(Bandista bandista) {
-        int annoCorrente = Year.now().getValue();
-        boolean tesserato = tesseramentoRepository.findByBandistaIdAndAnno(bandista.getId(), annoCorrente)
-                .map(t -> Boolean.TRUE.equals(t.getTesserato()))
-                .orElse(false);
-
         return BandistaResponse.builder()
                 .id(bandista.getId())
                 .socio(socioService.toResponse(bandista.getSocio()))
                 .strumenti(bandista.getStrumenti().stream()
                         .map(strumentoService::toResponse)
                         .toList())
-                .tesseratoAnnoCorrente(tesserato)
                 .build();
     }
 }

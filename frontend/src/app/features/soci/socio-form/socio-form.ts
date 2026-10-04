@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { IscrizioneService } from '../iscrizione.service';
+import { Iscrizione, IscrizioneSummary } from '../socio.model';
 import { SocioService } from '../socio.service';
 
 @Component({
@@ -13,6 +15,7 @@ import { SocioService } from '../socio.service';
 export class SocioForm {
   private fb = inject(FormBuilder);
   private socioService = inject(SocioService);
+  private iscrizioneService = inject(IscrizioneService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -20,6 +23,12 @@ export class SocioForm {
   loading = signal(false);
   saving = signal(false);
   error = signal<string | null>(null);
+
+  iscrizioni = signal<Iscrizione[]>([]);
+  summary = signal<IscrizioneSummary | null>(null);
+  nuovoAnno = signal(new Date().getFullYear());
+  nuovoIscritto = signal(true);
+  nuovoTesserato = signal(false);
 
   form = this.fb.nonNullable.group({
     nome: ['', Validators.required],
@@ -54,7 +63,41 @@ export class SocioForm {
           this.loading.set(false);
         }
       });
+
+      this.loadIscrizioni();
     }
+  }
+
+  loadIscrizioni(): void {
+    const id = this.socioId();
+    if (!id) return;
+
+    this.iscrizioneService.getAll(id).subscribe({ next: (data) => this.iscrizioni.set(data) });
+    this.iscrizioneService.getSummary(id).subscribe({ next: (data) => this.summary.set(data) });
+  }
+
+  addIscrizione(): void {
+    const id = this.socioId();
+    if (!id) return;
+
+    this.iscrizioneService.upsert(id, this.nuovoAnno(), this.nuovoIscritto(), this.nuovoTesserato()).subscribe({
+      next: () => this.loadIscrizioni(),
+      error: () => this.error.set("Errore durante il salvataggio dell'iscrizione.")
+    });
+  }
+
+  removeIscrizione(anno: number): void {
+    const id = this.socioId();
+    if (!id) return;
+
+    if (!confirm(`Eliminare l'iscrizione ${anno}?`)) {
+      return;
+    }
+
+    this.iscrizioneService.delete(id, anno).subscribe({
+      next: () => this.loadIscrizioni(),
+      error: () => this.error.set("Errore durante l'eliminazione.")
+    });
   }
 
   submit(): void {

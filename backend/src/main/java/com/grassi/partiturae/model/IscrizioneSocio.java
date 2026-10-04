@@ -16,23 +16,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "tesseramento", uniqueConstraints = @UniqueConstraint(columnNames = {"bandista_id", "anno"}))
+@Table(name = "iscrizione_socio", uniqueConstraints = @UniqueConstraint(columnNames = {"socio_id", "anno"}))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Tesseramento {
+public class IscrizioneSocio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bandista_id")
-    private Bandista bandista;
+    @JoinColumn(name = "socio_id")
+    private Socio socio;
 
     private Integer anno;
 
-    private Boolean tesserato;
+    private Boolean iscritto;
 }

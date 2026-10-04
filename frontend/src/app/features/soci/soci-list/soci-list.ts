@@ -16,6 +16,7 @@ export class SociList {
   soci = signal<Socio[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  annoCorrente = new Date().getFullYear();
 
   constructor() {
     this.load();

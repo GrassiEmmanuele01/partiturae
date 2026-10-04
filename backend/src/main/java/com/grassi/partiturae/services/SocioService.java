@@ -1,23 +1,26 @@
 package com.grassi.partiturae.services;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.grassi.partiturae.dto.SocioRequest;
 import com.grassi.partiturae.dto.SocioResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
 import com.grassi.partiturae.model.Socio;
+import com.grassi.partiturae.repositories.IscrizioneSocioRepository;
 import com.grassi.partiturae.repositories.SocioRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Year;
+import java.util.List;
 
 @Service
 public class SocioService {
 
     private final SocioRepository socioRepository;
+    private final IscrizioneSocioRepository iscrizioneSocioRepository;
 
-    public SocioService(SocioRepository socioRepository) {
+    public SocioService(SocioRepository socioRepository, IscrizioneSocioRepository iscrizioneSocioRepository) {
         this.socioRepository = socioRepository;
+        this.iscrizioneSocioRepository = iscrizioneSocioRepository;
     }
 
     @Transactional(readOnly = true)
@@ -72,6 +75,11 @@ public class SocioService {
     }
 
     SocioResponse toResponse(Socio socio) {
+        int annoCorrente = Year.now().getValue();
+        boolean iscritto = iscrizioneSocioRepository.findBySocioIdAndAnno(socio.getId(), annoCorrente)
+                .map(i -> Boolean.TRUE.equals(i.getIscritto()))
+                .orElse(false);
+
         return SocioResponse.builder()
                 .id(socio.getId())
                 .nome(socio.getNome())
@@ -80,6 +88,7 @@ public class SocioService {
                 .codiceFiscale(socio.getCodiceFiscale())
                 .telefono(socio.getTelefono())
                 .aggiunto(Boolean.TRUE.equals(socio.getAggiunto()))
+                .iscrittoAnnoCorrente(iscritto)
                 .build();
     }
 }

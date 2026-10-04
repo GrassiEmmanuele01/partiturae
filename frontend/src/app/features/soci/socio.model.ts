@@ -6,6 +6,7 @@ export interface Socio {
   codiceFiscale: string | null;
   telefono: string | null;
   aggiunto: boolean;
+  iscrittoAnnoCorrente: boolean;
 }
 
 export interface SocioRequest {
@@ -15,4 +16,19 @@ export interface SocioRequest {
   codiceFiscale?: string | null;
   telefono?: string | null;
   aggiunto?: boolean;
+}
+
+export interface Iscrizione {
+  anno: number;
+  iscritto: boolean;
+  tesserato: boolean;
+}
+
+export interface IscrizioneSummary {
+  iscrittoAnnoCorrente: boolean;
+  anniIscritto: number;
+  anniIscrizione: number[];
+  tesseratoAnnoCorrente: boolean;
+  anniTesserato: number;
+  anniTesseramento: number[];
 }

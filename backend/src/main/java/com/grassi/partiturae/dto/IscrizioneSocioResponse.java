@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TesseramentoResponse {
+public class IscrizioneSocioResponse {
     private Integer anno;
-    private Boolean tesserato;
+    private Boolean iscritto;
 }

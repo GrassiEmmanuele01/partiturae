@@ -6,12 +6,21 @@
   }
 }
 
-form {
+section {
   background: #fff;
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   max-width: 480px;
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+  }
+}
+
+form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -86,6 +95,78 @@ form {
     text-decoration: none;
     color: #374151;
     border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+  }
+}
+
+.summary {
+  font-size: 0.9rem;
+  color: #374151;
+  margin-top: 0;
+
+  strong.ok {
+    color: #16a34a;
+  }
+
+  strong.ko {
+    color: #dc2626;
+  }
+}
+
+.empty {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-transform: uppercase;
+  }
+}
+
+.actions button {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.add-iscrizione {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+
+  .field {
+    min-width: 100px;
+  }
+
+  .field-checkbox label {
+    padding-bottom: 0.5rem;
+  }
+
+  button {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.55rem 1.1rem;
+    border-radius: 6px;
+    cursor: pointer;
     font-size: 0.9rem;
   }
 }

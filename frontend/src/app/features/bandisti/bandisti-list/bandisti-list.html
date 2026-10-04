@@ -17,7 +17,7 @@
         <th>Cognome</th>
         <th>Email</th>
         <th>Strumenti</th>
-        <th>Tesserato {{ annoCorrente }}</th>
+        <th>Iscritto {{ annoCorrente }}</th>
         <th></th>
       </tr>
     </thead>
@@ -38,8 +38,8 @@
             }
           </td>
           <td>
-            <span class="badge" [class.ok]="bandista.tesseratoAnnoCorrente" [class.ko]="!bandista.tesseratoAnnoCorrente">
-              {{ bandista.tesseratoAnnoCorrente ? 'Sì' : 'No' }}
+            <span class="badge" [class.ok]="bandista.socio.iscrittoAnnoCorrente" [class.ko]="!bandista.socio.iscrittoAnnoCorrente">
+              {{ bandista.socio.iscrittoAnnoCorrente ? 'Sì' : 'No' }}
             </span>
           </td>
           <td class="actions">

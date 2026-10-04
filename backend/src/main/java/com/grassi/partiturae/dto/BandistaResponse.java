@@ -17,5 +17,4 @@ public class BandistaResponse {
     private Long id;
     private SocioResponse socio;
     private List<StrumentoResponse> strumenti;
-    private boolean tesseratoAnnoCorrente;
 }

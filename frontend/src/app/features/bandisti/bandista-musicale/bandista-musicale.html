@@ -2,6 +2,13 @@
   <a routerLink="/bandisti" class="back-link">&larr; Torna ai bandisti</a>
   @if (bandista(); as b) {
     <h2>{{ b.socio.nome }} {{ b.socio.cognome }} — sezione musicale</h2>
+    <p class="subtitle">
+      Iscritto quest'anno:
+      <strong [class.ok]="b.socio.iscrittoAnnoCorrente" [class.ko]="!b.socio.iscrittoAnnoCorrente">
+        {{ b.socio.iscrittoAnnoCorrente ? 'Sì' : 'No' }}
+      </strong>
+      — <a [routerLink]="['/soci', b.socio.id]">gestisci iscrizione nell'anagrafica socio</a>
+    </p>
   }
 </div>
 
@@ -48,59 +55,6 @@
       @if (strumentiDisponibili().length === 0) {
         <span class="field-hint">Nessuno strumento nel sistema — <a routerLink="/strumenti/nuovo">creane uno</a>.</span>
       }
-    </div>
-  </section>
-
-  <section class="tesseramento-section">
-    <h3>Tesseramento</h3>
-
-    @if (summary(); as s) {
-      <p class="summary">
-        Quest'anno:
-        <strong [class.ok]="s.tesseratoAnnoCorrente" [class.ko]="!s.tesseratoAnnoCorrente">
-          {{ s.tesseratoAnnoCorrente ? 'Tesserato' : 'Non tesserato' }}
-        </strong>
-        — tesserato da {{ s.anniTesserato }} {{ s.anniTesserato === 1 ? 'anno' : 'anni' }}
-      </p>
-    }
-
-    @if (tesseramenti().length === 0) {
-      <p class="empty">Nessun tesseramento registrato.</p>
-    } @else {
-      <table>
-        <thead>
-          <tr>
-            <th>Anno</th>
-            <th>Stato</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (t of tesseramenti(); track t.anno) {
-            <tr>
-              <td>{{ t.anno }}</td>
-              <td>{{ t.tesserato ? 'Tesserato' : 'Non tesserato' }}</td>
-              <td class="actions">
-                <button (click)="removeTesseramento(t.anno)">Elimina</button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
-
-    <div class="add-tesseramento">
-      <div class="field">
-        <label for="anno">Anno</label>
-        <input id="anno" type="number" [value]="nuovoAnno()" (input)="nuovoAnno.set($any($event.target).valueAsNumber)">
-      </div>
-      <div class="field-checkbox">
-        <label>
-          <input type="checkbox" [checked]="nuovoTesserato()" (change)="nuovoTesserato.set($any($event.target).checked)">
-          Tesserato
-        </label>
-      </div>
-      <button (click)="addTesseramento()">Salva</button>
     </div>
   </section>
 }

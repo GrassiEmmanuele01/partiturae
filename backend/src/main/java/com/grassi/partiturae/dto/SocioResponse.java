@@ -19,4 +19,5 @@ public class SocioResponse {
     private String codiceFiscale;
     private String telefono;
     private boolean aggiunto;
+    private boolean iscrittoAnnoCorrente;
 }

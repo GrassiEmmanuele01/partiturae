@@ -18,6 +18,7 @@
         <th>Email</th>
         <th>Telefono</th>
         <th>Tipo</th>
+        <th>Iscritto {{ annoCorrente }}</th>
         <th></th>
       </tr>
     </thead>
@@ -30,10 +31,15 @@
           <td>{{ socio.telefono || '-' }}</td>
           <td>
             @if (socio.aggiunto) {
-              <span class="badge">Aggiunto</span>
+              <span class="badge-aggiunto">Aggiunto</span>
             } @else {
               <span class="muted">Socio</span>
             }
+          </td>
+          <td>
+            <span class="badge" [class.ok]="socio.iscrittoAnnoCorrente" [class.ko]="!socio.iscrittoAnnoCorrente">
+              {{ socio.iscrittoAnnoCorrente ? 'Sì' : 'No' }}
+            </span>
           </td>
           <td class="actions">
             <a [routerLink]="['/soci', socio.id]">Modifica</a>

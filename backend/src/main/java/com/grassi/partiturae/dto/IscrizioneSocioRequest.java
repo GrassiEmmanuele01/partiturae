@@ -12,8 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TesseramentoRequest {
+public class IscrizioneSocioRequest {
 
-    @NotNull(message = "Lo stato di tesseramento è obbligatorio")
-    private Boolean tesserato;
+    @NotNull(message = "Lo stato di iscrizione è obbligatorio")
+    private Boolean iscritto;
 }
