@@ -44,7 +44,7 @@ export class LibrettoForm {
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('Impossibile caricare il libretto.');
+          this.error.set('Impossibile caricare la raccolta.');
           this.loading.set(false);
         }
       });
@@ -69,7 +69,7 @@ export class LibrettoForm {
       : this.librettoService.create(request);
 
     request$.subscribe({
-      next: (libretto) => this.router.navigate(['/libretti', libretto.id]),
+      next: (libretto) => this.router.navigate(['/raccolte', libretto.id]),
       error: (err) => {
         this.saving.set(false);
         if (err.status === 400 && err.error?.errors) {

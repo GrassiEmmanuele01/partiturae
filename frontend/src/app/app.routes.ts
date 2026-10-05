@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
+import { Impostazioni } from './pages/impostazioni/impostazioni';
 import { SociList } from './features/soci/soci-list/soci-list';
 import { SocioForm } from './features/soci/socio-form/socio-form';
 import { DirettivoList } from './features/direttivo/direttivo-list/direttivo-list';
@@ -25,6 +26,7 @@ import { BandaSettings } from './features/banda/banda-settings/banda-settings';
 
 export const routes: Routes = [
   { path: '', component: Home },
+  { path: 'impostazioni', component: Impostazioni },
   { path: 'soci', component: SociList },
   { path: 'soci/nuovo', component: SocioForm },
   { path: 'soci/:id', component: SocioForm },
@@ -39,10 +41,10 @@ export const routes: Routes = [
   { path: 'partiture/nuovo', component: PartituraForm },
   { path: 'partiture/:id/parti', component: PartituraParti },
   { path: 'partiture/:id', component: PartituraForm },
-  { path: 'libretti', component: LibrettiList },
-  { path: 'libretti/nuovo', component: LibrettoForm },
-  { path: 'libretti/:id/modifica', component: LibrettoForm },
-  { path: 'libretti/:id', component: LibrettoDettaglio },
+  { path: 'raccolte', component: LibrettiList },
+  { path: 'raccolte/nuovo', component: LibrettoForm },
+  { path: 'raccolte/:id/modifica', component: LibrettoForm },
+  { path: 'raccolte/:id', component: LibrettoDettaglio },
   { path: 'autori', component: AutoriList },
   { path: 'autori/nuovo', component: AutoreForm },
   { path: 'autori/:id', component: AutoreForm },

@@ -1,17 +1,31 @@
 <div class="layout">
   <aside class="sidebar">
-    <h1 class="logo">Partiturae</h1>
+    <div class="brand">
+      <span class="brand-mark">♪</span>
+      <span class="brand-name">Partiturae</span>
+    </div>
+
     <nav>
-      <a routerLink="/soci" routerLinkActive="active">Libro soci</a>
-      <a routerLink="/direttivo" routerLinkActive="active">Direttivo</a>
-      <a routerLink="/bandisti" routerLinkActive="active">Bandisti</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
       <a routerLink="/partiture" routerLinkActive="active">Partiture</a>
-      <a routerLink="/libretti" routerLinkActive="active">Libretti</a>
-      <a routerLink="/autori" routerLinkActive="active">Autori</a>
-      <a routerLink="/famiglie" routerLinkActive="active">Famiglie strumenti</a>
+      <a routerLink="/raccolte" routerLinkActive="active">Raccolte</a>
       <a routerLink="/strumenti" routerLinkActive="active">Strumenti</a>
-      <a routerLink="/strumenti-figli" routerLinkActive="active">Strumenti (dettaglio)</a>
-      <a routerLink="/banda" routerLinkActive="active">Impostazioni banda</a>
+
+      <div class="nav-group">
+        <button type="button" class="nav-group-toggle" [class.open]="bandaMenuOpen()" (click)="toggleBandaMenu()">
+          <span>Banda</span>
+          <span class="chevron">&rsaquo;</span>
+        </button>
+
+        @if (bandaMenuOpen()) {
+          <div class="nav-group-items">
+            <a routerLink="/soci" routerLinkActive="active">Libro soci</a>
+            <a routerLink="/banda" routerLinkActive="active">Direzione banda</a>
+          </div>
+        }
+      </div>
+
+      <a routerLink="/impostazioni" routerLinkActive="active">Impostazioni</a>
     </nav>
   </aside>
 

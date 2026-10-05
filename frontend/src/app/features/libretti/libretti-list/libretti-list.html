@@ -1,6 +1,6 @@
 <div class="page-header">
-  <h2>Libretti</h2>
-  <a routerLink="/libretti/nuovo" class="btn-primary">+ Nuovo libretto</a>
+  <h2>Raccolte</h2>
+  <a routerLink="/raccolte/nuovo" class="btn-primary">+ Nuova raccolta</a>
 </div>
 
 @if (loading()) {
@@ -8,7 +8,7 @@
 } @else if (error()) {
   <p class="error">{{ error() }}</p>
 } @else if (libretti().length === 0) {
-  <p>Nessun libretto registrato.</p>
+  <p>Nessuna raccolta registrata.</p>
 } @else {
   <table>
     <thead>
@@ -26,8 +26,8 @@
           <td>{{ libretto.anno || '-' }}</td>
           <td>{{ libretto.numeroPartiture }}</td>
           <td class="actions">
-            <a [routerLink]="['/libretti', libretto.id]">Gestisci</a>
-            <a [routerLink]="['/libretti', libretto.id, 'modifica']">Modifica</a>
+            <a [routerLink]="['/raccolte', libretto.id]">Gestisci</a>
+            <a [routerLink]="['/raccolte', libretto.id, 'modifica']">Modifica</a>
             <button (click)="remove(libretto.id)">Elimina</button>
           </td>
         </tr>
