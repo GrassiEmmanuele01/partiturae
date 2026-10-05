@@ -13,25 +13,25 @@ export class App {
 
   protected title = 'Partiturae';
 
-  private readonly bandaRoutes = ['/soci', '/banda', '/direttivo'];
+  private readonly formazioneRoutes = ['/soci', '/formazione', '/direttivo'];
 
-  bandaMenuOpen = signal(this.isOnBandaRoute(this.router.url));
+  formazioneMenuOpen = signal(this.isOnFormazioneRoute(this.router.url));
 
   constructor() {
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => {
-        if (this.isOnBandaRoute(e.urlAfterRedirects)) {
-          this.bandaMenuOpen.set(true);
+        if (this.isOnFormazioneRoute(e.urlAfterRedirects)) {
+          this.formazioneMenuOpen.set(true);
         }
       });
   }
 
-  toggleBandaMenu(): void {
-    this.bandaMenuOpen.set(!this.bandaMenuOpen());
+  toggleFormazioneMenu(): void {
+    this.formazioneMenuOpen.set(!this.formazioneMenuOpen());
   }
 
-  private isOnBandaRoute(url: string): boolean {
-    return this.bandaRoutes.some((route) => url.startsWith(route));
+  private isOnFormazioneRoute(url: string): boolean {
+    return this.formazioneRoutes.some((route) => url.startsWith(route));
   }
 }

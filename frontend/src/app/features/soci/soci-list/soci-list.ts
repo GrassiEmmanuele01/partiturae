@@ -45,7 +45,7 @@ export class SociList {
 
     this.socioService.delete(id).subscribe({
       next: () => this.load(),
-      error: () => this.error.set("Errore durante l'eliminazione. Controlla che non sia collegato a un bandista.")
+      error: () => this.error.set("Errore durante l'eliminazione. Controlla che non sia collegato a un strumentista.")
     });
   }
 }

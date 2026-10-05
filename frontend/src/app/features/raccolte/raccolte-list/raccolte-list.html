@@ -1,0 +1,37 @@
+<div class="page-header">
+  <h2>Raccolte</h2>
+  <a routerLink="/raccolte/nuovo" class="btn-primary">+ Nuova raccolta</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (raccolte().length === 0) {
+  <p>Nessuna raccolta registrata.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Anno</th>
+        <th>Partiture</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (raccolta of raccolte(); track raccolta.id) {
+        <tr>
+          <td>{{ raccolta.nome }}</td>
+          <td>{{ raccolta.anno || '-' }}</td>
+          <td>{{ raccolta.numeroPartiture }}</td>
+          <td class="actions">
+            <a [routerLink]="['/raccolte', raccolta.id]">Gestisci</a>
+            <a [routerLink]="['/raccolte', raccolta.id, 'modifica']">Modifica</a>
+            <button (click)="remove(raccolta.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

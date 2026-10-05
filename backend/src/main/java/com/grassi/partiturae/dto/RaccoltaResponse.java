@@ -1,5 +1,7 @@
 package com.grassi.partiturae.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,13 +13,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ParteResponse {
+public class RaccoltaResponse {
     private Long id;
     private String nome;
-    private Boolean raccolta;
-    private String pdfNome;
-    private Long partituraId;
-    private String partituraNome;
-    private Long strumentoFiglioId;
-    private String strumentoFiglioNome;
+    private Integer anno;
+    private String descrizione;
+    private int numeroPartiture;
+    private List<RaccoltaPartituraResponse> partiture;
 }

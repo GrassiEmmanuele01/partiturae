@@ -46,7 +46,7 @@ public class DefaultInstrumentsSeeder implements CommandLineRunner {
     private void seedLegni() {
         Famiglia legni = creaFamiglia("Legni");
 
-        // Orchestra sinfonica e banda musicale
+        // Orchestra sinfonica e formazione musicale
         creaStrumento(legni, "Ottavino",
                 List.of("Ottavino 1", "Ottavino 2"));
 
@@ -191,7 +191,7 @@ public class DefaultInstrumentsSeeder implements CommandLineRunner {
                 List.of("Grancassa orchestrale"));
 
         creaStrumento(percussioni, "Rullante",
-                List.of("Rullante orchestrale", "Rullante da banda"));
+                List.of("Rullante orchestrale", "Rullante da formazione"));
 
         creaStrumento(percussioni, "Piatti",
                 List.of("Piatti a due", "Piatti sospesi"));

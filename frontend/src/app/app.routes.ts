@@ -5,15 +5,15 @@ import { SociList } from './features/soci/soci-list/soci-list';
 import { SocioForm } from './features/soci/socio-form/socio-form';
 import { DirettivoList } from './features/direttivo/direttivo-list/direttivo-list';
 import { DirettivoForm } from './features/direttivo/direttivo-form/direttivo-form';
-import { BandistiList } from './features/bandisti/bandisti-list/bandisti-list';
-import { BandistaForm } from './features/bandisti/bandista-form/bandista-form';
-import { BandistaMusicale } from './features/bandisti/bandista-musicale/bandista-musicale';
+import { StrumentistiList } from './features/strumentisti/strumentisti-list/strumentisti-list';
+import { StrumentistaForm } from './features/strumentisti/strumentista-form/strumentista-form';
+import { StrumentistaMusicale } from './features/strumentisti/strumentista-musicale/strumentista-musicale';
 import { PartitureList } from './features/partiture/partiture-list/partiture-list';
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
 import { PartituraParti } from './features/parti/partitura-parti/partitura-parti';
-import { LibrettiList } from './features/libretti/libretti-list/libretti-list';
-import { LibrettoForm } from './features/libretti/libretto-form/libretto-form';
-import { LibrettoDettaglio } from './features/libretti/libretto-dettaglio/libretto-dettaglio';
+import { RaccolteList } from './features/raccolte/raccolte-list/raccolte-list';
+import { RaccoltaForm } from './features/raccolte/raccolta-form/raccolta-form';
+import { RaccoltaDettaglio } from './features/raccolte/raccolta-dettaglio/raccolta-dettaglio';
 import { AutoriList } from './features/autori/autori-list/autori-list';
 import { AutoreForm } from './features/autori/autore-form/autore-form';
 import { FamiglieList } from './features/famiglie/famiglie-list/famiglie-list';
@@ -22,7 +22,7 @@ import { StrumentiList } from './features/strumenti/strumenti-list/strumenti-lis
 import { StrumentoForm } from './features/strumenti/strumento-form/strumento-form';
 import { StrumentiFigliList } from './features/strumenti-figli/strumenti-figli-list/strumenti-figli-list';
 import { StrumentoFiglioForm } from './features/strumenti-figli/strumento-figlio-form/strumento-figlio-form';
-import { BandaSettings } from './features/banda/banda-settings/banda-settings';
+import { FormazioneSettings } from './features/formazione/formazione-settings/formazione-settings';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -33,18 +33,18 @@ export const routes: Routes = [
   { path: 'direttivo', component: DirettivoList },
   { path: 'direttivo/nuovo', component: DirettivoForm },
   { path: 'direttivo/:id', component: DirettivoForm },
-  { path: 'bandisti', component: BandistiList },
-  { path: 'bandisti/nuovo', component: BandistaForm },
-  { path: 'bandisti/:id/musicale', component: BandistaMusicale },
-  { path: 'bandisti/:id', component: BandistaForm },
+  { path: 'strumentisti', component: StrumentistiList },
+  { path: 'strumentisti/nuovo', component: StrumentistaForm },
+  { path: 'strumentisti/:id/musicale', component: StrumentistaMusicale },
+  { path: 'strumentisti/:id', component: StrumentistaForm },
   { path: 'partiture', component: PartitureList },
   { path: 'partiture/nuovo', component: PartituraForm },
   { path: 'partiture/:id/parti', component: PartituraParti },
   { path: 'partiture/:id', component: PartituraForm },
-  { path: 'raccolte', component: LibrettiList },
-  { path: 'raccolte/nuovo', component: LibrettoForm },
-  { path: 'raccolte/:id/modifica', component: LibrettoForm },
-  { path: 'raccolte/:id', component: LibrettoDettaglio },
+  { path: 'raccolte', component: RaccolteList },
+  { path: 'raccolte/nuovo', component: RaccoltaForm },
+  { path: 'raccolte/:id/modifica', component: RaccoltaForm },
+  { path: 'raccolte/:id', component: RaccoltaDettaglio },
   { path: 'autori', component: AutoriList },
   { path: 'autori/nuovo', component: AutoreForm },
   { path: 'autori/:id', component: AutoreForm },
@@ -57,6 +57,6 @@ export const routes: Routes = [
   { path: 'strumenti-figli', component: StrumentiFigliList },
   { path: 'strumenti-figli/nuovo', component: StrumentoFiglioForm },
   { path: 'strumenti-figli/:id', component: StrumentoFiglioForm },
-  { path: 'banda', component: BandaSettings },
+  { path: 'formazione', component: FormazioneSettings },
   { path: '**', redirectTo: '' }
 ];

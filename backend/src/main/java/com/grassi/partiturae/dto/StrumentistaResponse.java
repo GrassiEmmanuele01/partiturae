@@ -6,18 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ParteResponse {
+public class StrumentistaResponse {
     private Long id;
-    private String nome;
-    private Boolean raccolta;
-    private String pdfNome;
-    private Long partituraId;
-    private String partituraNome;
-    private Long strumentoFiglioId;
-    private String strumentoFiglioNome;
+    private SocioResponse socio;
+    private List<StrumentoResponse> strumenti;
 }

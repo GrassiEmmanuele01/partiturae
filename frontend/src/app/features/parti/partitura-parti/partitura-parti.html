@@ -107,8 +107,8 @@
 
     <div class="field-checkbox">
       <label>
-        <input type="checkbox" formControlName="libretto">
-        È un libretto
+        <input type="checkbox" formControlName="raccolta">
+        È un raccolta
       </label>
     </div>
 
@@ -134,7 +134,7 @@
         <tr>
           <th>Nome</th>
           <th>Strumento</th>
-          <th>Libretto</th>
+          <th>Raccolta</th>
           <th>PDF</th>
           <th></th>
         </tr>
@@ -144,7 +144,7 @@
           <tr>
             <td>{{ parte.nome }}</td>
             <td>{{ parte.strumentoFiglioNome }}</td>
-            <td>{{ parte.libretto ? 'Sì' : 'No' }}</td>
+            <td>{{ parte.raccolta ? 'Sì' : 'No' }}</td>
             <td>
               @if (parte.pdfNome) {
                 <a [href]="pdfUrl(parte.id)" target="_blank">{{ parte.pdfNome }}</a>

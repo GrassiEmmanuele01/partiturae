@@ -12,15 +12,15 @@
       <a routerLink="/strumenti" routerLinkActive="active">Strumenti</a>
 
       <div class="nav-group">
-        <button type="button" class="nav-group-toggle" [class.open]="bandaMenuOpen()" (click)="toggleBandaMenu()">
-          <span>Banda</span>
+        <button type="button" class="nav-group-toggle" [class.open]="formazioneMenuOpen()" (click)="toggleFormazioneMenu()">
+          <span>Formazione</span>
           <span class="chevron">&rsaquo;</span>
         </button>
 
-        @if (bandaMenuOpen()) {
+        @if (formazioneMenuOpen()) {
           <div class="nav-group-items">
             <a routerLink="/soci" routerLinkActive="active">Libro soci</a>
-            <a routerLink="/banda" routerLinkActive="active">Direzione banda</a>
+            <a routerLink="/formazione" routerLinkActive="active">Direttivo</a>
           </div>
         }
       </div>

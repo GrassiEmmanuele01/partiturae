@@ -1,7 +1,7 @@
 export interface Parte {
   id: number;
   nome: string;
-  libretto: boolean | null;
+  raccolta: boolean | null;
   pdfNome: string | null;
   partituraId: number;
   partituraNome: string;
@@ -13,5 +13,5 @@ export interface ParteRequest {
   nome: string;
   partituraId: number;
   strumentoFiglioId: number;
-  libretto?: boolean | null;
+  raccolta?: boolean | null;
 }

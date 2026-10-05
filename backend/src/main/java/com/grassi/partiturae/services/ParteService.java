@@ -59,7 +59,7 @@ public class ParteService {
                 .nome(request.getNome())
                 .partitura(partitura)
                 .strumentoFiglio(strumentoFiglio)
-                .libretto(request.getLibretto())
+                .raccolta(request.getRaccolta())
                 .build();
 
         return toResponse(parteRepository.save(parte));
@@ -74,7 +74,7 @@ public class ParteService {
         parte.setNome(request.getNome());
         parte.setPartitura(partitura);
         parte.setStrumentoFiglio(strumentoFiglio);
-        parte.setLibretto(request.getLibretto());
+        parte.setRaccolta(request.getRaccolta());
 
         return toResponse(parteRepository.save(parte));
     }
@@ -118,7 +118,7 @@ public class ParteService {
         return ParteResponse.builder()
                 .id(parte.getId())
                 .nome(parte.getNome())
-                .libretto(parte.getLibretto())
+                .raccolta(parte.getRaccolta())
                 .pdfNome(parte.getPdfNome())
                 .partituraId(parte.getPartitura().getId())
                 .partituraNome(parte.getPartitura().getNome())

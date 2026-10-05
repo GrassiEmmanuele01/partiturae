@@ -1,7 +1,6 @@
 package com.grassi.partiturae.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,17 +13,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ParteRequest {
+public class RaccoltaRequest {
 
     @NotBlank(message = "Il nome è obbligatorio")
     @Size(max = 150)
     private String nome;
 
-    @NotNull(message = "La partitura è obbligatoria")
-    private Long partituraId;
+    private Integer anno;
 
-    @NotNull(message = "Lo strumento è obbligatorio")
-    private Long strumentoFiglioId;
-
-    private Boolean raccolta;
+    private String descrizione;
 }

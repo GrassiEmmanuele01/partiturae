@@ -2,13 +2,10 @@ package com.grassi.partiturae.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,13 +14,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "parte")
+@Table(name = "formazione")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Parte {
+public class Formazione {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,19 +28,24 @@ public class Parte {
 
     private String nome;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "partitura_id")
-    private Partitura partitura;
+    @Column(columnDefinition = "TEXT")
+    private String descrizione;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "strumento_figlio_id")
-    private StrumentoFiglio strumentoFiglio;
+    private Integer annoFondazione;
 
-    private Boolean raccolta;
+    private String indirizzo;
 
-    private String pdfNome;
+    private String codiceFiscale;
+
+    private String email;
+
+    private String telefono;
+
+    private String sitoWeb;
+
+    private String logoNome;
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    private byte[] pdfFile;
+    private byte[] logo;
 }

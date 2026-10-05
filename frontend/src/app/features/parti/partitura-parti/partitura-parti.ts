@@ -48,7 +48,7 @@ export class PartituraParti {
   form = this.fb.nonNullable.group({
     nome: ['', Validators.required],
     strumentoFiglioNome: ['', Validators.required],
-    libretto: [false]
+    raccolta: [false]
   });
 
   // --- Livello 1: StrumentoFiglio (es. "Flicorno tenore 2") ---
@@ -210,7 +210,7 @@ export class PartituraParti {
             nome: value.nome,
             partituraId: this.partituraId,
             strumentoFiglioId,
-            libretto: value.libretto
+            raccolta: value.raccolta
           })
           .subscribe({
             next: (parte) => {
@@ -246,7 +246,7 @@ export class PartituraParti {
 
   private finishAddParte(): void {
     this.saving.set(false);
-    this.form.reset({ nome: '', strumentoFiglioNome: '', libretto: false });
+    this.form.reset({ nome: '', strumentoFiglioNome: '', raccolta: false });
     this.selectedStrumentoFiglioId.set(null);
     this.pdfFile.set(null);
     this.resetCascade();
