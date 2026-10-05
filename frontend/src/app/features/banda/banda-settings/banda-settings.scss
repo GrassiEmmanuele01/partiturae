@@ -46,6 +46,46 @@ section {
   }
 }
 
+.stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+}
+
+.direttivo-mini {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: #374151;
+
+  li {
+    padding: 0.25rem 0;
+  }
+}
+
+.link {
+  color: #2563eb;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
 form {
   display: flex;
   flex-direction: column;

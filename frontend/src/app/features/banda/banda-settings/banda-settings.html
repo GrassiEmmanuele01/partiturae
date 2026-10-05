@@ -18,6 +18,29 @@
     </label>
   </section>
 
+  <section class="stats-section">
+    <h3>In sintesi</h3>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-value">{{ numeroAssociati() }}</span>
+        <span class="stat-label">Associati quest'anno</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ direttivoInCarica().length }}</span>
+        <span class="stat-label">Membri del direttivo</span>
+      </div>
+    </div>
+
+    @if (direttivoInCarica().length > 0) {
+      <ul class="direttivo-mini">
+        @for (m of direttivoInCarica(); track m.id) {
+          <li>{{ m.carica }}: {{ m.socio.nome }} {{ m.socio.cognome }}</li>
+        }
+      </ul>
+    }
+    <a routerLink="/direttivo" class="link">Gestisci il direttivo</a>
+  </section>
+
   <section class="data-section">
     <h3>Dati banda</h3>
     <form [formGroup]="form" (ngSubmit)="submit()">
@@ -30,8 +53,41 @@
       </div>
 
       <div class="field">
+        <label for="annoFondazione">Anno di fondazione</label>
+        <input id="annoFondazione" type="number" formControlName="annoFondazione">
+      </div>
+
+      <div class="field">
         <label for="descrizione">Descrizione</label>
-        <textarea id="descrizione" formControlName="descrizione" rows="4"></textarea>
+        <textarea id="descrizione" formControlName="descrizione" rows="3"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="indirizzo">Indirizzo</label>
+        <input id="indirizzo" type="text" formControlName="indirizzo">
+      </div>
+
+      <div class="field">
+        <label for="codiceFiscale">Codice fiscale / P.IVA</label>
+        <input id="codiceFiscale" type="text" formControlName="codiceFiscale">
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email">
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <span class="field-error">Email non valida</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="telefono">Telefono</label>
+        <input id="telefono" type="text" formControlName="telefono">
+      </div>
+
+      <div class="field">
+        <label for="sitoWeb">Sito web</label>
+        <input id="sitoWeb" type="text" formControlName="sitoWeb">
       </div>
 
       @if (error()) {

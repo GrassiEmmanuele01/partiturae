@@ -31,6 +31,18 @@ public class Banda {
     @Column(columnDefinition = "TEXT")
     private String descrizione;
 
+    private Integer annoFondazione;
+
+    private String indirizzo;
+
+    private String codiceFiscale;
+
+    private String email;
+
+    private String telefono;
+
+    private String sitoWeb;
+
     private String logoNome;
 
     @Lob

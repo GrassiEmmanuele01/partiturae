@@ -20,4 +20,16 @@ public class BandaRequest {
     private String nome;
 
     private String descrizione;
+
+    private Integer annoFondazione;
+
+    private String indirizzo;
+
+    private String codiceFiscale;
+
+    private String email;
+
+    private String telefono;
+
+    private String sitoWeb;
 }

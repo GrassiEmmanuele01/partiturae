@@ -16,9 +16,15 @@ import java.io.IOException;
 public class BandaService {
 
     private final BandaRepository bandaRepository;
+    private final IscrizioneSocioService iscrizioneSocioService;
+    private final MembroDirettivoService membroDirettivoService;
 
-    public BandaService(BandaRepository bandaRepository) {
+    public BandaService(BandaRepository bandaRepository,
+                         IscrizioneSocioService iscrizioneSocioService,
+                         MembroDirettivoService membroDirettivoService) {
         this.bandaRepository = bandaRepository;
+        this.iscrizioneSocioService = iscrizioneSocioService;
+        this.membroDirettivoService = membroDirettivoService;
     }
 
     @Transactional(readOnly = true)
@@ -34,6 +40,12 @@ public class BandaService {
 
         banda.setNome(request.getNome());
         banda.setDescrizione(request.getDescrizione());
+        banda.setAnnoFondazione(request.getAnnoFondazione());
+        banda.setIndirizzo(request.getIndirizzo());
+        banda.setCodiceFiscale(request.getCodiceFiscale());
+        banda.setEmail(request.getEmail());
+        banda.setTelefono(request.getTelefono());
+        banda.setSitoWeb(request.getSitoWeb());
 
         return toResponse(bandaRepository.save(banda));
     }
@@ -68,6 +80,14 @@ public class BandaService {
                 .id(banda.getId())
                 .nome(banda.getNome())
                 .descrizione(banda.getDescrizione())
+                .annoFondazione(banda.getAnnoFondazione())
+                .indirizzo(banda.getIndirizzo())
+                .codiceFiscale(banda.getCodiceFiscale())
+                .email(banda.getEmail())
+                .telefono(banda.getTelefono())
+                .sitoWeb(banda.getSitoWeb())
+                .numeroAssociatiAnnoCorrente(iscrizioneSocioService.countAssociatiAnnoCorrente())
+                .direttivoInCarica(membroDirettivoService.getInCarica())
                 .build();
     }
 }
