@@ -30,6 +30,7 @@ form {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  position: relative;
 
   label {
     font-size: 0.85rem;
@@ -57,6 +58,87 @@ form {
     gap: 0.4rem;
     font-size: 0.85rem;
     color: #374151;
+  }
+}
+
+.musical-box {
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  padding: 1rem;
+
+  .musical-hint {
+    margin: 0 0 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.empty-mini {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.chips {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 0.3rem 0.5rem 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  button {
+    background: none;
+    border: none;
+    color: #2563eb;
+    cursor: pointer;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 0;
+  }
+}
+
+.autocomplete .suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 10;
+
+  li {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.88rem;
+
+    &:hover {
+      background: #f3f4f6;
+    }
+
+    .famiglia {
+      color: #9ca3af;
+      font-size: 0.78rem;
+    }
   }
 }
 

@@ -48,6 +48,49 @@
         </label>
       </div>
 
+      <div class="field-checkbox">
+        <label>
+          <input type="checkbox" [checked]="eMusicista()" (change)="toggleEMusicista()">
+          Informazioni musicali (opzionale)
+        </label>
+      </div>
+
+      @if (eMusicista()) {
+        <div class="musical-box">
+          <p class="musical-hint">Strumenti suonati</p>
+
+          @if (strumentiSelezionati().length === 0) {
+            <p class="empty-mini">Nessuno strumento associato.</p>
+          } @else {
+            <ul class="chips">
+              @for (s of strumentiSelezionati(); track s.id) {
+                <li class="chip">
+                  {{ s.nome }}
+                  <button type="button" (click)="removeStrumento(s.id)" title="Rimuovi">&times;</button>
+                </li>
+              }
+            </ul>
+          }
+
+          <div class="field autocomplete">
+            <input
+              type="text"
+              autocomplete="off"
+              placeholder="Scrivi il nome dello strumento..."
+              [value]="strumentoSearchTerm()"
+              (input)="onStrumentoInput($any($event.target).value)"
+            >
+            @if (strumentoSuggestions().length > 0) {
+              <ul class="suggestions">
+                @for (s of strumentoSuggestions(); track s.id) {
+                  <li (mousedown)="addStrumento(s)">{{ s.nome }} <span class="famiglia">({{ s.famigliaNome }})</span></li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+      }
+
       @if (error()) {
         <p class="error">{{ error() }}</p>
       }
@@ -61,7 +104,7 @@
 
   @if (socioId()) {
     <section class="iscrizioni-section">
-      <h3>Iscrizione libro soci e tesseramento</h3>
+      <h3>Iscrizione libro soci</h3>
 
       @if (summary(); as s) {
         <p class="summary">
@@ -69,11 +112,7 @@
           <strong [class.ok]="s.iscrittoAnnoCorrente" [class.ko]="!s.iscrittoAnnoCorrente">
             {{ s.iscrittoAnnoCorrente ? 'Iscritto' : 'Non iscritto' }}
           </strong>
-          ({{ s.anniIscritto }} {{ s.anniIscritto === 1 ? 'anno' : 'anni' }}) —
-          <strong [class.ok]="s.tesseratoAnnoCorrente" [class.ko]="!s.tesseratoAnnoCorrente">
-            {{ s.tesseratoAnnoCorrente ? 'Tesserato' : 'Non tesserato' }}
-          </strong>
-          ({{ s.anniTesserato }} {{ s.anniTesserato === 1 ? 'anno' : 'anni' }})
+          — iscritto da {{ s.anniIscritto }} {{ s.anniIscritto === 1 ? 'anno' : 'anni' }}
         </p>
       }
 
@@ -84,8 +123,7 @@
           <thead>
             <tr>
               <th>Anno</th>
-              <th>Socio</th>
-              <th>Tesserato</th>
+              <th>Stato</th>
               <th></th>
             </tr>
           </thead>
@@ -93,8 +131,7 @@
             @for (i of iscrizioni(); track i.anno) {
               <tr>
                 <td>{{ i.anno }}</td>
-                <td>{{ i.iscritto ? 'Sì' : 'No' }}</td>
-                <td>{{ i.tesserato ? 'Sì' : 'No' }}</td>
+                <td>{{ i.iscritto ? 'Iscritto' : 'Non iscritto' }}</td>
                 <td class="actions">
                   <button (click)="removeIscrizione(i.anno)">Elimina</button>
                 </td>
@@ -115,15 +152,8 @@
             Iscritto
           </label>
         </div>
-        <div class="field-checkbox">
-          <label>
-            <input type="checkbox" [checked]="nuovoTesserato()" (change)="nuovoTesserato.set($any($event.target).checked)">
-            Tesserato
-          </label>
-        </div>
         <button type="button" (click)="addIscrizione()">Salva</button>
       </div>
-      <p class="field-hint">Spuntare "Tesserato" imposta automaticamente anche "Iscritto".</p>
     </section>
   }
 }

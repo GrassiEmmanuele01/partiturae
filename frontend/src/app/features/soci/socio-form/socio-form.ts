@@ -2,6 +2,10 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { Musicista } from '../../musicisti/musicista.model';
+import { MusicistaService } from '../../musicisti/musicista.service';
+import { Strumento } from '../../strumenti/strumento.model';
+import { StrumentoService } from '../../strumenti/strumento.service';
 import { IscrizioneService } from '../iscrizione.service';
 import { Iscrizione, IscrizioneSummary } from '../socio.model';
 import { SocioService } from '../socio.service';
@@ -16,6 +20,8 @@ export class SocioForm {
   private fb = inject(FormBuilder);
   private socioService = inject(SocioService);
   private iscrizioneService = inject(IscrizioneService);
+  private musicistaService = inject(MusicistaService);
+  private strumentoService = inject(StrumentoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -28,7 +34,14 @@ export class SocioForm {
   summary = signal<IscrizioneSummary | null>(null);
   nuovoAnno = signal(new Date().getFullYear());
   nuovoIscritto = signal(true);
-  nuovoTesserato = signal(false);
+
+  // --- Sezione musicale (opzionale) ---
+  eMusicista = signal(false);
+  musicistaEsistenteId = signal<number | null>(null);
+  strumentiSelezionati = signal<Strumento[]>([]);
+  strumentiDisponibili = signal<Strumento[]>([]);
+  strumentoSuggestions = signal<Strumento[]>([]);
+  strumentoSearchTerm = signal('');
 
   form = this.fb.nonNullable.group({
     nome: ['', Validators.required],
@@ -40,6 +53,8 @@ export class SocioForm {
   });
 
   constructor() {
+    this.strumentoService.getAll().subscribe({ next: (data) => this.strumentiDisponibili.set(data) });
+
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       const id = Number(idParam);
@@ -64,6 +79,17 @@ export class SocioForm {
         }
       });
 
+      this.musicistaService.getAll().subscribe({
+        next: (musicisti) => {
+          const match = musicisti.find((m) => m.socio.id === id);
+          if (match) {
+            this.eMusicista.set(true);
+            this.musicistaEsistenteId.set(match.id);
+            this.strumentiSelezionati.set(match.strumenti);
+          }
+        }
+      });
+
       this.loadIscrizioni();
     }
   }
@@ -80,7 +106,7 @@ export class SocioForm {
     const id = this.socioId();
     if (!id) return;
 
-    this.iscrizioneService.upsert(id, this.nuovoAnno(), this.nuovoIscritto(), this.nuovoTesserato()).subscribe({
+    this.iscrizioneService.upsert(id, this.nuovoAnno(), this.nuovoIscritto(), false).subscribe({
       next: () => this.loadIscrizioni(),
       error: () => this.error.set("Errore durante il salvataggio dell'iscrizione.")
     });
@@ -98,6 +124,37 @@ export class SocioForm {
       next: () => this.loadIscrizioni(),
       error: () => this.error.set("Errore durante l'eliminazione.")
     });
+  }
+
+  toggleEMusicista(): void {
+    this.eMusicista.set(!this.eMusicista());
+  }
+
+  onStrumentoInput(term: string): void {
+    this.strumentoSearchTerm.set(term);
+    const lower = term.trim().toLowerCase();
+    const giaSelezionati = new Set(this.strumentiSelezionati().map((s) => s.id));
+
+    if (!lower) {
+      this.strumentoSuggestions.set([]);
+      return;
+    }
+
+    this.strumentoSuggestions.set(
+      this.strumentiDisponibili()
+        .filter((s) => !giaSelezionati.has(s.id) && s.nome.toLowerCase().includes(lower))
+        .slice(0, 8)
+    );
+  }
+
+  addStrumento(strumento: Strumento): void {
+    this.strumentiSelezionati.set([...this.strumentiSelezionati(), strumento]);
+    this.strumentoSearchTerm.set('');
+    this.strumentoSuggestions.set([]);
+  }
+
+  removeStrumento(strumentoId: number): void {
+    this.strumentiSelezionati.set(this.strumentiSelezionati().filter((s) => s.id !== strumentoId));
   }
 
   submit(): void {
@@ -125,7 +182,7 @@ export class SocioForm {
       : this.socioService.create(request);
 
     request$.subscribe({
-      next: () => this.router.navigate(['/soci']),
+      next: (socio) => this.handleMusicista(socio.id),
       error: (err) => {
         this.saving.set(false);
         if (err.status === 400 && err.error?.errors) {
@@ -135,5 +192,46 @@ export class SocioForm {
         }
       }
     });
+  }
+
+  private handleMusicista(socioId: number): void {
+    const esistenteId = this.musicistaEsistenteId();
+    const strumentoIds = this.strumentiSelezionati().map((s) => s.id);
+
+    if (this.eMusicista()) {
+      if (esistenteId) {
+        this.musicistaService.updateStrumenti(esistenteId, strumentoIds).subscribe({
+          next: () => this.finish(),
+          error: () => this.finishWithWarning('Socio salvato, ma errore nell\'aggiornare gli strumenti.')
+        });
+      } else {
+        this.musicistaService.create({ socioId }).subscribe({
+          next: (musicista) => {
+            this.musicistaService.updateStrumenti(musicista.id, strumentoIds).subscribe({
+              next: () => this.finish(),
+              error: () => this.finishWithWarning('Socio salvato, ma errore nell\'aggiungere gli strumenti.')
+            });
+          },
+          error: () => this.finishWithWarning('Socio salvato, ma errore nel creare il profilo musicale.')
+        });
+      }
+    } else if (esistenteId) {
+      this.musicistaService.delete(esistenteId).subscribe({
+        next: () => this.finish(),
+        error: () => this.finishWithWarning('Socio salvato, ma errore nel rimuovere il profilo musicale.')
+      });
+    } else {
+      this.finish();
+    }
+  }
+
+  private finish(): void {
+    this.saving.set(false);
+    this.router.navigate(['/soci']);
+  }
+
+  private finishWithWarning(message: string): void {
+    this.saving.set(false);
+    this.error.set(message);
   }
 }

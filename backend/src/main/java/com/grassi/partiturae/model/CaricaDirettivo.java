@@ -14,7 +14,11 @@ public enum CaricaDirettivo {
     ALTRO;
 
     private static final Set<CaricaDirettivo> UNICHE = EnumSet.of(
-            PRESIDENTE, VICEPRESIDENTE, SEGRETARIO, TESORIERE, MAESTRO_CONCERTATORE
+            PRESIDENTE,
+            VICEPRESIDENTE,
+            SEGRETARIO,
+            TESORIERE,
+            MAESTRO_CONCERTATORE
     );
 
     public boolean isUnica() {
