@@ -1,52 +1,116 @@
 <div class="page-header">
-  <h2>Libro soci</h2>
-  <a routerLink="/soci/nuovo" class="btn-primary">+ Nuovo socio</a>
+  <div>
+    <h2>Libro soci</h2>
+    <p class="subtitle">Anagrafica completa dei soci e, tra questi, chi suona in formazione.</p>
+  </div>
 </div>
 
-@if (loading()) {
-  <p>Caricamento...</p>
-} @else if (error()) {
+@if (error()) {
   <p class="error">{{ error() }}</p>
-} @else if (soci().length === 0) {
-  <p>Nessun socio registrato.</p>
-} @else {
-  <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Cognome</th>
-        <th>Email</th>
-        <th>Telefono</th>
-        <th>Tipo</th>
-        <th>Iscritto {{ annoCorrente }}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (socio of soci(); track socio.id) {
-        <tr>
-          <td>{{ socio.nome }}</td>
-          <td>{{ socio.cognome }}</td>
-          <td>{{ socio.mail }}</td>
-          <td>{{ socio.telefono || '-' }}</td>
-          <td>
-            @if (socio.aggiunto) {
-              <span class="badge-aggiunto">Aggiunto</span>
-            } @else {
-              <span class="muted">Socio</span>
-            }
-          </td>
-          <td>
-            <span class="badge" [class.ok]="socio.iscrittoAnnoCorrente" [class.ko]="!socio.iscrittoAnnoCorrente">
-              {{ socio.iscrittoAnnoCorrente ? 'Sì' : 'No' }}
-            </span>
-          </td>
-          <td class="actions">
-            <a [routerLink]="['/soci', socio.id]">Modifica</a>
-            <button (click)="remove(socio.id)">Elimina</button>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
 }
+
+<section class="panel">
+  <div class="panel-header">
+    <h3>Soci</h3>
+    <a routerLink="/soci/nuovo" class="btn-primary">+ Nuovo socio</a>
+  </div>
+
+  @if (loadingSoci()) {
+    <p>Caricamento...</p>
+  } @else if (soci().length === 0) {
+    <p class="empty">Nessun socio registrato.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Cognome</th>
+          <th>Email</th>
+          <th>Telefono</th>
+          <th>Tipo</th>
+          <th>Iscritto {{ annoCorrente }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (socio of soci(); track socio.id) {
+          <tr>
+            <td>{{ socio.nome }}</td>
+            <td>{{ socio.cognome }}</td>
+            <td>{{ socio.mail }}</td>
+            <td>{{ socio.telefono || '-' }}</td>
+            <td>
+              @if (socio.aggiunto) {
+                <span class="badge-aggiunto">Aggiunto</span>
+              } @else {
+                <span class="muted">Socio</span>
+              }
+            </td>
+            <td>
+              <span class="badge" [class.ok]="socio.iscrittoAnnoCorrente" [class.ko]="!socio.iscrittoAnnoCorrente">
+                {{ socio.iscrittoAnnoCorrente ? 'Sì' : 'No' }}
+              </span>
+            </td>
+            <td class="actions">
+              <a [routerLink]="['/soci', socio.id]">Modifica</a>
+              <button (click)="removeSocio(socio.id)">Elimina</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <h3>Musicisti</h3>
+    <a routerLink="/musicisti/nuovo" class="btn-secondary">+ Aggiungi musicista</a>
+  </div>
+
+  @if (loadingMusicisti()) {
+    <p>Caricamento...</p>
+  } @else if (musicisti().length === 0) {
+    <p class="empty">Nessun musicista ancora associato.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Cognome</th>
+          <th>Strumenti</th>
+          <th>Iscritto {{ annoCorrente }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (musicista of musicisti(); track musicista.id) {
+          <tr>
+            <td>
+              {{ musicista.socio.nome }}
+              @if (musicista.socio.aggiunto) { <span class="badge-aggiunto">aggiunto</span> }
+            </td>
+            <td>{{ musicista.socio.cognome }}</td>
+            <td>
+              @if (musicista.strumenti.length === 0) {
+                <span class="muted">-</span>
+              } @else {
+                {{ musicista.strumenti.map(s => s.nome).join(', ') }}
+              }
+            </td>
+            <td>
+              <span class="badge" [class.ok]="musicista.socio.iscrittoAnnoCorrente" [class.ko]="!musicista.socio.iscrittoAnnoCorrente">
+                {{ musicista.socio.iscrittoAnnoCorrente ? 'Sì' : 'No' }}
+              </span>
+            </td>
+            <td class="actions">
+              <a [routerLink]="['/musicisti', musicista.id, 'musicale']">Strumenti</a>
+              <a [routerLink]="['/soci', musicista.socio.id]">Anagrafica</a>
+              <button (click)="removeProfiloMusicale(musicista.id)">Rimuovi profilo</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
