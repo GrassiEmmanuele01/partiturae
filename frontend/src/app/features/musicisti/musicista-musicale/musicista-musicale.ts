@@ -3,23 +3,23 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { Strumento } from '../../strumenti/strumento.model';
 import { StrumentoService } from '../../strumenti/strumento.service';
-import { Strumentista } from '../strumentista.model';
-import { StrumentistaService } from '../strumentista.service';
+import { Musicista } from '../musicista.model';
+import { MusicistaService } from '../musicista.service';
 
 @Component({
-  selector: 'app-strumentista-musicale',
+  selector: 'app-musicista-musicale',
   imports: [RouterLink],
-  templateUrl: './strumentista-musicale.html',
-  styleUrl: './strumentista-musicale.scss'
+  templateUrl: './musicista-musicale.html',
+  styleUrl: './musicista-musicale.scss'
 })
-export class StrumentistaMusicale {
+export class MusicistaMusicale {
   private route = inject(ActivatedRoute);
-  private strumentistaService = inject(StrumentistaService);
+  private musicistaService = inject(MusicistaService);
   private strumentoService = inject(StrumentoService);
 
-  strumentistaId = Number(this.route.snapshot.paramMap.get('id'));
+  musicistaId = Number(this.route.snapshot.paramMap.get('id'));
 
-  strumentista = signal<Strumentista | null>(null);
+  musicista = signal<Musicista | null>(null);
   strumentiDisponibili = signal<Strumento[]>([]);
   suggestions = signal<Strumento[]>([]);
   searchTerm = signal('');
@@ -28,20 +28,20 @@ export class StrumentistaMusicale {
   error = signal<string | null>(null);
 
   constructor() {
-    this.loadStrumentista();
+    this.loadMusicista();
     this.strumentoService.getAll().subscribe({
       next: (data) => this.strumentiDisponibili.set(data)
     });
   }
 
-  loadStrumentista(): void {
-    this.strumentistaService.getById(this.strumentistaId).subscribe({
+  loadMusicista(): void {
+    this.musicistaService.getById(this.musicistaId).subscribe({
       next: (data) => {
-        this.strumentista.set(data);
+        this.musicista.set(data);
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Impossibile caricare il strumentista.');
+        this.error.set('Impossibile caricare il musicista.');
         this.loading.set(false);
       }
     });
@@ -50,7 +50,7 @@ export class StrumentistaMusicale {
   onSearchInput(term: string): void {
     this.searchTerm.set(term);
     const lower = term.trim().toLowerCase();
-    const giaSelezionati = new Set(this.strumentista()?.strumenti.map((s) => s.id) ?? []);
+    const giaSelezionati = new Set(this.musicista()?.strumenti.map((s) => s.id) ?? []);
 
     if (!lower) {
       this.suggestions.set([]);
@@ -65,20 +65,20 @@ export class StrumentistaMusicale {
   }
 
   addStrumento(strumento: Strumento): void {
-    const attuali = this.strumentista()?.strumenti.map((s) => s.id) ?? [];
+    const attuali = this.musicista()?.strumenti.map((s) => s.id) ?? [];
     this.saveStrumenti([...attuali, strumento.id]);
     this.searchTerm.set('');
     this.suggestions.set([]);
   }
 
   removeStrumento(strumentoId: number): void {
-    const attuali = this.strumentista()?.strumenti.map((s) => s.id) ?? [];
+    const attuali = this.musicista()?.strumenti.map((s) => s.id) ?? [];
     this.saveStrumenti(attuali.filter((id) => id !== strumentoId));
   }
 
   private saveStrumenti(ids: number[]): void {
-    this.strumentistaService.updateStrumenti(this.strumentistaId, ids).subscribe({
-      next: (data) => this.strumentista.set(data),
+    this.musicistaService.updateStrumenti(this.musicistaId, ids).subscribe({
+      next: (data) => this.musicista.set(data),
       error: () => this.error.set('Errore durante il salvataggio degli strumenti.')
     });
   }

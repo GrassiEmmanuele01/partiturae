@@ -5,9 +5,9 @@ import { SociList } from './features/soci/soci-list/soci-list';
 import { SocioForm } from './features/soci/socio-form/socio-form';
 import { DirettivoList } from './features/direttivo/direttivo-list/direttivo-list';
 import { DirettivoForm } from './features/direttivo/direttivo-form/direttivo-form';
-import { StrumentistiList } from './features/strumentisti/strumentisti-list/strumentisti-list';
-import { StrumentistaForm } from './features/strumentisti/strumentista-form/strumentista-form';
-import { StrumentistaMusicale } from './features/strumentisti/strumentista-musicale/strumentista-musicale';
+import { MusicistiList } from './features/musicisti/musicisti-list/musicisti-list';
+import { MusicistaForm } from './features/musicisti/musicista-form/musicista-form';
+import { MusicistaMusicale } from './features/musicisti/musicista-musicale/musicista-musicale';
 import { PartitureList } from './features/partiture/partiture-list/partiture-list';
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
 import { PartituraParti } from './features/parti/partitura-parti/partitura-parti';
@@ -33,10 +33,10 @@ export const routes: Routes = [
   { path: 'direttivo', component: DirettivoList },
   { path: 'direttivo/nuovo', component: DirettivoForm },
   { path: 'direttivo/:id', component: DirettivoForm },
-  { path: 'strumentisti', component: StrumentistiList },
-  { path: 'strumentisti/nuovo', component: StrumentistaForm },
-  { path: 'strumentisti/:id/musicale', component: StrumentistaMusicale },
-  { path: 'strumentisti/:id', component: StrumentistaForm },
+  { path: 'musicisti', component: MusicistiList },
+  { path: 'musicisti/nuovo', component: MusicistaForm },
+  { path: 'musicisti/:id/musicale', component: MusicistaMusicale },
+  { path: 'musicisti/:id', component: MusicistaForm },
   { path: 'partiture', component: PartitureList },
   { path: 'partiture/nuovo', component: PartituraForm },
   { path: 'partiture/:id/parti', component: PartituraParti },

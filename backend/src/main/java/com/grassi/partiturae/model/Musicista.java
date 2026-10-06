@@ -20,13 +20,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "strumentista")
+@Table(name = "musicista")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Strumentista {
+public class Musicista {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,8 +39,8 @@ public class Strumentista {
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "strumentista_strumento",
-        joinColumns = @JoinColumn(name = "strumentista_id"),
+        name = "musicista_strumento",
+        joinColumns = @JoinColumn(name = "musicista_id"),
         inverseJoinColumns = @JoinColumn(name = "strumento_id")
     )
     private Set<Strumento> strumenti = new HashSet<>();

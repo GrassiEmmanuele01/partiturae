@@ -4,29 +4,29 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Socio } from '../../soci/socio.model';
 import { SocioService } from '../../soci/socio.service';
-import { Strumentista } from '../strumentista.model';
-import { StrumentistaService } from '../strumentista.service';
+import { Musicista } from '../musicista.model';
+import { MusicistaService } from '../musicista.service';
 
 @Component({
-  selector: 'app-strumentista-form',
+  selector: 'app-musicista-form',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './strumentista-form.html',
-  styleUrl: './strumentista-form.scss'
+  templateUrl: './musicista-form.html',
+  styleUrl: './musicista-form.scss'
 })
-export class StrumentistaForm {
+export class MusicistaForm {
   private fb = inject(FormBuilder);
-  private strumentistaService = inject(StrumentistaService);
+  private musicistaService = inject(MusicistaService);
   private socioService = inject(SocioService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  strumentistaId = signal<number | null>(null);
+  musicistaId = signal<number | null>(null);
   loading = signal(false);
   saving = signal(false);
   error = signal<string | null>(null);
 
   soci = signal<Socio[]>([]);
-  strumentistiEsistenti = signal<Strumentista[]>([]);
+  musicistiEsistenti = signal<Musicista[]>([]);
   suggestions = signal<Socio[]>([]);
   selectedSocioId = signal<number | null>(null);
 
@@ -46,30 +46,30 @@ export class StrumentistaForm {
 
   constructor() {
     this.socioService.getAll().subscribe({ next: (data) => this.soci.set(data) });
-    this.strumentistaService.getAll().subscribe({ next: (data) => this.strumentistiEsistenti.set(data) });
+    this.musicistaService.getAll().subscribe({ next: (data) => this.musicistiEsistenti.set(data) });
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       const id = Number(idParam);
-      this.strumentistaId.set(id);
+      this.musicistaId.set(id);
       this.loading.set(true);
 
-      this.strumentistaService.getById(id).subscribe({
-        next: (strumentista) => {
-          this.selectedSocioId.set(strumentista.socio.id);
-          this.searchForm.patchValue({ termine: `${strumentista.socio.nome} ${strumentista.socio.cognome}` });
+      this.musicistaService.getById(id).subscribe({
+        next: (musicista) => {
+          this.selectedSocioId.set(musicista.socio.id);
+          this.searchForm.patchValue({ termine: `${musicista.socio.nome} ${musicista.socio.cognome}` });
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('Impossibile caricare il strumentista.');
+          this.error.set('Impossibile caricare il musicista.');
           this.loading.set(false);
         }
       });
     }
   }
 
-  private socioGiaStrumentista(socioId: number): boolean {
-    return this.strumentistiEsistenti().some((b) => b.socio.id === socioId && b.id !== this.strumentistaId());
+  private socioGiaMusicista(socioId: number): boolean {
+    return this.musicistiEsistenti().some((b) => b.socio.id === socioId && b.id !== this.musicistaId());
   }
 
   onSearchInput(): void {
@@ -83,7 +83,7 @@ export class StrumentistaForm {
 
     this.suggestions.set(
       this.soci()
-        .filter((s) => !this.socioGiaStrumentista(s.id))
+        .filter((s) => !this.socioGiaMusicista(s.id))
         .filter((s) => `${s.nome} ${s.cognome}`.toLowerCase().includes(term))
         .slice(0, 8)
     );
@@ -126,7 +126,7 @@ export class StrumentistaForm {
           aggiunto: true
         })
         .subscribe({
-          next: (socio) => this.salvaStrumentista(socio.id),
+          next: (socio) => this.salvaMusicista(socio.id),
           error: (err) => {
             this.saving.set(false);
             if (err.status === 400 && err.error?.errors) {
@@ -146,17 +146,17 @@ export class StrumentistaForm {
     }
 
     this.saving.set(true);
-    this.salvaStrumentista(socioId);
+    this.salvaMusicista(socioId);
   }
 
-  private salvaStrumentista(socioId: number): void {
-    const id = this.strumentistaId();
+  private salvaMusicista(socioId: number): void {
+    const id = this.musicistaId();
     const request$ = id
-      ? this.strumentistaService.update(id, { socioId })
-      : this.strumentistaService.create({ socioId });
+      ? this.musicistaService.update(id, { socioId })
+      : this.musicistaService.create({ socioId });
 
     request$.subscribe({
-      next: () => this.router.navigate(['/strumentisti']),
+      next: () => this.router.navigate(['/musicisti']),
       error: (err) => {
         this.saving.set(false);
         if (err.status === 400 && err.error?.errors) {

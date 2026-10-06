@@ -1,5 +1,5 @@
 <div class="page-header">
-  <h2>{{ strumentistaId() ? 'Modifica strumentista' : 'Nuovo strumentista' }}</h2>
+  <h2>{{ musicistaId() ? 'Modifica musicista' : 'Nuovo musicista' }}</h2>
 </div>
 
 @if (loading()) {
@@ -42,7 +42,7 @@
 
       <div class="form-actions">
         <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
-        <a routerLink="/strumentisti" class="btn-secondary">Annulla</a>
+        <a routerLink="/musicisti" class="btn-secondary">Annulla</a>
       </div>
     </form>
   } @else {
@@ -92,7 +92,7 @@
 
       <div class="form-actions">
         <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
-        <a routerLink="/strumentisti" class="btn-secondary">Annulla</a>
+        <a routerLink="/musicisti" class="btn-secondary">Annulla</a>
       </div>
     </form>
   }

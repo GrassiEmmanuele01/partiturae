@@ -1,0 +1,54 @@
+<div class="page-header">
+  <h2>Musicisti</h2>
+  <a routerLink="/musicisti/nuovo" class="btn-primary">+ Nuovo musicista</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (musicisti().length === 0) {
+  <p>Nessun musicista registrato.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Cognome</th>
+        <th>Email</th>
+        <th>Strumenti</th>
+        <th>Iscritto {{ annoCorrente }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (musicista of musicisti(); track musicista.id) {
+        <tr>
+          <td>
+            {{ musicista.socio.nome }}
+            @if (musicista.socio.aggiunto) { <span class="badge-aggiunto">aggiunto</span> }
+          </td>
+          <td>{{ musicista.socio.cognome }}</td>
+          <td>{{ musicista.socio.mail }}</td>
+          <td>
+            @if (musicista.strumenti.length === 0) {
+              <span class="muted">-</span>
+            } @else {
+              {{ musicista.strumenti.map(s => s.nome).join(', ') }}
+            }
+          </td>
+          <td>
+            <span class="badge" [class.ok]="musicista.socio.iscrittoAnnoCorrente" [class.ko]="!musicista.socio.iscrittoAnnoCorrente">
+              {{ musicista.socio.iscrittoAnnoCorrente ? 'Sì' : 'No' }}
+            </span>
+          </td>
+          <td class="actions">
+            <a [routerLink]="['/musicisti', musicista.id, 'musicale']">Musicale</a>
+            <a [routerLink]="['/soci', musicista.socio.id]">Anagrafica</a>
+            <button (click)="remove(musicista.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

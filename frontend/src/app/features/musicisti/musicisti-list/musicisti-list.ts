@@ -1,19 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { Strumentista } from '../strumentista.model';
-import { StrumentistaService } from '../strumentista.service';
+import { Musicista } from '../musicista.model';
+import { MusicistaService } from '../musicista.service';
 
 @Component({
-  selector: 'app-strumentisti-list',
+  selector: 'app-musicisti-list',
   imports: [RouterLink],
-  templateUrl: './strumentisti-list.html',
-  styleUrl: './strumentisti-list.scss'
+  templateUrl: './musicisti-list.html',
+  styleUrl: './musicisti-list.scss'
 })
-export class StrumentistiList {
-  private strumentistaService = inject(StrumentistaService);
+export class MusicistiList {
+  private musicistaService = inject(MusicistaService);
 
-  strumentisti = signal<Strumentista[]>([]);
+  musicisti = signal<Musicista[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
   annoCorrente = new Date().getFullYear();
@@ -26,24 +26,24 @@ export class StrumentistiList {
     this.loading.set(true);
     this.error.set(null);
 
-    this.strumentistaService.getAll().subscribe({
+    this.musicistaService.getAll().subscribe({
       next: (data) => {
-        this.strumentisti.set(data);
+        this.musicisti.set(data);
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Impossibile caricare i strumentisti. Controlla che il backend sia avviato.');
+        this.error.set('Impossibile caricare i musicisti. Controlla che il backend sia avviato.');
         this.loading.set(false);
       }
     });
   }
 
   remove(id: number): void {
-    if (!confirm('Eliminare questo strumentista?')) {
+    if (!confirm('Eliminare questo musicista?')) {
       return;
     }
 
-    this.strumentistaService.delete(id).subscribe({
+    this.musicistaService.delete(id).subscribe({
       next: () => this.load(),
       error: () => this.error.set("Errore durante l'eliminazione.")
     });

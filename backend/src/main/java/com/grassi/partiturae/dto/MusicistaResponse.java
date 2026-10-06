@@ -1,19 +1,20 @@
 package com.grassi.partiturae.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StrumentistaRequest {
-
-    @NotNull(message = "Il socio è obbligatorio")
-    private Long socioId;
+public class MusicistaResponse {
+    private Long id;
+    private SocioResponse socio;
+    private List<StrumentoResponse> strumenti;
 }

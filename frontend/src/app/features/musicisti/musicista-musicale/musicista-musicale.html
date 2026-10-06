@@ -1,6 +1,6 @@
 <div class="page-header">
-  <a routerLink="/strumentisti" class="back-link">&larr; Torna ai strumentisti</a>
-  @if (strumentista(); as b) {
+  <a routerLink="/musicisti" class="back-link">&larr; Torna ai musicisti</a>
+  @if (musicista(); as b) {
     <h2>{{ b.socio.nome }} {{ b.socio.cognome }} — sezione musicale</h2>
     <p class="subtitle">
       Iscritto quest'anno:
@@ -22,11 +22,11 @@
   <section class="strumenti-section">
     <h3>Strumenti suonati</h3>
 
-    @if (strumentista()?.strumenti?.length === 0) {
+    @if (musicista()?.strumenti?.length === 0) {
       <p class="empty">Nessuno strumento associato.</p>
     } @else {
       <ul class="chips">
-        @for (s of strumentista()?.strumenti; track s.id) {
+        @for (s of musicista()?.strumenti; track s.id) {
           <li class="chip">
             {{ s.nome }}
             <button (click)="removeStrumento(s.id)" title="Rimuovi">&times;</button>
