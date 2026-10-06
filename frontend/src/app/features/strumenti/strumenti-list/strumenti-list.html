@@ -1,34 +1,105 @@
 <div class="page-header">
-  <h2>Strumenti</h2>
-  <a routerLink="/strumenti/nuovo" class="btn-primary">+ Nuovo strumento</a>
+  <div>
+    <h2>Strumenti</h2>
+    <p class="subtitle">Organizzati per famiglia — apri una riga per vedere le parti specifiche.</p>
+  </div>
+  <button type="button" class="btn-primary" (click)="toggleAddForm()">
+    {{ showAddForm() ? 'Annulla' : '+ Aggiungi strumento' }}
+  </button>
 </div>
+
+@if (showAddForm()) {
+  <section class="add-form">
+    <div class="field">
+      <label for="nuovoNome">Nome strumento</label>
+      <input id="nuovoNome" type="text" [value]="nuovoNome()" (input)="nuovoNome.set($any($event.target).value)" placeholder="es. Flicorno soprano">
+    </div>
+
+    <div class="field autocomplete">
+      <label for="nuovaFamiglia">Famiglia</label>
+      <input
+        id="nuovaFamiglia"
+        type="text"
+        autocomplete="off"
+        placeholder="Scrivi il nome della famiglia..."
+        [value]="nuovaFamigliaNome()"
+        (input)="onFamigliaInput($any($event.target).value)"
+        (blur)="hideFamigliaSuggestionsDelayed()"
+      >
+      @if (famigliaSuggestions().length > 0) {
+        <ul class="suggestions">
+          @for (f of famigliaSuggestions(); track f.id) {
+            <li (mousedown)="selectFamiglia(f)">{{ f.nome }}</li>
+          }
+        </ul>
+      }
+    </div>
+
+    @if (pendingNuovaFamiglia(); as nome) {
+      <div class="confirm-box">
+        <p>La famiglia "{{ nome }}" non esiste ancora. Vuoi crearla?</p>
+        <div class="confirm-actions">
+          <button type="button" class="btn-primary" (click)="confermaCreaFamiglia()" [disabled]="saving()">Sì, crea "{{ nome }}"</button>
+          <button type="button" class="btn-secondary" (click)="annullaCreaFamiglia()">Annulla</button>
+        </div>
+      </div>
+    } @else {
+      <button type="button" class="btn-primary" (click)="submitAddStrumento()" [disabled]="saving()">
+        {{ saving() ? 'Salvataggio...' : 'Salva strumento' }}
+      </button>
+    }
+  </section>
+}
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
 
 @if (loading()) {
   <p>Caricamento...</p>
-} @else if (error()) {
-  <p class="error">{{ error() }}</p>
-} @else if (strumenti().length === 0) {
-  <p>Nessuno strumento registrato.</p>
 } @else {
-  <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Famiglia</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (strumento of strumenti(); track strumento.id) {
-        <tr>
-          <td>{{ strumento.nome }}</td>
-          <td>{{ strumento.famigliaNome }}</td>
-          <td class="actions">
-            <a [routerLink]="['/strumenti', strumento.id]">Modifica</a>
-            <button (click)="remove(strumento.id)">Elimina</button>
-          </td>
-        </tr>
+  @for (famiglia of famiglieConStrumenti(); track famiglia.id) {
+    <section class="famiglia-group">
+      <h3>{{ famiglia.nome }}</h3>
+
+      @if (famiglia.strumenti.length === 0) {
+        <p class="empty">Nessuno strumento in questa famiglia.</p>
+      } @else {
+        <ul class="strumenti-rows">
+          @for (strumento of famiglia.strumenti; track strumento.id) {
+            <li class="strumento-row">
+              <button type="button" class="row-toggle" (click)="toggleExpand(strumento.id)">
+                <span class="chevron" [class.open]="isExpanded(strumento.id)">&rsaquo;</span>
+                {{ strumento.nome }}
+              </button>
+
+              @if (isExpanded(strumento.id)) {
+                <div class="sotto-strumenti">
+                  @if (sottostrumentiDi(strumento.id).length === 0) {
+                    <p class="empty-mini">Nessuna parte specifica ancora.</p>
+                  } @else {
+                    <ul>
+                      @for (sf of sottostrumentiDi(strumento.id); track sf.id) {
+                        <li>{{ sf.nome }}</li>
+                      }
+                    </ul>
+                  }
+
+                  <div class="mini-form">
+                    <input
+                      type="text"
+                      placeholder="Nome parte, es. Tromba 3"
+                      [value]="draftSottostrumento()[strumento.id] ?? ''"
+                      (input)="onDraftInput(strumento.id, $any($event.target).value)"
+                    >
+                    <button type="button" (click)="addSottostrumento(strumento.id)">Aggiungi</button>
+                  </div>
+                </div>
+              }
+            </li>
+          }
+        </ul>
       }
-    </tbody>
-  </table>
+    </section>
+  }
 }
