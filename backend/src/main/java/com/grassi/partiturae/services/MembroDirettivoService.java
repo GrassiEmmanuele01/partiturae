@@ -3,6 +3,7 @@ package com.grassi.partiturae.services;
 import com.grassi.partiturae.dto.MembroDirettivoRequest;
 import com.grassi.partiturae.dto.MembroDirettivoResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
+import com.grassi.partiturae.model.CaricaDirettivo;
 import com.grassi.partiturae.model.MembroDirettivo;
 import com.grassi.partiturae.model.Socio;
 import com.grassi.partiturae.repositories.MembroDirettivoRepository;
@@ -42,6 +43,7 @@ public class MembroDirettivoService {
     @Transactional
     public MembroDirettivoResponse create(MembroDirettivoRequest request) {
         Socio socio = socioService.findEntityById(request.getSocioId());
+        verificaCaricaUnica(request.getCarica(), request.getAnnoInizio(), request.getAnnoFine(), null);
 
         MembroDirettivo membro = MembroDirettivo.builder()
                 .socio(socio)
@@ -57,6 +59,7 @@ public class MembroDirettivoService {
     public MembroDirettivoResponse update(Long id, MembroDirettivoRequest request) {
         MembroDirettivo membro = findEntityById(id);
         Socio socio = socioService.findEntityById(request.getSocioId());
+        verificaCaricaUnica(request.getCarica(), request.getAnnoInizio(), request.getAnnoFine(), id);
 
         membro.setSocio(socio);
         membro.setCarica(request.getCarica());
@@ -75,6 +78,32 @@ public class MembroDirettivoService {
     private MembroDirettivo findEntityById(Long id) {
         return membroDirettivoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Membro del direttivo non trovato con id: " + id));
+    }
+
+    private void verificaCaricaUnica(CaricaDirettivo carica, Integer annoInizio, Integer annoFine, Long idEscluso) {
+        if (!carica.isUnica()) {
+            return;
+        }
+
+        boolean conflitto = membroDirettivoRepository.findAll().stream()
+                .filter(m -> m.getCarica() == carica)
+                .filter(m -> idEscluso == null || !m.getId().equals(idEscluso))
+                .anyMatch(m -> mandatiSovrapposti(annoInizio, annoFine, m.getAnnoInizio(), m.getAnnoFine()));
+
+        if (conflitto) {
+            throw new IllegalStateException(
+                    "La carica di " + formatCarica(carica) + " è già assegnata a qualcun altro in questo periodo.");
+        }
+    }
+
+    private boolean mandatiSovrapposti(Integer inizio1, Integer fine1, Integer inizio2, Integer fine2) {
+        boolean iniziaPrimaCheLaltroFinisca = fine2 == null || inizio1 <= fine2;
+        boolean laltroIniziaPrimaCheFinisca = fine1 == null || inizio2 <= fine1;
+        return iniziaPrimaCheLaltroFinisca && laltroIniziaPrimaCheFinisca;
+    }
+
+    private String formatCarica(CaricaDirettivo carica) {
+        return carica.name().charAt(0) + carica.name().substring(1).toLowerCase().replace('_', ' ');
     }
 
     private MembroDirettivoResponse toResponse(MembroDirettivo membro) {

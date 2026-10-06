@@ -24,7 +24,7 @@
       @for (m of membri(); track m.id) {
         <tr>
           <td>{{ m.socio.nome }} {{ m.socio.cognome }}</td>
-          <td>{{ m.carica }}</td>
+          <td>{{ caricaLabels[m.carica] }}</td>
           <td>{{ m.annoInizio }}{{ m.annoFine ? ' - ' + m.annoFine : ' - in corso' }}</td>
           <td>
             <span class="badge" [class.ok]="m.inCarica" [class.ko]="!m.inCarica">

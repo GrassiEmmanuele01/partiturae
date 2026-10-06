@@ -37,9 +37,17 @@
 
     <div class="field">
       <label for="carica">Carica</label>
-      <input id="carica" type="text" formControlName="carica" placeholder="es. Presidente, Segretario...">
+      <select id="carica" formControlName="carica">
+        <option [ngValue]="null" disabled>Seleziona una carica</option>
+        @for (c of cariche; track c[0]) {
+          <option [ngValue]="c[0]">{{ c[1] }}</option>
+        }
+      </select>
       @if (form.controls.carica.invalid && form.controls.carica.touched) {
         <span class="field-error">La carica è obbligatoria</span>
+      }
+      @if (caricaIsUnica()) {
+        <span class="field-hint">Questa carica può essere assegnata a una sola persona per periodo.</span>
       }
     </div>
 

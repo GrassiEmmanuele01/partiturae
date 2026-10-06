@@ -1,6 +1,8 @@
 package com.grassi.partiturae.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,7 +33,8 @@ public class MembroDirettivo {
     @JoinColumn(name = "socio_id")
     private Socio socio;
 
-    private String carica;
+    @Enumerated(EnumType.STRING)
+    private CaricaDirettivo carica;
 
     private Integer annoInizio;
 

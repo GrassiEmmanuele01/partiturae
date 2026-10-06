@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Socio } from '../../soci/socio.model';
 import { SocioService } from '../../soci/socio.service';
+import { CARICA_DIRETTIVO_LABELS, CARICHE_UNICHE, CaricaDirettivo } from '../membro-direttivo.model';
 import { MembroDirettivoService } from '../membro-direttivo.service';
 
 @Component({
@@ -28,12 +29,19 @@ export class DirettivoForm {
   suggestions = signal<Socio[]>([]);
   selectedSocioId = signal<number | null>(null);
 
+  cariche = Object.entries(CARICA_DIRETTIVO_LABELS) as [CaricaDirettivo, string][];
+
   form = this.fb.nonNullable.group({
     socioNome: ['', Validators.required],
-    carica: ['', Validators.required],
+    carica: this.fb.control<CaricaDirettivo | null>(null, Validators.required),
     annoInizio: this.fb.control<number | null>(new Date().getFullYear(), Validators.required),
     mandatoInCorso: [true],
     annoFine: this.fb.control<number | null>(null)
+  });
+
+  caricaIsUnica = computed(() => {
+    const carica = this.form.controls.carica.value;
+    return carica !== null && CARICHE_UNICHE.includes(carica);
   });
 
   constructor() {
@@ -41,7 +49,6 @@ export class DirettivoForm {
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      // Non c'è un endpoint di dettaglio singolo: recuperiamo dalla lista completa.
       const id = Number(idParam);
       this.membroId.set(id);
       this.loading.set(true);
@@ -116,7 +123,7 @@ export class DirettivoForm {
     const value = this.form.getRawValue();
     const request = {
       socioId,
-      carica: value.carica,
+      carica: value.carica as CaricaDirettivo,
       annoInizio: value.annoInizio as number,
       annoFine: value.mandatoInCorso ? null : value.annoFine
     };
@@ -130,7 +137,9 @@ export class DirettivoForm {
       next: () => this.router.navigate(['/direttivo']),
       error: (err) => {
         this.saving.set(false);
-        if (err.status === 400 && err.error?.errors) {
+        if (err.error?.message) {
+          this.error.set(err.error.message);
+        } else if (err.status === 400 && err.error?.errors) {
           this.error.set(Object.values(err.error.errors).join(', '));
         } else {
           this.error.set('Errore durante il salvataggio.');

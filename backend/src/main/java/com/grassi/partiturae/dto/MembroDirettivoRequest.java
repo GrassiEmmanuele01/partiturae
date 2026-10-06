@@ -1,8 +1,8 @@
 package com.grassi.partiturae.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.grassi.partiturae.model.CaricaDirettivo;
+
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,9 +19,8 @@ public class MembroDirettivoRequest {
     @NotNull(message = "Il socio è obbligatorio")
     private Long socioId;
 
-    @NotBlank(message = "La carica è obbligatoria")
-    @Size(max = 100)
-    private String carica;
+    @NotNull(message = "La carica è obbligatoria")
+    private CaricaDirettivo carica;
 
     @NotNull(message = "L'anno di inizio è obbligatorio")
     private Integer annoInizio;

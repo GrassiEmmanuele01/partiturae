@@ -1,5 +1,7 @@
 package com.grassi.partiturae.dto;
 
+import com.grassi.partiturae.model.CaricaDirettivo;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +16,7 @@ import lombok.Setter;
 public class MembroDirettivoResponse {
     private Long id;
     private SocioResponse socio;
-    private String carica;
+    private CaricaDirettivo carica;
     private Integer annoInizio;
     private Integer annoFine;
     private boolean inCarica;

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { MembroDirettivo } from '../membro-direttivo.model';
+import { CARICA_DIRETTIVO_LABELS, MembroDirettivo } from '../membro-direttivo.model';
 import { MembroDirettivoService } from '../membro-direttivo.service';
 
 @Component({
@@ -16,6 +16,7 @@ export class DirettivoList {
   membri = signal<MembroDirettivo[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  caricaLabels = CARICA_DIRETTIVO_LABELS;
 
   constructor() {
     this.load();
