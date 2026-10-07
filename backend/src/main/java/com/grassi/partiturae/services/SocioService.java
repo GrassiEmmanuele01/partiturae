@@ -69,6 +69,11 @@ public class SocioService {
         socioRepository.delete(socio);
     }
 
+    @Transactional(readOnly = true)
+    List<Socio> findAllEntities() {
+        return socioRepository.findAll();
+    }
+
     Socio findEntityById(Long id) {
         return socioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Socio non trovato con id: " + id));

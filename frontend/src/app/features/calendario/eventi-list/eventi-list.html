@@ -1,0 +1,41 @@
+<div class="page-header">
+  <h2>Calendario</h2>
+  <a routerLink="/calendario/nuovo" class="btn-primary">+ Nuovo evento</a>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (eventi().length === 0) {
+  <p>Nessun evento registrato.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Titolo</th>
+        <th>Tipo</th>
+        <th>Data</th>
+        <th>Luogo</th>
+        <th>Presenti</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (evento of eventi(); track evento.id) {
+        <tr>
+          <td>{{ evento.titolo }}</td>
+          <td>{{ tipoLabels[evento.tipo] }}</td>
+          <td>{{ evento.data }}{{ evento.ora ? ' · ' + evento.ora.substring(0, 5) : '' }}</td>
+          <td>{{ evento.luogo || '-' }}</td>
+          <td>{{ evento.numeroPresenti }}</td>
+          <td class="actions">
+            <a [routerLink]="['/calendario', evento.id, 'presenze']">Presenze</a>
+            <a [routerLink]="['/calendario', evento.id, 'modifica']">Modifica</a>
+            <button (click)="remove(evento.id)">Elimina</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

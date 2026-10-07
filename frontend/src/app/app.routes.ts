@@ -23,6 +23,9 @@ import { StrumentoForm } from './features/strumenti/strumento-form/strumento-for
 import { StrumentiFigliList } from './features/strumenti-figli/strumenti-figli-list/strumenti-figli-list';
 import { StrumentoFiglioForm } from './features/strumenti-figli/strumento-figlio-form/strumento-figlio-form';
 import { FormazioneSettings } from './features/formazione/formazione-settings/formazione-settings';
+import { EventiList } from './features/calendario/eventi-list/eventi-list';
+import { EventoForm } from './features/calendario/evento-form/evento-form';
+import { EventoPresenze } from './features/calendario/evento-presenze/evento-presenze';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -58,5 +61,9 @@ export const routes: Routes = [
   { path: 'strumenti-figli/nuovo', component: StrumentoFiglioForm },
   { path: 'strumenti-figli/:id', component: StrumentoFiglioForm },
   { path: 'formazione', component: FormazioneSettings },
+  { path: 'calendario', component: EventiList },
+  { path: 'calendario/nuovo', component: EventoForm },
+  { path: 'calendario/:id/presenze', component: EventoPresenze },
+  { path: 'calendario/:id/modifica', component: EventoForm },
   { path: '**', redirectTo: '' }
 ];

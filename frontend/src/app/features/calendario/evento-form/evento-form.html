@@ -1,0 +1,62 @@
+<div class="page-header">
+  <h2>{{ eventoId() ? 'Modifica evento' : 'Nuovo evento' }}</h2>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="titolo">Titolo</label>
+      <input id="titolo" type="text" formControlName="titolo" placeholder="es. Prova settimanale">
+      @if (form.controls.titolo.invalid && form.controls.titolo.touched) {
+        <span class="field-error">Il titolo è obbligatorio</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="tipo">Tipo</label>
+      <select id="tipo" formControlName="tipo">
+        <option [ngValue]="null" disabled>Seleziona un tipo</option>
+        @for (t of tipi; track t[0]) {
+          <option [ngValue]="t[0]">{{ t[1] }}</option>
+        }
+      </select>
+      @if (form.controls.tipo.invalid && form.controls.tipo.touched) {
+        <span class="field-error">Il tipo è obbligatorio</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="data">Data</label>
+      <input id="data" type="date" formControlName="data">
+      @if (form.controls.data.invalid && form.controls.data.touched) {
+        <span class="field-error">La data è obbligatoria</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="ora">Ora (opzionale)</label>
+      <input id="ora" type="time" formControlName="ora">
+    </div>
+
+    <div class="field">
+      <label for="luogo">Luogo</label>
+      <input id="luogo" type="text" formControlName="luogo">
+    </div>
+
+    <div class="field">
+      <label for="note">Note</label>
+      <textarea id="note" formControlName="note" rows="3"></textarea>
+    </div>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
+      <a routerLink="/calendario" class="btn-secondary">Annulla</a>
+    </div>
+  </form>
+}

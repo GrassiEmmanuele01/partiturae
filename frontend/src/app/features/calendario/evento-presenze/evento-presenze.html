@@ -1,0 +1,34 @@
+<div class="page-header">
+  <a routerLink="/calendario" class="back-link">&larr; Torna al calendario</a>
+  @if (evento(); as e) {
+    <h2>{{ e.titolo }}</h2>
+    <p class="subtitle">{{ tipoLabels[e.tipo] }} · {{ e.data }}{{ e.luogo ? ' · ' + e.luogo : '' }}</p>
+  }
+</div>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else {
+  <p class="count">Presenti: {{ presentiCount }} / {{ presenze().length }}</p>
+
+  <ul class="presenze-list">
+    @for (p of presenze(); track p.socioId) {
+      <li>
+        <span>{{ p.nome }} {{ p.cognome }}</span>
+        <button
+          type="button"
+          class="toggle"
+          [class.present]="p.presente"
+          (click)="toggle(p)"
+          [disabled]="savingSocioId() === p.socioId"
+        >
+          {{ savingSocioId() === p.socioId ? '...' : (p.presente ? 'Presente' : 'Assente') }}
+        </button>
+      </li>
+    }
+  </ul>
+}
