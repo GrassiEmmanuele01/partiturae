@@ -1,7 +1,10 @@
 package com.grassi.partiturae.controllers;
 
-import java.util.List;
-
+import com.grassi.partiturae.dto.AutoreRequest;
+import com.grassi.partiturae.dto.AutoreResponse;
+import com.grassi.partiturae.dto.UtilizzoResponse;
+import com.grassi.partiturae.services.AutoreService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,11 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.grassi.partiturae.dto.AutoreRequest;
-import com.grassi.partiturae.dto.AutoreResponse;
-import com.grassi.partiturae.services.AutoreService;
-
-import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/autori")
@@ -36,6 +35,11 @@ public class AutoreController {
     @GetMapping("/{id}")
     public ResponseEntity<AutoreResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(autoreService.getById(id));
+    }
+
+    @GetMapping("/{id}/utilizzo")
+    public ResponseEntity<UtilizzoResponse> getUtilizzo(@PathVariable Long id) {
+        return ResponseEntity.ok(autoreService.getUtilizzo(id));
     }
 
     @PostMapping

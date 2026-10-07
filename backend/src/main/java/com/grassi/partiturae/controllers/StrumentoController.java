@@ -1,7 +1,10 @@
 package com.grassi.partiturae.controllers;
 
-import java.util.List;
-
+import com.grassi.partiturae.dto.StrumentoRequest;
+import com.grassi.partiturae.dto.StrumentoResponse;
+import com.grassi.partiturae.dto.UtilizzoResponse;
+import com.grassi.partiturae.services.StrumentoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.grassi.partiturae.dto.StrumentoRequest;
-import com.grassi.partiturae.dto.StrumentoResponse;
-import com.grassi.partiturae.services.StrumentoService;
-
-import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/strumenti")
@@ -40,6 +39,11 @@ public class StrumentoController {
     @GetMapping("/{id}")
     public ResponseEntity<StrumentoResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(strumentoService.getById(id));
+    }
+
+    @GetMapping("/{id}/utilizzo")
+    public ResponseEntity<UtilizzoResponse> getUtilizzo(@PathVariable Long id) {
+        return ResponseEntity.ok(strumentoService.getUtilizzo(id));
     }
 
     @PostMapping

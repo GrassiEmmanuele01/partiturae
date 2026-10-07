@@ -2,6 +2,7 @@ package com.grassi.partiturae.controllers;
 
 import com.grassi.partiturae.dto.StrumentoFiglioRequest;
 import com.grassi.partiturae.dto.StrumentoFiglioResponse;
+import com.grassi.partiturae.dto.UtilizzoResponse;
 import com.grassi.partiturae.services.StrumentoFiglioService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,11 @@ public class StrumentoFiglioController {
     @GetMapping("/{id}")
     public ResponseEntity<StrumentoFiglioResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(strumentoFiglioService.getById(id));
+    }
+
+    @GetMapping("/{id}/utilizzo")
+    public ResponseEntity<UtilizzoResponse> getUtilizzo(@PathVariable Long id) {
+        return ResponseEntity.ok(strumentoFiglioService.getUtilizzo(id));
     }
 
     @PostMapping

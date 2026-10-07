@@ -45,6 +45,16 @@
   font-size: 0.9rem;
 }
 
+.btn-danger {
+  background: var(--brick);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
 .add-form {
   background: #fff;
   border: 1px solid var(--mist);
@@ -126,6 +136,30 @@
   }
 }
 
+.usage-warning {
+  background: #fdf0da;
+  border: 1px solid var(--brass);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+
+  p {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  ul {
+    margin: 0 0 0.9rem;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .usage-actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+}
+
 .error {
   color: var(--brick);
   margin-bottom: 1rem;
@@ -167,8 +201,19 @@
   }
 }
 
+.row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 1rem;
+
+  &:hover {
+    background: var(--paper);
+  }
+}
+
 .row-toggle {
-  width: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -181,10 +226,6 @@
   color: var(--ink);
   cursor: pointer;
 
-  &:hover {
-    background: var(--paper);
-  }
-
   .chevron {
     transition: transform 0.15s ease;
     color: var(--brass-dark);
@@ -192,6 +233,21 @@
     &.open {
       transform: rotate(90deg);
     }
+  }
+}
+
+.row-delete,
+.sf-delete {
+  background: none;
+  border: none;
+  color: var(--brick);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.5rem;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: wait;
   }
 }
 
@@ -205,6 +261,9 @@
     padding: 0;
 
     li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 0.3rem 0;
       font-size: 0.9rem;
       color: var(--ink);

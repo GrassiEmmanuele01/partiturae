@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { Utilizzo } from '../../shared/utilizzo.model';
 import { Famiglia, FamigliaRequest } from './famiglia.model';
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +17,10 @@ export class FamigliaService {
 
   getById(id: number): Observable<Famiglia> {
     return this.http.get<Famiglia>(`${this.baseUrl}/${id}`);
+  }
+
+  getUtilizzo(id: number): Observable<Utilizzo> {
+    return this.http.get<Utilizzo>(`${this.baseUrl}/${id}/utilizzo`);
   }
 
   create(request: FamigliaRequest): Observable<Famiglia> {

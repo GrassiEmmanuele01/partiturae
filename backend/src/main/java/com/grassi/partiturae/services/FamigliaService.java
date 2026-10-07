@@ -1,23 +1,27 @@
 package com.grassi.partiturae.services;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.grassi.partiturae.dto.FamigliaRequest;
 import com.grassi.partiturae.dto.FamigliaResponse;
+import com.grassi.partiturae.dto.UtilizzoElemento;
+import com.grassi.partiturae.dto.UtilizzoResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
 import com.grassi.partiturae.model.Famiglia;
 import com.grassi.partiturae.repositories.FamigliaRepository;
+import com.grassi.partiturae.repositories.StrumentoRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class FamigliaService {
 
     private final FamigliaRepository famigliaRepository;
+    private final StrumentoRepository strumentoRepository;
 
-    public FamigliaService(FamigliaRepository famigliaRepository) {
+    public FamigliaService(FamigliaRepository famigliaRepository, StrumentoRepository strumentoRepository) {
         this.famigliaRepository = famigliaRepository;
+        this.strumentoRepository = strumentoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -52,6 +56,15 @@ public class FamigliaService {
     public void delete(Long id) {
         Famiglia famiglia = findEntityById(id);
         famigliaRepository.delete(famiglia);
+    }
+
+    @Transactional(readOnly = true)
+    public UtilizzoResponse getUtilizzo(Long id) {
+        List<UtilizzoElemento> elementi = strumentoRepository.findByFamigliaId(id).stream()
+                .map(s -> new UtilizzoElemento("Strumento", s.getNome()))
+                .toList();
+
+        return new UtilizzoResponse(elementi.size(), elementi);
     }
 
     Famiglia findEntityById(Long id) {

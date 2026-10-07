@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { Utilizzo } from '../../shared/utilizzo.model';
 import { Strumento, StrumentoRequest } from './strumento.model';
 
 @Injectable({ providedIn: 'root' })
@@ -20,6 +21,10 @@ export class StrumentoService {
 
   getById(id: number): Observable<Strumento> {
     return this.http.get<Strumento>(`${this.baseUrl}/${id}`);
+  }
+
+  getUtilizzo(id: number): Observable<Utilizzo> {
+    return this.http.get<Utilizzo>(`${this.baseUrl}/${id}/utilizzo`);
   }
 
   create(request: StrumentoRequest): Observable<Strumento> {

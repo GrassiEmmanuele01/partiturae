@@ -1,26 +1,37 @@
 package com.grassi.partiturae.services;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.grassi.partiturae.dto.StrumentoRequest;
 import com.grassi.partiturae.dto.StrumentoResponse;
+import com.grassi.partiturae.dto.UtilizzoElemento;
+import com.grassi.partiturae.dto.UtilizzoResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
 import com.grassi.partiturae.model.Famiglia;
 import com.grassi.partiturae.model.Strumento;
+import com.grassi.partiturae.repositories.MusicistaRepository;
+import com.grassi.partiturae.repositories.StrumentoFiglioRepository;
 import com.grassi.partiturae.repositories.StrumentoRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class StrumentoService {
 
     private final StrumentoRepository strumentoRepository;
     private final FamigliaService famigliaService;
+    private final StrumentoFiglioRepository strumentoFiglioRepository;
+    private final MusicistaRepository musicistaRepository;
 
-    public StrumentoService(StrumentoRepository strumentoRepository, FamigliaService famigliaService) {
+    public StrumentoService(StrumentoRepository strumentoRepository,
+                             FamigliaService famigliaService,
+                             StrumentoFiglioRepository strumentoFiglioRepository,
+                             MusicistaRepository musicistaRepository) {
         this.strumentoRepository = strumentoRepository;
         this.famigliaService = famigliaService;
+        this.strumentoFiglioRepository = strumentoFiglioRepository;
+        this.musicistaRepository = musicistaRepository;
     }
 
     @Transactional(readOnly = true)
@@ -69,6 +80,19 @@ public class StrumentoService {
     public void delete(Long id) {
         Strumento strumento = findEntityById(id);
         strumentoRepository.delete(strumento);
+    }
+
+    @Transactional(readOnly = true)
+    public UtilizzoResponse getUtilizzo(Long id) {
+        List<UtilizzoElemento> elementi = new ArrayList<>();
+
+        strumentoFiglioRepository.findByStrumentoId(id)
+                .forEach(sf -> elementi.add(new UtilizzoElemento("Parte strumento", sf.getNome())));
+
+        musicistaRepository.findByStrumentiId(id)
+                .forEach(m -> elementi.add(new UtilizzoElemento("Musicista", m.getSocio().getNome() + " " + m.getSocio().getCognome())));
+
+        return new UtilizzoResponse(elementi.size(), elementi);
     }
 
     Strumento findEntityById(Long id) {

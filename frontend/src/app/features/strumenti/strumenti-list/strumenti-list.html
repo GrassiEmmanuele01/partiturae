@@ -55,6 +55,36 @@
   <p class="error">{{ error() }}</p>
 }
 
+@if (pendingDeleteStrumentoUtilizzo(); as u) {
+  <div class="usage-warning">
+    <p>Questo strumento è usato in {{ u.count }} {{ u.count === 1 ? 'elemento' : 'elementi' }}:</p>
+    <ul>
+      @for (el of u.elementi; track el.nome) {
+        <li>{{ el.tipo }}: {{ el.nome }}</li>
+      }
+    </ul>
+    <div class="usage-actions">
+      <button type="button" class="btn-danger" (click)="confirmDeleteStrumentoAnyway()">Elimina comunque</button>
+      <button type="button" class="btn-secondary" (click)="cancelPendingDeleteStrumento()">Annulla</button>
+    </div>
+  </div>
+}
+
+@if (pendingDeleteSfUtilizzo(); as u) {
+  <div class="usage-warning">
+    <p>Questa parte è usata in {{ u.count }} {{ u.count === 1 ? 'elemento' : 'elementi' }}:</p>
+    <ul>
+      @for (el of u.elementi; track el.nome) {
+        <li>{{ el.tipo }}: {{ el.nome }}</li>
+      }
+    </ul>
+    <div class="usage-actions">
+      <button type="button" class="btn-danger" (click)="confirmDeleteSfAnyway()">Elimina comunque</button>
+      <button type="button" class="btn-secondary" (click)="cancelPendingDeleteSf()">Annulla</button>
+    </div>
+  </div>
+}
+
 @if (loading()) {
   <p>Caricamento...</p>
 } @else {
@@ -68,10 +98,20 @@
         <ul class="strumenti-rows">
           @for (strumento of famiglia.strumenti; track strumento.id) {
             <li class="strumento-row">
-              <button type="button" class="row-toggle" (click)="toggleExpand(strumento.id)">
-                <span class="chevron" [class.open]="isExpanded(strumento.id)">&rsaquo;</span>
-                {{ strumento.nome }}
-              </button>
+              <div class="row-main">
+                <button type="button" class="row-toggle" (click)="toggleExpand(strumento.id)">
+                  <span class="chevron" [class.open]="isExpanded(strumento.id)">&rsaquo;</span>
+                  {{ strumento.nome }}
+                </button>
+                <button
+                  type="button"
+                  class="row-delete"
+                  (click)="requestRemoveStrumento(strumento.id)"
+                  [disabled]="checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id"
+                >
+                  {{ checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id ? 'Controllo...' : 'Elimina' }}
+                </button>
+              </div>
 
               @if (isExpanded(strumento.id)) {
                 <div class="sotto-strumenti">
@@ -80,7 +120,17 @@
                   } @else {
                     <ul>
                       @for (sf of sottostrumentiDi(strumento.id); track sf.id) {
-                        <li>{{ sf.nome }}</li>
+                        <li>
+                          <span>{{ sf.nome }}</span>
+                          <button
+                            type="button"
+                            class="sf-delete"
+                            (click)="requestRemoveSottostrumento(sf.id)"
+                            [disabled]="checkingSfUtilizzo() && pendingDeleteSfId() === sf.id"
+                          >
+                            {{ checkingSfUtilizzo() && pendingDeleteSfId() === sf.id ? 'Controllo...' : 'Elimina' }}
+                          </button>
+                        </li>
                       }
                     </ul>
                   }

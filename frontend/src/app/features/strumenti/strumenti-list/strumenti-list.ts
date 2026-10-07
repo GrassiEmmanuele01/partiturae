@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
+import { Utilizzo } from '../../../shared/utilizzo.model';
 import { Famiglia, FamigliaRequest } from '../../famiglie/famiglia.model';
 import { FamigliaService } from '../../famiglie/famiglia.service';
 import { StrumentoFiglio } from '../../strumenti-figli/strumento-figlio.model';
@@ -40,6 +41,14 @@ export class StrumentiList {
   selectedFamigliaId = signal<number | null>(null);
   pendingNuovaFamiglia = signal<string | null>(null);
   saving = signal(false);
+
+  pendingDeleteStrumentoId = signal<number | null>(null);
+  pendingDeleteStrumentoUtilizzo = signal<Utilizzo | null>(null);
+  checkingStrumentoUtilizzo = signal(false);
+
+  pendingDeleteSfId = signal<number | null>(null);
+  pendingDeleteSfUtilizzo = signal<Utilizzo | null>(null);
+  checkingSfUtilizzo = signal(false);
 
   famiglieConStrumenti = computed<FamigliaGroup[]>(() =>
     this.famiglie().map((f) => ({
@@ -165,7 +174,6 @@ export class StrumentiList {
       return;
     }
 
-    // Nessuna corrispondenza: chiediamo conferma prima di creare la famiglia.
     this.pendingNuovaFamiglia.set(famigliaNome);
   }
 
@@ -211,6 +219,94 @@ export class StrumentiList {
           this.error.set('Errore durante la creazione dello strumento.');
         }
       }
+    });
+  }
+
+  requestRemoveStrumento(id: number): void {
+    this.checkingStrumentoUtilizzo.set(true);
+    this.pendingDeleteStrumentoId.set(id);
+
+    this.strumentoService.getUtilizzo(id).subscribe({
+      next: (utilizzo) => {
+        this.checkingStrumentoUtilizzo.set(false);
+        if (utilizzo.count === 0) {
+          if (confirm('Eliminare questo strumento?')) {
+            this.doDeleteStrumento(id);
+          }
+          this.pendingDeleteStrumentoId.set(null);
+        } else {
+          this.pendingDeleteStrumentoUtilizzo.set(utilizzo);
+        }
+      },
+      error: () => {
+        this.checkingStrumentoUtilizzo.set(false);
+        this.pendingDeleteStrumentoId.set(null);
+        this.error.set("Errore durante il controllo dell'utilizzo.");
+      }
+    });
+  }
+
+  confirmDeleteStrumentoAnyway(): void {
+    const id = this.pendingDeleteStrumentoId();
+    if (id) {
+      this.doDeleteStrumento(id);
+    }
+    this.cancelPendingDeleteStrumento();
+  }
+
+  cancelPendingDeleteStrumento(): void {
+    this.pendingDeleteStrumentoId.set(null);
+    this.pendingDeleteStrumentoUtilizzo.set(null);
+  }
+
+  private doDeleteStrumento(id: number): void {
+    this.strumentoService.delete(id).subscribe({
+      next: () => this.loadAll(),
+      error: (err) => this.error.set(err.error?.message ?? "Errore durante l'eliminazione.")
+    });
+  }
+
+  requestRemoveSottostrumento(id: number): void {
+    this.checkingSfUtilizzo.set(true);
+    this.pendingDeleteSfId.set(id);
+
+    this.strumentoFiglioService.getUtilizzo(id).subscribe({
+      next: (utilizzo) => {
+        this.checkingSfUtilizzo.set(false);
+        if (utilizzo.count === 0) {
+          if (confirm('Eliminare questa parte?')) {
+            this.doDeleteSf(id);
+          }
+          this.pendingDeleteSfId.set(null);
+        } else {
+          this.pendingDeleteSfUtilizzo.set(utilizzo);
+        }
+      },
+      error: () => {
+        this.checkingSfUtilizzo.set(false);
+        this.pendingDeleteSfId.set(null);
+        this.error.set("Errore durante il controllo dell'utilizzo.");
+      }
+    });
+  }
+
+  confirmDeleteSfAnyway(): void {
+    const id = this.pendingDeleteSfId();
+    if (id) {
+      this.doDeleteSf(id);
+    }
+    this.cancelPendingDeleteSf();
+  }
+
+  cancelPendingDeleteSf(): void {
+    this.pendingDeleteSfId.set(null);
+    this.pendingDeleteSfUtilizzo.set(null);
+  }
+
+  private doDeleteSf(id: number): void {
+    this.strumentoFiglioService.delete(id).subscribe({
+      next: () => this.loadAll(),
+      error: (err) => this.error.set(err.error?.message ?? "Errore durante l'eliminazione.")
     });
   }
 }

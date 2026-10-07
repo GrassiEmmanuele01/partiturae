@@ -3,10 +3,27 @@
   <a routerLink="/famiglie/nuovo" class="btn-primary">+ Nuova famiglia</a>
 </div>
 
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (pendingDeleteUtilizzo(); as u) {
+  <div class="usage-warning">
+    <p>Questa famiglia è usata in {{ u.count }} {{ u.count === 1 ? 'elemento' : 'elementi' }}:</p>
+    <ul>
+      @for (el of u.elementi; track el.nome) {
+        <li>{{ el.tipo }}: {{ el.nome }}</li>
+      }
+    </ul>
+    <div class="usage-actions">
+      <button type="button" class="btn-danger" (click)="confirmDeleteAnyway()">Elimina comunque</button>
+      <button type="button" class="btn-secondary" (click)="cancelPendingDelete()">Annulla</button>
+    </div>
+  </div>
+}
+
 @if (loading()) {
   <p>Caricamento...</p>
-} @else if (error()) {
-  <p class="error">{{ error() }}</p>
 } @else if (famiglie().length === 0) {
   <p>Nessuna famiglia registrata.</p>
 } @else {
@@ -23,7 +40,9 @@
           <td>{{ famiglia.nome }}</td>
           <td class="actions">
             <a [routerLink]="['/famiglie', famiglia.id]">Modifica</a>
-            <button (click)="remove(famiglia.id)">Elimina</button>
+            <button (click)="requestRemove(famiglia.id)" [disabled]="checkingUtilizzo() && pendingDeleteId() === famiglia.id">
+              {{ checkingUtilizzo() && pendingDeleteId() === famiglia.id ? 'Controllo...' : 'Elimina' }}
+            </button>
           </td>
         </tr>
       }

@@ -2,9 +2,12 @@ package com.grassi.partiturae.services;
 
 import com.grassi.partiturae.dto.StrumentoFiglioRequest;
 import com.grassi.partiturae.dto.StrumentoFiglioResponse;
+import com.grassi.partiturae.dto.UtilizzoElemento;
+import com.grassi.partiturae.dto.UtilizzoResponse;
 import com.grassi.partiturae.exceptions.ResourceNotFoundException;
 import com.grassi.partiturae.model.Strumento;
 import com.grassi.partiturae.model.StrumentoFiglio;
+import com.grassi.partiturae.repositories.ParteRepository;
 import com.grassi.partiturae.repositories.StrumentoFiglioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +19,14 @@ public class StrumentoFiglioService {
 
     private final StrumentoFiglioRepository strumentoFiglioRepository;
     private final StrumentoService strumentoService;
+    private final ParteRepository parteRepository;
 
-    public StrumentoFiglioService(StrumentoFiglioRepository strumentoFiglioRepository, StrumentoService strumentoService) {
+    public StrumentoFiglioService(StrumentoFiglioRepository strumentoFiglioRepository,
+                                   StrumentoService strumentoService,
+                                   ParteRepository parteRepository) {
         this.strumentoFiglioRepository = strumentoFiglioRepository;
         this.strumentoService = strumentoService;
+        this.parteRepository = parteRepository;
     }
 
     @Transactional(readOnly = true)
@@ -68,6 +75,15 @@ public class StrumentoFiglioService {
     public void delete(Long id) {
         StrumentoFiglio strumentoFiglio = findEntityById(id);
         strumentoFiglioRepository.delete(strumentoFiglio);
+    }
+
+    @Transactional(readOnly = true)
+    public UtilizzoResponse getUtilizzo(Long id) {
+        List<UtilizzoElemento> elementi = parteRepository.findByStrumentoFiglioId(id).stream()
+                .map(p -> new UtilizzoElemento("Parte", p.getNome() + " (" + p.getPartitura().getNome() + ")"))
+                .toList();
+
+        return new UtilizzoResponse(elementi.size(), elementi);
     }
 
     StrumentoFiglio findEntityById(Long id) {

@@ -32,4 +32,8 @@ public class Strumento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "famiglia_id")
     private Famiglia famiglia;
+
+    public Object getFamiglia() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

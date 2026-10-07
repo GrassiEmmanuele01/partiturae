@@ -3,10 +3,27 @@
   <a routerLink="/autori/nuovo" class="btn-primary">+ Nuovo autore</a>
 </div>
 
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (pendingDeleteUtilizzo(); as u) {
+  <div class="usage-warning">
+    <p>Questo autore è usato in {{ u.count }} {{ u.count === 1 ? 'elemento' : 'elementi' }}:</p>
+    <ul>
+      @for (el of u.elementi; track el.nome) {
+        <li>{{ el.tipo }}: {{ el.nome }}</li>
+      }
+    </ul>
+    <div class="usage-actions">
+      <button type="button" class="btn-danger" (click)="confirmDeleteAnyway()">Elimina comunque</button>
+      <button type="button" class="btn-secondary" (click)="cancelPendingDelete()">Annulla</button>
+    </div>
+  </div>
+}
+
 @if (loading()) {
   <p>Caricamento...</p>
-} @else if (error()) {
-  <p class="error">{{ error() }}</p>
 } @else if (autori().length === 0) {
   <p>Nessun autore registrato.</p>
 } @else {
@@ -23,7 +40,9 @@
           <td>{{ autore.nominativo }}</td>
           <td class="actions">
             <a [routerLink]="['/autori', autore.id]">Modifica</a>
-            <button (click)="remove(autore.id)">Elimina</button>
+            <button (click)="requestRemove(autore.id)" [disabled]="checkingUtilizzo() && pendingDeleteId() === autore.id">
+              {{ checkingUtilizzo() && pendingDeleteId() === autore.id ? 'Controllo...' : 'Elimina' }}
+            </button>
           </td>
         </tr>
       }
