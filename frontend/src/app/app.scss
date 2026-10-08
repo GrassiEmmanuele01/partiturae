@@ -44,13 +44,13 @@
       font-size: 0.93rem;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.08);
         color: var(--paper);
       }
 
       &.active {
-        background: var(--brass);
-        color: var(--ink);
+        background: var(--brass-dark);
+        color: var(--paper);
         font-weight: 600;
       }
     }
@@ -76,7 +76,7 @@
     border-radius: 6px;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--paper);
     }
 
@@ -104,13 +104,13 @@
       border-radius: 6px;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.08);
         color: var(--paper);
       }
 
       &.active {
-        background: var(--brass);
-        color: var(--ink);
+        background: var(--brass-dark);
+        color: var(--paper);
         font-weight: 600;
       }
     }
