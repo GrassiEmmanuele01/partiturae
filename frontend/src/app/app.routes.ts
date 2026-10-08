@@ -11,6 +11,8 @@ import { MusicistaMusicale } from './features/musicisti/musicista-musicale/music
 import { PartitureList } from './features/partiture/partiture-list/partiture-list';
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
 import { PartituraParti } from './features/parti/partitura-parti/partitura-parti';
+import { StrumentoParti } from './features/parti/strumento-parti/strumento-parti';
+import { StrumentoFiglioParti } from './features/parti/strumento-figlio-parti/strumento-figlio-parti';
 import { RaccolteList } from './features/raccolte/raccolte-list/raccolte-list';
 import { RaccoltaForm } from './features/raccolte/raccolta-form/raccolta-form';
 import { RaccoltaDettaglio } from './features/raccolte/raccolta-dettaglio/raccolta-dettaglio';
@@ -56,9 +58,11 @@ export const routes: Routes = [
   { path: 'famiglie/:id', component: FamigliaForm },
   { path: 'strumenti', component: StrumentiList },
   { path: 'strumenti/nuovo', component: StrumentoForm },
+  { path: 'strumenti/:id/parti', component: StrumentoParti },
   { path: 'strumenti/:id', component: StrumentoForm },
   { path: 'strumenti-figli', component: StrumentiFigliList },
   { path: 'strumenti-figli/nuovo', component: StrumentoFiglioForm },
+  { path: 'strumenti-figli/:id/parti', component: StrumentoFiglioParti },
   { path: 'strumenti-figli/:id', component: StrumentoFiglioForm },
   { path: 'formazione', component: FormazioneSettings },
   { path: 'calendario', component: EventiList },

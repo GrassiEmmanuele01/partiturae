@@ -46,6 +46,20 @@ public class ParteService {
     }
 
     @Transactional(readOnly = true)
+    public List<ParteResponse> getByStrumentoFiglio(Long strumentoFiglioId) {
+        return parteRepository.findByStrumentoFiglioId(strumentoFiglioId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParteResponse> getByStrumento(Long strumentoId) {
+        return parteRepository.findByStrumentoFiglio_StrumentoId(strumentoId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public ParteResponse getById(Long id) {
         return toResponse(findEntityById(id));
     }
@@ -59,7 +73,7 @@ public class ParteService {
                 .nome(request.getNome())
                 .partitura(partitura)
                 .strumentoFiglio(strumentoFiglio)
-                .raccolta(request.getRaccolta())
+                .libretto(request.getLibretto())
                 .build();
 
         return toResponse(parteRepository.save(parte));
@@ -74,7 +88,7 @@ public class ParteService {
         parte.setNome(request.getNome());
         parte.setPartitura(partitura);
         parte.setStrumentoFiglio(strumentoFiglio);
-        parte.setRaccolta(request.getRaccolta());
+        parte.setLibretto(request.getLibretto());
 
         return toResponse(parteRepository.save(parte));
     }
@@ -118,7 +132,7 @@ public class ParteService {
         return ParteResponse.builder()
                 .id(parte.getId())
                 .nome(parte.getNome())
-                .raccolta(parte.getRaccolta())
+                .libretto(parte.getLibretto())
                 .pdfNome(parte.getPdfNome())
                 .partituraId(parte.getPartitura().getId())
                 .partituraNome(parte.getPartitura().getNome())

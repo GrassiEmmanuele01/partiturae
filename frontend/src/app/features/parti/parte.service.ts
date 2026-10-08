@@ -14,6 +14,14 @@ export class ParteService {
     return this.http.get<Parte[]>(this.baseUrl, { params: { partituraId } });
   }
 
+  getByStrumentoFiglio(strumentoFiglioId: number): Observable<Parte[]> {
+    return this.http.get<Parte[]>(this.baseUrl, { params: { strumentoFiglioId } });
+  }
+
+  getByStrumento(strumentoId: number): Observable<Parte[]> {
+    return this.http.get<Parte[]>(this.baseUrl, { params: { strumentoId } });
+  }
+
   create(request: ParteRequest): Observable<Parte> {
     return this.http.post<Parte>(this.baseUrl, request);
   }

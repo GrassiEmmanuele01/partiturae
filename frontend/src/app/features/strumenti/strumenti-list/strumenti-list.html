@@ -98,20 +98,37 @@
         <ul class="strumenti-rows">
           @for (strumento of famiglia.strumenti; track strumento.id) {
             <li class="strumento-row">
-              <div class="row-main">
-                <button type="button" class="row-toggle" (click)="toggleExpand(strumento.id)">
-                  <span class="chevron" [class.open]="isExpanded(strumento.id)">&rsaquo;</span>
-                  {{ strumento.nome }}
-                </button>
-                <button
-                  type="button"
-                  class="row-delete"
-                  (click)="requestRemoveStrumento(strumento.id)"
-                  [disabled]="checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id"
-                >
-                  {{ checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id ? 'Controllo...' : 'Elimina' }}
-                </button>
-              </div>
+              @if (editingStrumentoId() === strumento.id) {
+                <div class="edit-row">
+                  <input type="text" [value]="editStrumentoNome()" (input)="editStrumentoNome.set($any($event.target).value)">
+                  <select [value]="editStrumentoFamigliaId()" (change)="editStrumentoFamigliaId.set(+$any($event.target).value)">
+                    @for (f of famiglie(); track f.id) {
+                      <option [value]="f.id">{{ f.nome }}</option>
+                    }
+                  </select>
+                  <button type="button" class="btn-save" (click)="saveEditStrumento(strumento.id)" [disabled]="savingEditStrumento()">Salva</button>
+                  <button type="button" class="btn-cancel" (click)="cancelEditStrumento()">Annulla</button>
+                </div>
+              } @else {
+                <div class="row-main">
+                  <button type="button" class="row-toggle" (click)="toggleExpand(strumento.id)">
+                    <span class="chevron" [class.open]="isExpanded(strumento.id)">&rsaquo;</span>
+                    {{ strumento.nome }}
+                  </button>
+                  <div class="row-actions">
+                    <a [routerLink]="['/strumenti', strumento.id, 'parti']" class="row-link">Parti</a>
+                    <button type="button" class="row-edit" (click)="startEditStrumento(strumento)">Modifica</button>
+                    <button
+                      type="button"
+                      class="row-delete"
+                      (click)="requestRemoveStrumento(strumento.id)"
+                      [disabled]="checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id"
+                    >
+                      {{ checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id ? 'Controllo...' : 'Elimina' }}
+                    </button>
+                  </div>
+                </div>
+              }
 
               @if (isExpanded(strumento.id)) {
                 <div class="sotto-strumenti">
@@ -121,15 +138,32 @@
                     <ul>
                       @for (sf of sottostrumentiDi(strumento.id); track sf.id) {
                         <li>
-                          <span>{{ sf.nome }}</span>
-                          <button
-                            type="button"
-                            class="sf-delete"
-                            (click)="requestRemoveSottostrumento(sf.id)"
-                            [disabled]="checkingSfUtilizzo() && pendingDeleteSfId() === sf.id"
-                          >
-                            {{ checkingSfUtilizzo() && pendingDeleteSfId() === sf.id ? 'Controllo...' : 'Elimina' }}
-                          </button>
+                          @if (editingSfId() === sf.id) {
+                            <div class="edit-row">
+                              <input type="text" [value]="editSfNome()" (input)="editSfNome.set($any($event.target).value)">
+                              <select [value]="editSfStrumentoId()" (change)="editSfStrumentoId.set(+$any($event.target).value)">
+                                @for (s of strumenti(); track s.id) {
+                                  <option [value]="s.id">{{ s.nome }}</option>
+                                }
+                              </select>
+                              <button type="button" class="btn-save" (click)="saveEditSf(sf.id)" [disabled]="savingEditSf()">Salva</button>
+                              <button type="button" class="btn-cancel" (click)="cancelEditSf()">Annulla</button>
+                            </div>
+                          } @else {
+                            <span>{{ sf.nome }}</span>
+                            <div class="sf-actions">
+                              <a [routerLink]="['/strumenti-figli', sf.id, 'parti']" class="row-link">Parti</a>
+                              <button type="button" class="row-edit" (click)="startEditSf(sf)">Modifica</button>
+                              <button
+                                type="button"
+                                class="sf-delete"
+                                (click)="requestRemoveSottostrumento(sf.id)"
+                                [disabled]="checkingSfUtilizzo() && pendingDeleteSfId() === sf.id"
+                              >
+                                {{ checkingSfUtilizzo() && pendingDeleteSfId() === sf.id ? 'Controllo...' : 'Elimina' }}
+                              </button>
+                            </div>
+                          }
                         </li>
                       }
                     </ul>

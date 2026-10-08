@@ -33,9 +33,18 @@ public class ParteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ParteResponse>> getAll(@RequestParam(required = false) Long partituraId) {
+    public ResponseEntity<List<ParteResponse>> getAll(
+            @RequestParam(required = false) Long partituraId,
+            @RequestParam(required = false) Long strumentoFiglioId,
+            @RequestParam(required = false) Long strumentoId) {
         if (partituraId != null) {
             return ResponseEntity.ok(parteService.getByPartitura(partituraId));
+        }
+        if (strumentoFiglioId != null) {
+            return ResponseEntity.ok(parteService.getByStrumentoFiglio(strumentoFiglioId));
+        }
+        if (strumentoId != null) {
+            return ResponseEntity.ok(parteService.getByStrumento(strumentoId));
         }
         return ResponseEntity.ok(parteService.getAll());
     }

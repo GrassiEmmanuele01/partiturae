@@ -1,0 +1,46 @@
+<div class="page-header">
+  <a routerLink="/strumenti" class="back-link">&larr; Torna agli strumenti</a>
+  @if (corrente(); as c) {
+    <h2>{{ c.nome }}</h2>
+    <p class="subtitle">{{ c.strumentoNome }}</p>
+  }
+</div>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (corrente(); as c) {
+  <div class="switcher">
+    <a [routerLink]="['/strumenti', c.strumentoId, 'parti']" class="chip chip-parent">&uarr; {{ c.strumentoNome }} (tutte le parti)</a>
+    @for (f of fratelli(); track f.id) {
+      <a
+        [routerLink]="['/strumenti-figli', f.id, 'parti']"
+        class="chip"
+        [class.current]="f.id === strumentoFiglioId"
+      >
+        {{ f.nome }}
+      </a>
+    }
+  </div>
+}
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (parti().length === 0) {
+  <p class="empty">Nessuna parte ancora caricata per questo strumento.</p>
+} @else {
+  <ul class="parti-list">
+    @for (p of parti(); track p.id) {
+      <li>
+        <span class="nome-parte">{{ p.nome }}</span>
+        <span class="partitura-nome">{{ p.partituraNome }}</span>
+        @if (p.pdfNome) {
+          <a [href]="pdfUrl(p.id)" target="_blank" class="pdf-link">PDF</a>
+        } @else {
+          <span class="no-pdf">Nessun PDF</span>
+        }
+      </li>
+    }
+  </ul>
+}

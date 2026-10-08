@@ -236,6 +236,23 @@
   }
 }
 
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.row-link,
+.row-edit {
+  background: none;
+  border: none;
+  color: var(--brass-dark);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.4rem;
+  text-decoration: none;
+}
+
 .row-delete,
 .sf-delete {
   background: none;
@@ -249,6 +266,50 @@
     opacity: 0.5;
     cursor: wait;
   }
+}
+
+.edit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+
+  input,
+  select {
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--mist);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+
+  input {
+    flex: 1;
+  }
+}
+
+.btn-save {
+  background: var(--verdigris);
+  color: #fff;
+  border: none;
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.82rem;
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.btn-cancel {
+  background: none;
+  border: 1px solid var(--mist);
+  color: var(--ink);
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.82rem;
 }
 
 .sotto-strumenti {
@@ -269,6 +330,12 @@
       color: var(--ink);
       opacity: 0.85;
     }
+  }
+
+  .sf-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
   }
 
   .empty-mini {

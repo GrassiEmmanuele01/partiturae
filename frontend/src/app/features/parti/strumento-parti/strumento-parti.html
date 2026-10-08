@@ -1,0 +1,51 @@
+<div class="page-header">
+  <a routerLink="/strumenti" class="back-link">&larr; Torna agli strumenti</a>
+  @if (strumento(); as s) {
+    <h2>{{ s.nome }}</h2>
+    <p class="subtitle">Tutte le parti, raggruppate per parte specifica.</p>
+  }
+</div>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (gruppi().length === 0) {
+  <p class="empty">Nessuna parte specifica definita per questo strumento.</p>
+} @else {
+  <ul class="gruppi">
+    @for (g of gruppi(); track g.strumentoFiglioId) {
+      <li class="gruppo">
+        <button type="button" class="gruppo-toggle" (click)="toggleExpand(g.strumentoFiglioId)">
+          <span class="chevron" [class.open]="isExpanded(g.strumentoFiglioId)">&rsaquo;</span>
+          {{ g.strumentoFiglioNome }}
+          <span class="count">{{ g.parti.length }} {{ g.parti.length === 1 ? 'parte' : 'parti' }}</span>
+        </button>
+
+        @if (isExpanded(g.strumentoFiglioId)) {
+          <div class="parti-dettaglio">
+            @if (g.parti.length === 0) {
+              <p class="empty-mini">Nessuna parte ancora caricata.</p>
+            } @else {
+              <ul>
+                @for (p of g.parti; track p.id) {
+                  <li>
+                    <span class="nome-parte">{{ p.nome }}</span>
+                    <span class="partitura-nome">{{ p.partituraNome }}</span>
+                    @if (p.pdfNome) {
+                      <a [href]="pdfUrl(p.id)" target="_blank" class="pdf-link">PDF</a>
+                    } @else {
+                      <span class="no-pdf">Nessun PDF</span>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </li>
+    }
+  </ul>
+}

@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { Utilizzo } from '../../../shared/utilizzo.model';
 import { Famiglia, FamigliaRequest } from '../../famiglie/famiglia.model';
@@ -16,6 +17,7 @@ interface FamigliaGroup {
 
 @Component({
   selector: 'app-strumenti-list',
+  imports: [RouterLink],
   templateUrl: './strumenti-list.html',
   styleUrl: './strumenti-list.scss'
 })
@@ -49,6 +51,18 @@ export class StrumentiList {
   pendingDeleteSfId = signal<number | null>(null);
   pendingDeleteSfUtilizzo = signal<Utilizzo | null>(null);
   checkingSfUtilizzo = signal(false);
+
+  // --- Modifica strumento ---
+  editingStrumentoId = signal<number | null>(null);
+  editStrumentoNome = signal('');
+  editStrumentoFamigliaId = signal<number | null>(null);
+  savingEditStrumento = signal(false);
+
+  // --- Modifica sotto-strumento ---
+  editingSfId = signal<number | null>(null);
+  editSfNome = signal('');
+  editSfStrumentoId = signal<number | null>(null);
+  savingEditSf = signal(false);
 
   famiglieConStrumenti = computed<FamigliaGroup[]>(() =>
     this.famiglie().map((f) => ({
@@ -222,6 +236,73 @@ export class StrumentiList {
     });
   }
 
+  // --- Modifica strumento ---
+  startEditStrumento(s: Strumento): void {
+    this.editingStrumentoId.set(s.id);
+    this.editStrumentoNome.set(s.nome);
+    this.editStrumentoFamigliaId.set(s.famigliaId);
+  }
+
+  cancelEditStrumento(): void {
+    this.editingStrumentoId.set(null);
+  }
+
+  saveEditStrumento(id: number): void {
+    const nome = this.editStrumentoNome().trim();
+    const famigliaId = this.editStrumentoFamigliaId();
+    if (!nome || !famigliaId) {
+      this.error.set('Nome e famiglia sono obbligatori.');
+      return;
+    }
+
+    this.savingEditStrumento.set(true);
+    this.strumentoService.update(id, { nome, famigliaId }).subscribe({
+      next: (aggiornato) => {
+        this.strumenti.set(this.strumenti().map((s) => (s.id === id ? aggiornato : s)));
+        this.savingEditStrumento.set(false);
+        this.editingStrumentoId.set(null);
+      },
+      error: () => {
+        this.savingEditStrumento.set(false);
+        this.error.set('Errore durante la modifica dello strumento.');
+      }
+    });
+  }
+
+  // --- Modifica sotto-strumento ---
+  startEditSf(sf: StrumentoFiglio): void {
+    this.editingSfId.set(sf.id);
+    this.editSfNome.set(sf.nome);
+    this.editSfStrumentoId.set(sf.strumentoId);
+  }
+
+  cancelEditSf(): void {
+    this.editingSfId.set(null);
+  }
+
+  saveEditSf(id: number): void {
+    const nome = this.editSfNome().trim();
+    const strumentoId = this.editSfStrumentoId();
+    if (!nome || !strumentoId) {
+      this.error.set('Nome e strumento sono obbligatori.');
+      return;
+    }
+
+    this.savingEditSf.set(true);
+    this.strumentoFiglioService.update(id, { nome, strumentoId }).subscribe({
+      next: (aggiornato) => {
+        this.strumentiFigli.set(this.strumentiFigli().map((sf) => (sf.id === id ? aggiornato : sf)));
+        this.savingEditSf.set(false);
+        this.editingSfId.set(null);
+      },
+      error: () => {
+        this.savingEditSf.set(false);
+        this.error.set('Errore durante la modifica della parte.');
+      }
+    });
+  }
+
+  // --- Eliminazione strumento ---
   requestRemoveStrumento(id: number): void {
     this.checkingStrumentoUtilizzo.set(true);
     this.pendingDeleteStrumentoId.set(id);
@@ -266,6 +347,7 @@ export class StrumentiList {
     });
   }
 
+  // --- Eliminazione sotto-strumento ---
   requestRemoveSottostrumento(id: number): void {
     this.checkingSfUtilizzo.set(true);
     this.pendingDeleteSfId.set(id);
