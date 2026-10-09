@@ -1,86 +1,71 @@
 <div class="page-header">
   <div>
     <h2>Strumenti</h2>
-    <p class="subtitle">Organizzati per famiglia — apri una riga per vedere le parti specifiche.</p>
+    <p class="subtitle">Organizzati per famiglia. Apri "Parti" per vedere i PDF dello strumento, divisi per voce.</p>
   </div>
-  <button type="button" class="btn-primary" (click)="toggleAddForm()">
-    {{ showAddForm() ? 'Annulla' : '+ Aggiungi strumento' }}
+  <button type="button" class="btn-primary" (click)="toggleForm()">
+    {{ mostraForm() ? 'Annulla' : '+ Aggiungi strumento' }}
   </button>
 </div>
 
-@if (showAddForm()) {
-  <section class="add-form">
+@if (mostraForm()) {
+  <section class="panel form-nuovo">
     <div class="field">
       <label for="nuovoNome">Nome strumento</label>
-      <input id="nuovoNome" type="text" [value]="nuovoNome()" (input)="nuovoNome.set($any($event.target).value)" placeholder="es. Flicorno soprano">
+      <input id="nuovoNome" type="text" placeholder="es. Flicorno soprano" [value]="nuovoNome()" (input)="nuovoNome.set($any($event.target).value)">
     </div>
 
     <div class="field autocomplete">
-      <label for="nuovaFamiglia">Famiglia</label>
+      <label for="famiglia">Famiglia</label>
       <input
-        id="nuovaFamiglia"
+        id="famiglia"
         type="text"
         autocomplete="off"
         placeholder="Scrivi il nome della famiglia..."
-        [value]="nuovaFamigliaNome()"
-        (input)="onFamigliaInput($any($event.target).value)"
-        (blur)="hideFamigliaSuggestionsDelayed()"
+        [value]="famigliaNome()"
+        (input)="onFamiglia($any($event.target).value)"
+        (blur)="chiudiSuggerimentiConRitardo()"
       >
-      @if (famigliaSuggestions().length > 0) {
+      @if (suggerimenti().length > 0) {
         <ul class="suggestions">
-          @for (f of famigliaSuggestions(); track f.id) {
-            <li (mousedown)="selectFamiglia(f)">{{ f.nome }}</li>
+          @for (f of suggerimenti(); track f.id) {
+            <li (mousedown)="scegliFamiglia(f)">{{ f.nome }}</li>
           }
         </ul>
       }
     </div>
 
-    @if (pendingNuovaFamiglia(); as nome) {
+    @if (famigliaDaCreare(); as nome) {
       <div class="confirm-box">
-        <p>La famiglia "{{ nome }}" non esiste ancora. Vuoi crearla?</p>
+        <p>La famiglia «{{ nome }}» non esiste ancora. Vuoi crearla?</p>
         <div class="confirm-actions">
-          <button type="button" class="btn-primary" (click)="confermaCreaFamiglia()" [disabled]="saving()">Sì, crea "{{ nome }}"</button>
-          <button type="button" class="btn-secondary" (click)="annullaCreaFamiglia()">Annulla</button>
+          <button type="button" class="btn-primary" (click)="confermaNuovaFamiglia()" [disabled]="salvando()">Sì, crea «{{ nome }}»</button>
+          <button type="button" class="btn-secondary" (click)="annullaNuovaFamiglia()">Annulla</button>
         </div>
       </div>
     } @else {
-      <button type="button" class="btn-primary" (click)="submitAddStrumento()" [disabled]="saving()">
-        {{ saving() ? 'Salvataggio...' : 'Salva strumento' }}
+      <button type="button" class="btn-primary" (click)="salva()" [disabled]="salvando()">
+        {{ salvando() ? 'Salvataggio...' : 'Salva strumento' }}
       </button>
     }
   </section>
 }
 
 @if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="error-text">{{ error() }}</p>
 }
 
-@if (pendingDeleteStrumentoUtilizzo(); as u) {
+@if (eliminazioneUtilizzo(); as u) {
   <div class="usage-warning">
     <p>Questo strumento è usato in {{ u.count }} {{ u.count === 1 ? 'elemento' : 'elementi' }}:</p>
     <ul>
-      @for (el of u.elementi; track el.nome) {
+      @for (el of u.elementi; track $index) {
         <li>{{ el.tipo }}: {{ el.nome }}</li>
       }
     </ul>
     <div class="usage-actions">
-      <button type="button" class="btn-danger" (click)="confirmDeleteStrumentoAnyway()">Elimina comunque</button>
-      <button type="button" class="btn-secondary" (click)="cancelPendingDeleteStrumento()">Annulla</button>
-    </div>
-  </div>
-}
-
-@if (pendingDeleteSfUtilizzo(); as u) {
-  <div class="usage-warning">
-    <p>Questa parte è usata in {{ u.count }} {{ u.count === 1 ? 'elemento' : 'elementi' }}:</p>
-    <ul>
-      @for (el of u.elementi; track el.nome) {
-        <li>{{ el.tipo }}: {{ el.nome }}</li>
-      }
-    </ul>
-    <div class="usage-actions">
-      <button type="button" class="btn-danger" (click)="confirmDeleteSfAnyway()">Elimina comunque</button>
-      <button type="button" class="btn-secondary" (click)="cancelPendingDeleteSf()">Annulla</button>
+      <button type="button" class="btn-danger" (click)="confermaEliminazione()">Elimina comunque</button>
+      <button type="button" class="btn-secondary" (click)="annullaEliminazione()">Annulla</button>
     </div>
   </div>
 }
@@ -88,95 +73,43 @@
 @if (loading()) {
   <p>Caricamento...</p>
 } @else {
-  @for (famiglia of famiglieConStrumenti(); track famiglia.id) {
-    <section class="famiglia-group">
-      <h3>{{ famiglia.nome }}</h3>
+  @for (gruppo of gruppi(); track gruppo.id) {
+    <section class="gruppo">
+      <h3 class="section-title">{{ gruppo.nome }}</h3>
 
-      @if (famiglia.strumenti.length === 0) {
+      @if (gruppo.strumenti.length === 0) {
         <p class="empty">Nessuno strumento in questa famiglia.</p>
       } @else {
-        <ul class="strumenti-rows">
-          @for (strumento of famiglia.strumenti; track strumento.id) {
-            <li class="strumento-row">
-              @if (editingStrumentoId() === strumento.id) {
-                <div class="edit-row">
-                  <input type="text" [value]="editStrumentoNome()" (input)="editStrumentoNome.set($any($event.target).value)">
-                  <select [value]="editStrumentoFamigliaId()" (change)="editStrumentoFamigliaId.set(+$any($event.target).value)">
+        <ul class="rows">
+          @for (strumento of gruppo.strumenti; track strumento.id) {
+            <li>
+              @if (inModificaId() === strumento.id) {
+                <div class="row">
+                  <input class="edit-input" type="text" [value]="nomeModifica()" (input)="nomeModifica.set($any($event.target).value)">
+                  <select class="edit-select" [value]="famigliaModificaId()" (change)="famigliaModificaId.set(+$any($event.target).value)">
                     @for (f of famiglie(); track f.id) {
                       <option [value]="f.id">{{ f.nome }}</option>
                     }
                   </select>
-                  <button type="button" class="btn-save" (click)="saveEditStrumento(strumento.id)" [disabled]="savingEditStrumento()">Salva</button>
-                  <button type="button" class="btn-cancel" (click)="cancelEditStrumento()">Annulla</button>
-                </div>
-              } @else {
-                <div class="row-main">
-                  <button type="button" class="row-toggle" (click)="toggleExpand(strumento.id)">
-                    <span class="chevron" [class.open]="isExpanded(strumento.id)">&rsaquo;</span>
-                    {{ strumento.nome }}
-                  </button>
-                  <div class="row-actions">
-                    <a [routerLink]="['/strumenti', strumento.id, 'parti']" class="row-link">Parti</a>
-                    <button type="button" class="row-edit" (click)="startEditStrumento(strumento)">Modifica</button>
-                    <button
-                      type="button"
-                      class="row-delete"
-                      (click)="requestRemoveStrumento(strumento.id)"
-                      [disabled]="checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id"
-                    >
-                      {{ checkingStrumentoUtilizzo() && pendingDeleteStrumentoId() === strumento.id ? 'Controllo...' : 'Elimina' }}
-                    </button>
+                  <div class="actions">
+                    <button type="button" class="btn-success" (click)="salvaModifica(strumento.id)" [disabled]="salvandoModifica()">Salva</button>
+                    <button type="button" class="btn-secondary" (click)="annullaModifica()">Annulla</button>
                   </div>
                 </div>
-              }
-
-              @if (isExpanded(strumento.id)) {
-                <div class="sotto-strumenti">
-                  @if (sottostrumentiDi(strumento.id).length === 0) {
-                    <p class="empty-mini">Nessuna parte specifica ancora.</p>
-                  } @else {
-                    <ul>
-                      @for (sf of sottostrumentiDi(strumento.id); track sf.id) {
-                        <li>
-                          @if (editingSfId() === sf.id) {
-                            <div class="edit-row">
-                              <input type="text" [value]="editSfNome()" (input)="editSfNome.set($any($event.target).value)">
-                              <select [value]="editSfStrumentoId()" (change)="editSfStrumentoId.set(+$any($event.target).value)">
-                                @for (s of strumenti(); track s.id) {
-                                  <option [value]="s.id">{{ s.nome }}</option>
-                                }
-                              </select>
-                              <button type="button" class="btn-save" (click)="saveEditSf(sf.id)" [disabled]="savingEditSf()">Salva</button>
-                              <button type="button" class="btn-cancel" (click)="cancelEditSf()">Annulla</button>
-                            </div>
-                          } @else {
-                            <span>{{ sf.nome }}</span>
-                            <div class="sf-actions">
-                              <a [routerLink]="['/strumenti-figli', sf.id, 'parti']" class="row-link">Parti</a>
-                              <button type="button" class="row-edit" (click)="startEditSf(sf)">Modifica</button>
-                              <button
-                                type="button"
-                                class="sf-delete"
-                                (click)="requestRemoveSottostrumento(sf.id)"
-                                [disabled]="checkingSfUtilizzo() && pendingDeleteSfId() === sf.id"
-                              >
-                                {{ checkingSfUtilizzo() && pendingDeleteSfId() === sf.id ? 'Controllo...' : 'Elimina' }}
-                              </button>
-                            </div>
-                          }
-                        </li>
-                      }
-                    </ul>
-                  }
-
-                  <div class="mini-form">
-                    <input
-                      type="text"
-                      placeholder="Nome parte, es. Tromba 3"
-                      [value]="draftSottostrumento()[strumento.id] ?? ''"
-                      (input)="onDraftInput(strumento.id, $any($event.target).value)"
+              } @else {
+                <div class="row">
+                  <span class="grow">{{ strumento.nome }}</span>
+                  <div class="actions">
+                    <a class="link-action" [routerLink]="['/strumenti', strumento.id, 'parti']">Parti</a>
+                    <button type="button" class="link-action" (click)="avviaModifica(strumento)">Modifica</button>
+                    <button
+                      type="button"
+                      class="link-action danger"
+                      (click)="richiediEliminazione(strumento)"
+                      [disabled]="controllandoId() === strumento.id"
                     >
-                    <button type="button" (click)="addSottostrumento(strumento.id)">Aggiungi</button>
+                      {{ controllandoId() === strumento.id ? 'Controllo...' : 'Elimina' }}
+                    </button>
                   </div>
                 </div>
               }

@@ -55,3 +55,420 @@ textarea {
   font-family: inherit;
   color: var(--ink);
 }
+
+/* =========================================================
+   Componenti condivisi: le pagine usano queste classi invece
+   di ridefinire ogni volta colori, bottoni e tabelle.
+   ========================================================= */
+
+/* --- Intestazione di pagina --- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+
+  .subtitle {
+    margin: 0.35rem 0 0;
+    opacity: 0.65;
+    font-size: 0.9rem;
+  }
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+  opacity: 0.6;
+  text-decoration: none;
+  font-size: 0.85rem;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* --- Bottoni --- */
+.btn {
+  display: inline-block;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  @extend .btn;
+  background: var(--brass);
+  color: var(--ink);
+
+  &:hover:not(:disabled) {
+    background: var(--brass-dark);
+    color: var(--paper);
+  }
+}
+
+.btn-secondary {
+  @extend .btn;
+  background: none;
+  border-color: var(--mist);
+  color: var(--ink);
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    border-color: var(--brass);
+  }
+}
+
+.btn-danger {
+  @extend .btn;
+  background: var(--brick);
+  color: #fff;
+}
+
+.btn-success {
+  @extend .btn;
+  background: var(--verdigris);
+  color: #fff;
+}
+
+/* Azioni testuali dentro righe e tabelle (Modifica, Elimina, ...) */
+.link-action {
+  background: none;
+  border: none;
+  padding: 0.2rem 0.3rem;
+  color: var(--brass-dark);
+  font-size: 0.85rem;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  &.danger {
+    color: var(--brick);
+  }
+}
+
+/* --- Pannelli e righe --- */
+.panel {
+  background: #fff;
+  border: 1px solid var(--mist);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  > h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.section-title {
+  display: inline-block;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--brass);
+  font-size: 1.05rem;
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  border: 1px solid var(--mist);
+  border-radius: 10px;
+  overflow: hidden;
+
+  > li {
+    border-bottom: 1px solid var(--mist);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.92rem;
+
+  .grow {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+}
+
+/* --- Tabelle --- */
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid var(--mist);
+  border-radius: 10px;
+  overflow: hidden;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--mist);
+    font-size: 0.9rem;
+  }
+
+  th {
+    background: var(--paper);
+    font-weight: 600;
+    font-size: 0.82rem;
+    opacity: 0.75;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+/* --- Form --- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  position: relative;
+  margin-bottom: 1rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  input[type='text'],
+  input[type='number'],
+  input[type='email'],
+  input[type='date'],
+  input[type='time'],
+  select,
+  textarea {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--mist);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.95rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--brass);
+    }
+  }
+}
+
+.field-error {
+  color: var(--brick);
+  font-size: 0.8rem;
+}
+
+.field-hint {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* --- Autocompletamento --- */
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--mist);
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  max-height: 220px;
+  overflow-y: auto;
+
+  li {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--paper);
+    }
+
+    .muted {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+/* --- Chip --- */
+.chips {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--mist);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  text-decoration: none;
+
+  button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  &.selected {
+    background: #f3e8d4;
+    border-color: var(--brass);
+  }
+
+  &.current {
+    background: var(--brass);
+    border-color: var(--brass);
+    color: var(--paper);
+    font-weight: 600;
+  }
+}
+
+a.chip:hover {
+  border-color: var(--brass);
+}
+
+/* --- Badge di stato --- */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  &.ok {
+    background: #e2ede9;
+    color: var(--verdigris);
+  }
+
+  &.ko {
+    background: #f3e3df;
+    color: var(--brick);
+  }
+
+  &.warn {
+    background: #fdf0da;
+    color: var(--brass-dark);
+  }
+}
+
+/* --- Messaggi --- */
+.error-text {
+  color: var(--brick);
+  margin-bottom: 1rem;
+}
+
+.empty {
+  opacity: 0.55;
+  font-size: 0.9rem;
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.usage-warning {
+  background: #fdf0da;
+  border: 1px solid var(--brass);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+
+  p {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  ul {
+    margin: 0 0 0.9rem;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .usage-actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+}
+
+.confirm-box {
+  background: var(--paper);
+  border: 1px solid var(--brass);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+}

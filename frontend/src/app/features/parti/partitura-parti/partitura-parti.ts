@@ -1,5 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Observable, map, of, switchMap } from 'rxjs';
 
@@ -14,14 +13,18 @@ import { StrumentoFiglioService } from '../../strumenti-figli/strumento-figlio.s
 import { Parte } from '../parte.model';
 import { ParteService } from '../parte.service';
 
+interface RigaParte {
+  parte: Parte;
+  strumento: StrumentoFiglio;
+}
+
 @Component({
   selector: 'app-partitura-parti',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './partitura-parti.html',
   styleUrl: './partitura-parti.scss'
 })
 export class PartituraParti {
-  private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private partituraService = inject(PartituraService);
   private parteService = inject(ParteService);
@@ -30,10 +33,10 @@ export class PartituraParti {
   private strumentoFiglioService = inject(StrumentoFiglioService);
 
   partituraId = Number(this.route.snapshot.paramMap.get('id'));
+  fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   partitura = signal<Partitura | null>(null);
   parti = signal<Parte[]>([]);
-
   famiglie = signal<Famiglia[]>([]);
   strumenti = signal<Strumento[]>([]);
   strumentiFigli = signal<StrumentoFiglio[]>([]);
@@ -43,39 +46,70 @@ export class PartituraParti {
   error = signal<string | null>(null);
   uploadingId = signal<number | null>(null);
 
+  // --- nuova parte: strumenti selezionati + PDF ---
+  selezionati = signal<StrumentoFiglio[]>([]);
+  ricerca = signal('');
+  ricercaAperta = signal(false);
   pdfFile = signal<File | null>(null);
 
-  form = this.fb.nonNullable.group({
-    nome: ['', Validators.required],
-    strumentoFiglioNome: ['', Validators.required],
-    raccolta: [false]
-  });
-
-  // --- Livello 1: StrumentoFiglio (es. "Flicorno tenore 2") ---
-  sfSuggestions = signal<StrumentoFiglio[]>([]);
-  selectedStrumentoFiglioId = signal<number | null>(null);
-
-  creatingStrumentoFiglio = computed(() => {
-    const term = this.form.controls.strumentoFiglioNome.value?.trim();
-    if (!term || this.selectedStrumentoFiglioId()) return false;
-    return !this.strumentiFigli().some((sf) => sf.nome.toLowerCase() === term.toLowerCase());
-  });
-
-  // --- Livello 2 (cascata, solo se livello 1 va creato): Strumento (es. "Flicorno tenore") ---
-  strumentoNome = signal('');
-  strumentoSuggestions = signal<Strumento[]>([]);
-  selectedStrumentoId = signal<number | null>(null);
-
-  creatingStrumento = computed(() => {
-    const term = this.strumentoNome().trim();
-    if (!term || this.selectedStrumentoId()) return false;
-    return !this.strumenti().some((s) => s.nome.toLowerCase() === term.toLowerCase());
-  });
-
-  // --- Livello 3 (cascata, solo se livello 2 va creato): Famiglia (es. "Ottoni") ---
+  // --- creazione al volo di uno strumento che non esiste ---
+  creazioneAperta = signal(false);
+  creating = signal(false);
+  nuovoNome = signal('');
+  genitoreNome = signal('');
   famigliaNome = signal('');
-  famigliaSuggestions = signal<Famiglia[]>([]);
-  selectedFamigliaId = signal<number | null>(null);
+
+  righe = computed<RigaParte[]>(() =>
+    this.parti()
+      .flatMap((parte) => parte.strumenti.map((strumento) => ({ parte, strumento })))
+      .sort(
+        (a, b) =>
+          a.strumento.nome.localeCompare(b.strumento.nome, 'it', { numeric: true }) ||
+          a.parte.id - b.parte.id
+      )
+  );
+
+  suggerimenti = computed(() => {
+    const term = this.ricerca().trim().toLowerCase();
+    if (!term) {
+      return [];
+    }
+    const giaScelti = new Set(this.selezionati().map((s) => s.id));
+    return this.strumentiFigli()
+      .filter((s) => !giaScelti.has(s.id) && s.nome.toLowerCase().includes(term))
+      .slice(0, 8);
+  });
+
+  puoCreare = computed(() => {
+    const term = this.ricerca().trim().toLowerCase();
+    return term.length > 0 && !this.strumentiFigli().some((s) => s.nome.toLowerCase() === term);
+  });
+
+  genitoreEsistente = computed(() => {
+    const term = this.genitoreNome().trim().toLowerCase();
+    return this.strumenti().find((s) => s.nome.toLowerCase() === term) ?? null;
+  });
+
+  famigliaEsistente = computed(() => {
+    const term = this.famigliaNome().trim().toLowerCase();
+    return this.famiglie().find((f) => f.nome.toLowerCase() === term) ?? null;
+  });
+
+  genitoreSuggerimenti = computed(() => {
+    const term = this.genitoreNome().trim().toLowerCase();
+    if (!term || this.genitoreEsistente()) {
+      return [];
+    }
+    return this.strumenti().filter((s) => s.nome.toLowerCase().includes(term)).slice(0, 6);
+  });
+
+  famigliaSuggerimenti = computed(() => {
+    const term = this.famigliaNome().trim().toLowerCase();
+    if (!term || this.famigliaEsistente()) {
+      return [];
+    }
+    return this.famiglie().filter((f) => f.nome.toLowerCase().includes(term)).slice(0, 6);
+  });
 
   constructor() {
     this.partituraService.getById(this.partituraId).subscribe({
@@ -83,17 +117,14 @@ export class PartituraParti {
       error: () => this.error.set('Impossibile caricare la partitura.')
     });
 
-    this.refreshAnagrafiche();
-    this.loadParti();
-  }
-
-  private refreshAnagrafiche(): void {
     this.famigliaService.getAll().subscribe({ next: (data) => this.famiglie.set(data) });
     this.strumentoService.getAll().subscribe({ next: (data) => this.strumenti.set(data) });
     this.strumentoFiglioService.getAll().subscribe({ next: (data) => this.strumentiFigli.set(data) });
+
+    this.caricaParti();
   }
 
-  loadParti(): void {
+  caricaParti(): void {
     this.loading.set(true);
     this.parteService.getByPartitura(this.partituraId).subscribe({
       next: (data) => {
@@ -107,217 +138,204 @@ export class PartituraParti {
     });
   }
 
-  // --- Autocomplete livello 1 ---
-  onStrumentoFiglioInput(): void {
-    this.selectedStrumentoFiglioId.set(null);
-    const term = this.form.controls.strumentoFiglioNome.value.trim().toLowerCase();
-    this.sfSuggestions.set(
-      term ? this.strumentiFigli().filter((sf) => sf.nome.toLowerCase().includes(term)).slice(0, 8) : []
-    );
+  // ---------- selezione strumenti ----------
+  onRicerca(valore: string): void {
+    this.ricerca.set(valore);
+    this.ricercaAperta.set(true);
   }
 
-  selectStrumentoFiglio(sf: StrumentoFiglio): void {
-    this.form.patchValue({ strumentoFiglioNome: sf.nome });
-    this.selectedStrumentoFiglioId.set(sf.id);
-    this.sfSuggestions.set([]);
-    this.resetCascade();
+  chiudiSuggerimentiConRitardo(): void {
+    setTimeout(() => this.ricercaAperta.set(false), 150);
   }
 
-  hideSfSuggestionsDelayed(): void {
-    setTimeout(() => this.sfSuggestions.set([]), 150);
+  aggiungiStrumento(strumento: StrumentoFiglio): void {
+    this.selezionati.set([...this.selezionati(), strumento]);
+    this.ricerca.set('');
+    this.ricercaAperta.set(false);
   }
 
-  // --- Autocomplete livello 2 ---
-  onStrumentoInput(value: string): void {
-    this.strumentoNome.set(value);
-    this.selectedStrumentoId.set(null);
-    const term = value.trim().toLowerCase();
-    this.strumentoSuggestions.set(
-      term ? this.strumenti().filter((s) => s.nome.toLowerCase().includes(term)).slice(0, 8) : []
-    );
+  togliStrumento(id: number): void {
+    this.selezionati.set(this.selezionati().filter((s) => s.id !== id));
   }
 
-  selectStrumento(s: Strumento): void {
-    this.strumentoNome.set(s.nome);
-    this.selectedStrumentoId.set(s.id);
-    this.strumentoSuggestions.set([]);
-  }
-
-  hideStrumentoSuggestionsDelayed(): void {
-    setTimeout(() => this.strumentoSuggestions.set([]), 150);
-  }
-
-  // --- Autocomplete livello 3 ---
-  onFamigliaInput(value: string): void {
-    this.famigliaNome.set(value);
-    this.selectedFamigliaId.set(null);
-    const term = value.trim().toLowerCase();
-    this.famigliaSuggestions.set(
-      term ? this.famiglie().filter((f) => f.nome.toLowerCase().includes(term)).slice(0, 8) : []
-    );
-  }
-
-  selectFamiglia(f: Famiglia): void {
-    this.famigliaNome.set(f.nome);
-    this.selectedFamigliaId.set(f.id);
-    this.famigliaSuggestions.set([]);
-  }
-
-  hideFamigliaSuggestionsDelayed(): void {
-    setTimeout(() => this.famigliaSuggestions.set([]), 150);
-  }
-
-  private resetCascade(): void {
-    this.strumentoNome.set('');
-    this.selectedStrumentoId.set(null);
-    this.famigliaNome.set('');
-    this.selectedFamigliaId.set(null);
-  }
-
-  onFileSelectedForNewParte(event: Event): void {
+  onFileScelto(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.pdfFile.set(input.files?.[0] ?? null);
   }
 
-  addParte(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+  // ---------- creazione strumento al volo ----------
+  apriCreazione(): void {
+    const nome = this.ricerca().trim();
+    this.nuovoNome.set(nome);
+    // "Flicorno tenore 2" -> strumento generico proposto: "Flicorno tenore"
+    this.genitoreNome.set(nome.replace(/\s*\d+$/, '').trim());
+    this.famigliaNome.set('');
+    this.creazioneAperta.set(true);
+    this.ricercaAperta.set(false);
+  }
+
+  annullaCreazione(): void {
+    this.creazioneAperta.set(false);
+  }
+
+  scegliGenitore(strumento: Strumento): void {
+    this.genitoreNome.set(strumento.nome);
+  }
+
+  scegliFamiglia(famiglia: Famiglia): void {
+    this.famigliaNome.set(famiglia.nome);
+  }
+
+  confermaCreazione(): void {
+    const nome = this.nuovoNome().trim();
+    const genitore = this.genitoreNome().trim();
+
+    if (!nome || !genitore) {
+      this.error.set('Indica il nome dello strumento e a quale strumento generico appartiene.');
+      return;
+    }
+    if (!this.genitoreEsistente() && !this.famigliaNome().trim()) {
+      this.error.set('Indica la famiglia del nuovo strumento generico.');
       return;
     }
 
-    if (this.creatingStrumentoFiglio() && !this.selectedStrumentoId()) {
-      const sNome = this.strumentoNome().trim();
-      if (!sNome) {
-        this.error.set('Indica a quale strumento appartiene.');
-        return;
-      }
-      const sEsiste = this.strumenti().some((s) => s.nome.toLowerCase() === sNome.toLowerCase());
-      if (!sEsiste && !this.famigliaNome().trim()) {
-        this.error.set('Indica la famiglia del nuovo strumento.');
-        return;
-      }
+    this.creating.set(true);
+    this.error.set(null);
+
+    this.risolviStrumentoId(genitore)
+      .pipe(switchMap((strumentoId) => this.strumentoFiglioService.create({ nome, strumentoId })))
+      .subscribe({
+        next: (nuovo) => {
+          this.strumentiFigli.set([...this.strumentiFigli(), nuovo]);
+          this.selezionati.set([...this.selezionati(), nuovo]);
+          this.ricerca.set('');
+          this.creazioneAperta.set(false);
+          this.creating.set(false);
+        },
+        error: (err) => {
+          this.creating.set(false);
+          this.error.set(err.error?.message ?? 'Errore durante la creazione dello strumento.');
+        }
+      });
+  }
+
+  private risolviStrumentoId(nome: string): Observable<number> {
+    const esistente = this.genitoreEsistente();
+    if (esistente) {
+      return of(esistente.id);
+    }
+
+    return this.risolviFamigliaId().pipe(
+      switchMap((famigliaId) => this.strumentoService.create({ nome, famigliaId })),
+      map((strumento) => {
+        this.strumenti.set([...this.strumenti(), strumento]);
+        return strumento.id;
+      })
+    );
+  }
+
+  private risolviFamigliaId(): Observable<number> {
+    const esistente = this.famigliaEsistente();
+    if (esistente) {
+      return of(esistente.id);
+    }
+
+    return this.famigliaService.create({ nome: this.famigliaNome().trim() }).pipe(
+      map((famiglia) => {
+        this.famiglie.set([...this.famiglie(), famiglia]);
+        return famiglia.id;
+      })
+    );
+  }
+
+  // ---------- salvataggio ----------
+  aggiungiParte(): void {
+    if (this.selezionati().length === 0) {
+      this.error.set('Seleziona almeno uno strumento.');
+      return;
     }
 
     this.saving.set(true);
     this.error.set(null);
 
-    this.resolveStrumentoFiglioId().subscribe({
-      next: (strumentoFiglioId) => {
-        const value = this.form.getRawValue();
+    this.parteService
+      .create({
+        partituraId: this.partituraId,
+        strumentoFiglioIds: this.selezionati().map((s) => s.id)
+      })
+      .subscribe({
+        next: (parte) => {
+          const file = this.pdfFile();
+          if (!file) {
+            this.concludi();
+            return;
+          }
 
-        this.parteService
-          .create({
-            nome: value.nome,
-            partituraId: this.partituraId,
-            strumentoFiglioId,
-            raccolta: value.raccolta
-          })
-          .subscribe({
-            next: (parte) => {
-              const file = this.pdfFile();
-              if (file) {
-                this.parteService.uploadPdf(parte.id, file).subscribe({
-                  next: () => this.finishAddParte(),
-                  error: () => {
-                    this.finishAddParte();
-                    this.error.set('Parte creata, ma il caricamento del PDF è fallito: riprova dalla tabella sotto.');
-                  }
-                });
-              } else {
-                this.finishAddParte();
-              }
-            },
+          this.parteService.uploadPdf(parte.id, file).subscribe({
+            next: () => this.concludi(),
             error: (err) => {
-              this.saving.set(false);
-              if (err.status === 400 && err.error?.errors) {
-                this.error.set(Object.values(err.error.errors).join(', '));
-              } else {
-                this.error.set('Errore durante il salvataggio della parte.');
-              }
+              this.concludi();
+              this.error.set(
+                (err.error?.message ?? 'Caricamento del PDF non riuscito') +
+                  ' — la parte è stata creata, riprova a caricare il PDF dalla tabella.'
+              );
             }
           });
-      },
-      error: () => {
-        this.saving.set(false);
-        this.error.set('Errore durante la creazione dello strumento.');
-      }
-    });
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.error.set(err.error?.message ?? 'Errore durante il salvataggio della parte.');
+        }
+      });
   }
 
-  private finishAddParte(): void {
+  private concludi(): void {
     this.saving.set(false);
-    this.form.reset({ nome: '', strumentoFiglioNome: '', raccolta: false });
-    this.selectedStrumentoFiglioId.set(null);
+    this.selezionati.set([]);
+    this.ricerca.set('');
     this.pdfFile.set(null);
-    this.resetCascade();
-    this.refreshAnagrafiche();
-    this.loadParti();
+    const input = this.fileInput();
+    if (input) {
+      input.nativeElement.value = '';
+    }
+    this.caricaParti();
   }
 
-  // Risolve l'id dello StrumentoFiglio, creando a cascata Strumento/Famiglia se mancanti
-  private resolveStrumentoFiglioId(): Observable<number> {
-    const sfId = this.selectedStrumentoFiglioId();
-    if (sfId) {
-      return of(sfId);
-    }
+  // ---------- azioni sulle righe ----------
+  rimuoviRiga(riga: RigaParte): void {
+    const { parte, strumento } = riga;
 
-    const sfNome = this.form.controls.strumentoFiglioNome.value.trim();
-    const sfExact = this.strumentiFigli().find((sf) => sf.nome.toLowerCase() === sfNome.toLowerCase());
-    if (sfExact) {
-      return of(sfExact.id);
-    }
+    if (parte.strumenti.length > 1) {
+      const altri = parte.strumenti
+        .filter((s) => s.id !== strumento.id)
+        .map((s) => s.nome)
+        .join(', ');
+      const conferma = confirm(
+        `Questo PDF è condiviso con: ${altri}.\nRimuovere solo «${strumento.nome}»? Il PDF resta per gli altri strumenti.`
+      );
+      if (!conferma) {
+        return;
+      }
 
-    return this.resolveStrumentoId().pipe(
-      switchMap((strumentoId) =>
-        this.strumentoFiglioService.create({ nome: sfNome, strumentoId }).pipe(map((sf) => sf.id))
-      )
-    );
-  }
-
-  private resolveStrumentoId(): Observable<number> {
-    const sId = this.selectedStrumentoId();
-    if (sId) {
-      return of(sId);
-    }
-
-    const sNome = this.strumentoNome().trim();
-    const sExact = this.strumenti().find((s) => s.nome.toLowerCase() === sNome.toLowerCase());
-    if (sExact) {
-      return of(sExact.id);
-    }
-
-    return this.resolveFamigliaId().pipe(
-      switchMap((famigliaId) => this.strumentoService.create({ nome: sNome, famigliaId }).pipe(map((s) => s.id)))
-    );
-  }
-
-  private resolveFamigliaId(): Observable<number> {
-    const fId = this.selectedFamigliaId();
-    if (fId) {
-      return of(fId);
-    }
-
-    const fNome = this.famigliaNome().trim();
-    const fExact = this.famiglie().find((f) => f.nome.toLowerCase() === fNome.toLowerCase());
-    if (fExact) {
-      return of(fExact.id);
-    }
-
-    return this.famigliaService.create({ nome: fNome }).pipe(map((f) => f.id));
-  }
-
-  removeParte(id: number): void {
-    if (!confirm('Eliminare questa parte?')) {
+      const restanti = parte.strumenti.filter((s) => s.id !== strumento.id).map((s) => s.id);
+      this.parteService.updateStrumenti(parte.id, restanti).subscribe({
+        next: () => this.caricaParti(),
+        error: () => this.error.set('Errore durante la rimozione.')
+      });
       return;
     }
 
-    this.parteService.delete(id).subscribe({
-      next: () => this.loadParti(),
+    if (!confirm(`Eliminare la parte «${strumento.nome}» e il suo PDF?`)) {
+      return;
+    }
+
+    this.parteService.delete(parte.id).subscribe({
+      next: () => this.caricaParti(),
       error: () => this.error.set("Errore durante l'eliminazione.")
     });
   }
 
-  onFileSelected(event: Event, parteId: number): void {
+  onFilePerParte(event: Event, parteId: number): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) {
@@ -329,16 +347,24 @@ export class PartituraParti {
       next: () => {
         this.uploadingId.set(null);
         input.value = '';
-        this.loadParti();
+        this.caricaParti();
       },
-      error: () => {
+      error: (err) => {
         this.uploadingId.set(null);
-        this.error.set('Errore durante il caricamento del PDF.');
+        input.value = '';
+        this.error.set(err.error?.message ?? 'Errore durante il caricamento del PDF.');
       }
     });
   }
 
-  pdfUrl(id: number): string {
-    return this.parteService.pdfUrl(id);
+  condivisoCon(riga: RigaParte): string {
+    return riga.parte.strumenti
+      .filter((s) => s.id !== riga.strumento.id)
+      .map((s) => s.nome)
+      .join(', ');
+  }
+
+  pdfUrl(parteId: number): string {
+    return this.parteService.pdfUrl(parteId);
   }
 }

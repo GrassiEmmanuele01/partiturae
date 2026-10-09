@@ -1,26 +1,22 @@
 <div class="page-header">
-  <a routerLink="/strumenti" class="back-link">&larr; Torna agli strumenti</a>
-  @if (corrente(); as c) {
-    <h2>{{ c.nome }}</h2>
-    <p class="subtitle">{{ c.strumentoNome }}</p>
-  }
+  <div>
+    <a routerLink="/strumenti" class="back-link">&larr; Torna agli strumenti</a>
+    @if (corrente(); as c) {
+      <h2>{{ c.nome }}</h2>
+      <p class="subtitle">{{ c.strumentoNome }}</p>
+    }
+  </div>
 </div>
 
 @if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="error-text">{{ error() }}</p>
 }
 
 @if (corrente(); as c) {
   <div class="switcher">
-    <a [routerLink]="['/strumenti', c.strumentoId, 'parti']" class="chip chip-parent">&uarr; {{ c.strumentoNome }} (tutte le parti)</a>
+    <a [routerLink]="['/strumenti', c.strumentoId, 'parti']" class="chip">&uarr; {{ c.strumentoNome }} (tutte le parti)</a>
     @for (f of fratelli(); track f.id) {
-      <a
-        [routerLink]="['/strumenti-figli', f.id, 'parti']"
-        class="chip"
-        [class.current]="f.id === strumentoFiglioId"
-      >
-        {{ f.nome }}
-      </a>
+      <a [routerLink]="['/strumenti-figli', f.id, 'parti']" class="chip" [class.current]="f.id === c.id">{{ f.nome }}</a>
     }
   </div>
 }
@@ -28,18 +24,24 @@
 @if (loading()) {
   <p>Caricamento...</p>
 } @else if (parti().length === 0) {
-  <p class="empty">Nessuna parte ancora caricata per questo strumento.</p>
+  <p class="empty">Nessuna parte ancora caricata per questa voce.</p>
 } @else {
-  <ul class="parti-list">
+  <ul class="rows">
     @for (p of parti(); track p.id) {
-      <li>
-        <span class="nome-parte">{{ p.nome }}</span>
-        <span class="partitura-nome">{{ p.partituraNome }}</span>
-        @if (p.pdfNome) {
-          <a [href]="pdfUrl(p.id)" target="_blank" class="pdf-link">PDF</a>
-        } @else {
-          <span class="no-pdf">Nessun PDF</span>
+      <li class="row">
+        <span class="titolo">{{ p.partituraNome }}</span>
+        @if (corrente(); as c) {
+          @if (p.strumenti.length > 1) {
+            <span class="muted">insieme a {{ altriStrumenti(p, c.id) }}</span>
+          }
         }
+        <span class="actions">
+          @if (p.pdfPresente) {
+            <a [href]="pdfUrl(p.id)" target="_blank">{{ p.pdfNome }}</a>
+          } @else {
+            <span class="muted">Nessun PDF</span>
+          }
+        </span>
       </li>
     }
   </ul>

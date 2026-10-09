@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { StrumentoFiglio } from '../../strumenti-figli/strumento-figlio.model';
@@ -17,8 +18,6 @@ export class StrumentoFiglioParti {
   private strumentoFiglioService = inject(StrumentoFiglioService);
   private parteService = inject(ParteService);
 
-  strumentoFiglioId = Number(this.route.snapshot.paramMap.get('id'));
-
   corrente = signal<StrumentoFiglio | null>(null);
   fratelli = signal<StrumentoFiglio[]>([]);
   parti = signal<Parte[]>([]);
@@ -27,24 +26,30 @@ export class StrumentoFiglioParti {
   error = signal<string | null>(null);
 
   constructor() {
-    this.load();
+    // Ascoltiamo il parametro dell'URL: cliccando un'altra voce (es. da Ottavino 2 a Ottavino 1)
+    // Angular riusa lo stesso componente, quindi i dati vanno ricaricati a ogni cambio di id.
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      this.carica(Number(params.get('id')));
+    });
   }
 
-  private load(): void {
+  private carica(id: number): void {
     this.loading.set(true);
     this.error.set(null);
+    this.parti.set([]);
 
-    this.strumentoFiglioService.getById(this.strumentoFiglioId).subscribe({
-      next: (sf) => {
-        this.corrente.set(sf);
-        this.strumentoFiglioService.getByStrumento(sf.strumentoId).subscribe({
-          next: (data) => this.fratelli.set(data)
+    this.strumentoFiglioService.getById(id).subscribe({
+      next: (voce) => {
+        this.corrente.set(voce);
+        this.strumentoFiglioService.getByStrumento(voce.strumentoId).subscribe({
+          next: (data) =>
+            this.fratelli.set([...data].sort((a, b) => a.nome.localeCompare(b.nome, 'it', { numeric: true })))
         });
       },
       error: () => this.error.set('Impossibile caricare lo strumento.')
     });
 
-    this.parteService.getByStrumentoFiglio(this.strumentoFiglioId).subscribe({
+    this.parteService.getByStrumentoFiglio(id).subscribe({
       next: (data) => {
         this.parti.set(data);
         this.loading.set(false);
@@ -54,6 +59,13 @@ export class StrumentoFiglioParti {
         this.loading.set(false);
       }
     });
+  }
+
+  altriStrumenti(parte: Parte, voceId: number): string {
+    return parte.strumenti
+      .filter((s) => s.id !== voceId)
+      .map((s) => s.nome)
+      .join(', ');
   }
 
   pdfUrl(parteId: number): string {

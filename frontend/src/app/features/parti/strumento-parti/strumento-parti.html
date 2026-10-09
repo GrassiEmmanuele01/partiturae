@@ -1,51 +1,112 @@
 <div class="page-header">
-  <a routerLink="/strumenti" class="back-link">&larr; Torna agli strumenti</a>
-  @if (strumento(); as s) {
-    <h2>{{ s.nome }}</h2>
-    <p class="subtitle">Tutte le parti, raggruppate per parte specifica.</p>
-  }
+  <div>
+    <a routerLink="/strumenti" class="back-link">&larr; Torna agli strumenti</a>
+    @if (strumento(); as s) {
+      <h2>{{ s.nome }}</h2>
+      <p class="subtitle">{{ s.famigliaNome }} · tutte le parti, divise per voce. Apri una voce per vedere i PDF.</p>
+    }
+  </div>
 </div>
 
 @if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="error-text">{{ error() }}</p>
+}
+
+@if (eliminazioneUtilizzo(); as u) {
+  <div class="usage-warning">
+    <p>Questa voce è usata in {{ u.count }} {{ u.count === 1 ? 'elemento' : 'elementi' }}:</p>
+    <ul>
+      @for (el of u.elementi; track $index) {
+        <li>{{ el.tipo }}: {{ el.nome }}</li>
+      }
+    </ul>
+    <div class="usage-actions">
+      <button type="button" class="btn-danger" (click)="confermaEliminazione()">Elimina comunque</button>
+      <button type="button" class="btn-secondary" (click)="annullaEliminazione()">Annulla</button>
+    </div>
+  </div>
 }
 
 @if (loading()) {
   <p>Caricamento...</p>
-} @else if (gruppi().length === 0) {
-  <p class="empty">Nessuna parte specifica definita per questo strumento.</p>
 } @else {
-  <ul class="gruppi">
-    @for (g of gruppi(); track g.strumentoFiglioId) {
-      <li class="gruppo">
-        <button type="button" class="gruppo-toggle" (click)="toggleExpand(g.strumentoFiglioId)">
-          <span class="chevron" [class.open]="isExpanded(g.strumentoFiglioId)">&rsaquo;</span>
-          {{ g.strumentoFiglioNome }}
-          <span class="count">{{ g.parti.length }} {{ g.parti.length === 1 ? 'parte' : 'parti' }}</span>
-        </button>
+  @if (gruppi().length === 0) {
+    <p class="empty">Nessuna voce definita per questo strumento. Aggiungila qui sotto.</p>
+  } @else {
+    <ul class="rows">
+      @for (g of gruppi(); track g.figlio.id) {
+        <li>
+          @if (inModificaId() === g.figlio.id) {
+            <div class="row">
+              <input
+                class="edit-input"
+                type="text"
+                [value]="nomeModifica()"
+                (input)="nomeModifica.set($any($event.target).value)"
+              >
+              <div class="actions">
+                <button type="button" class="btn-success" (click)="salvaModifica(g.figlio)" [disabled]="salvandoModifica()">Salva</button>
+                <button type="button" class="btn-secondary" (click)="annullaModifica()">Annulla</button>
+              </div>
+            </div>
+          } @else {
+            <div class="row">
+              <button type="button" class="toggle grow" (click)="toggle(g.figlio.id)">
+                <span class="chevron" [class.open]="isEspanso(g.figlio.id)">&rsaquo;</span>
+                {{ g.figlio.nome }}
+                <span class="count">{{ g.parti.length }} {{ g.parti.length === 1 ? 'parte' : 'parti' }}</span>
+              </button>
+              <div class="actions">
+                <a class="link-action" [routerLink]="['/strumenti-figli', g.figlio.id, 'parti']">Apri</a>
+                <button type="button" class="link-action" (click)="avviaModifica(g.figlio)">Modifica</button>
+                <button
+                  type="button"
+                  class="link-action danger"
+                  (click)="richiediEliminazione(g.figlio)"
+                  [disabled]="controllandoId() === g.figlio.id"
+                >
+                  {{ controllandoId() === g.figlio.id ? 'Controllo...' : 'Elimina' }}
+                </button>
+              </div>
+            </div>
+          }
 
-        @if (isExpanded(g.strumentoFiglioId)) {
-          <div class="parti-dettaglio">
-            @if (g.parti.length === 0) {
-              <p class="empty-mini">Nessuna parte ancora caricata.</p>
-            } @else {
-              <ul>
-                @for (p of g.parti; track p.id) {
-                  <li>
-                    <span class="nome-parte">{{ p.nome }}</span>
-                    <span class="partitura-nome">{{ p.partituraNome }}</span>
-                    @if (p.pdfNome) {
-                      <a [href]="pdfUrl(p.id)" target="_blank" class="pdf-link">PDF</a>
-                    } @else {
-                      <span class="no-pdf">Nessun PDF</span>
-                    }
-                  </li>
-                }
-              </ul>
-            }
-          </div>
-        }
-      </li>
-    }
-  </ul>
+          @if (isEspanso(g.figlio.id)) {
+            <div class="dettaglio">
+              @if (g.parti.length === 0) {
+                <p class="empty">Nessuna parte ancora caricata.</p>
+              } @else {
+                <ul>
+                  @for (p of g.parti; track p.id) {
+                    <li>
+                      <span class="titolo">{{ p.partituraNome }}</span>
+                      @if (p.strumenti.length > 1) {
+                        <span class="muted">insieme a {{ altriStrumenti(p, g.figlio.id) }}</span>
+                      }
+                      @if (p.pdfPresente) {
+                        <a [href]="pdfUrl(p.id)" target="_blank" class="pdf">{{ p.pdfNome }}</a>
+                      } @else {
+                        <span class="muted pdf">Nessun PDF</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="nuova-voce">
+    <input
+      type="text"
+      placeholder="Nuova voce, es. {{ strumento()?.nome }} 3"
+      [value]="nuovoNome()"
+      (input)="nuovoNome.set($any($event.target).value)"
+      (keydown.enter)="aggiungi()"
+    >
+    <button type="button" class="btn-primary" (click)="aggiungi()" [disabled]="aggiungendo()">Aggiungi voce</button>
+  </div>
 }

@@ -1,0 +1,23 @@
+package com.grassi.partiturae.raccolta;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RaccoltaResponse {
+    private Long id;
+    private String nome;
+    private Integer anno;
+    private String descrizione;
+    private int numeroPartiture;
+    private List<RaccoltaPartituraResponse> partiture;
+}

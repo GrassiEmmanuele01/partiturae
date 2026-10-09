@@ -2,10 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Utilizzo } from '../../../shared/utilizzo.model';
-import { Famiglia, FamigliaRequest } from '../../famiglie/famiglia.model';
+import { Famiglia } from '../../famiglie/famiglia.model';
 import { FamigliaService } from '../../famiglie/famiglia.service';
-import { StrumentoFiglio } from '../../strumenti-figli/strumento-figlio.model';
-import { StrumentoFiglioService } from '../../strumenti-figli/strumento-figlio.service';
 import { Strumento } from '../strumento.model';
 import { StrumentoService } from '../strumento.service';
 
@@ -24,59 +22,48 @@ interface FamigliaGroup {
 export class StrumentiList {
   private famigliaService = inject(FamigliaService);
   private strumentoService = inject(StrumentoService);
-  private strumentoFiglioService = inject(StrumentoFiglioService);
 
   famiglie = signal<Famiglia[]>([]);
   strumenti = signal<Strumento[]>([]);
-  strumentiFigli = signal<StrumentoFiglio[]>([]);
 
   loading = signal(true);
   error = signal<string | null>(null);
 
-  expandedIds = signal<Set<number>>(new Set());
-  draftSottostrumento = signal<Record<number, string>>({});
-
-  showAddForm = signal(false);
+  // --- nuovo strumento ---
+  mostraForm = signal(false);
   nuovoNome = signal('');
-  nuovaFamigliaNome = signal('');
-  famigliaSuggestions = signal<Famiglia[]>([]);
-  selectedFamigliaId = signal<number | null>(null);
-  pendingNuovaFamiglia = signal<string | null>(null);
-  saving = signal(false);
+  famigliaNome = signal('');
+  famigliaScelta = signal<number | null>(null);
+  suggerimenti = signal<Famiglia[]>([]);
+  famigliaDaCreare = signal<string | null>(null);
+  salvando = signal(false);
 
-  pendingDeleteStrumentoId = signal<number | null>(null);
-  pendingDeleteStrumentoUtilizzo = signal<Utilizzo | null>(null);
-  checkingStrumentoUtilizzo = signal(false);
+  // --- modifica ---
+  inModificaId = signal<number | null>(null);
+  nomeModifica = signal('');
+  famigliaModificaId = signal<number | null>(null);
+  salvandoModifica = signal(false);
 
-  pendingDeleteSfId = signal<number | null>(null);
-  pendingDeleteSfUtilizzo = signal<Utilizzo | null>(null);
-  checkingSfUtilizzo = signal(false);
+  // --- eliminazione con elenco di dove è usato ---
+  eliminazioneId = signal<number | null>(null);
+  eliminazioneUtilizzo = signal<Utilizzo | null>(null);
+  controllandoId = signal<number | null>(null);
 
-  // --- Modifica strumento ---
-  editingStrumentoId = signal<number | null>(null);
-  editStrumentoNome = signal('');
-  editStrumentoFamigliaId = signal<number | null>(null);
-  savingEditStrumento = signal(false);
-
-  // --- Modifica sotto-strumento ---
-  editingSfId = signal<number | null>(null);
-  editSfNome = signal('');
-  editSfStrumentoId = signal<number | null>(null);
-  savingEditSf = signal(false);
-
-  famiglieConStrumenti = computed<FamigliaGroup[]>(() =>
+  gruppi = computed<FamigliaGroup[]>(() =>
     this.famiglie().map((f) => ({
       id: f.id,
       nome: f.nome,
-      strumenti: this.strumenti().filter((s) => s.famigliaId === f.id)
+      strumenti: this.strumenti()
+        .filter((s) => s.famigliaId === f.id)
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'it', { numeric: true }))
     }))
   );
 
   constructor() {
-    this.loadAll();
+    this.carica();
   }
 
-  loadAll(): void {
+  carica(): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -92,302 +79,177 @@ export class StrumentiList {
     });
 
     this.strumentoService.getAll().subscribe({ next: (data) => this.strumenti.set(data) });
-    this.strumentoFiglioService.getAll().subscribe({ next: (data) => this.strumentiFigli.set(data) });
   }
 
-  sottostrumentiDi(strumentoId: number): StrumentoFiglio[] {
-    return this.strumentiFigli().filter((sf) => sf.strumentoId === strumentoId);
-  }
-
-  isExpanded(strumentoId: number): boolean {
-    return this.expandedIds().has(strumentoId);
-  }
-
-  toggleExpand(strumentoId: number): void {
-    const current = new Set(this.expandedIds());
-    if (current.has(strumentoId)) {
-      current.delete(strumentoId);
-    } else {
-      current.add(strumentoId);
-    }
-    this.expandedIds.set(current);
-  }
-
-  onDraftInput(strumentoId: number, value: string): void {
-    this.draftSottostrumento.set({ ...this.draftSottostrumento(), [strumentoId]: value });
-  }
-
-  addSottostrumento(strumentoId: number): void {
-    const nome = (this.draftSottostrumento()[strumentoId] ?? '').trim();
-    if (!nome) {
-      return;
-    }
-
-    this.strumentoFiglioService.create({ nome, strumentoId }).subscribe({
-      next: (nuovo) => {
-        this.strumentiFigli.set([...this.strumentiFigli(), nuovo]);
-        this.draftSottostrumento.set({ ...this.draftSottostrumento(), [strumentoId]: '' });
-      },
-      error: () => this.error.set('Errore durante la creazione della parte.')
-    });
-  }
-
-  toggleAddForm(): void {
-    this.showAddForm.set(!this.showAddForm());
+  // ---------- nuovo strumento ----------
+  toggleForm(): void {
+    this.mostraForm.set(!this.mostraForm());
     this.nuovoNome.set('');
-    this.nuovaFamigliaNome.set('');
-    this.selectedFamigliaId.set(null);
-    this.pendingNuovaFamiglia.set(null);
-    this.famigliaSuggestions.set([]);
+    this.famigliaNome.set('');
+    this.famigliaScelta.set(null);
+    this.famigliaDaCreare.set(null);
+    this.suggerimenti.set([]);
   }
 
-  onFamigliaInput(value: string): void {
-    this.nuovaFamigliaNome.set(value);
-    this.selectedFamigliaId.set(null);
-    this.pendingNuovaFamiglia.set(null);
+  onFamiglia(valore: string): void {
+    this.famigliaNome.set(valore);
+    this.famigliaScelta.set(null);
+    this.famigliaDaCreare.set(null);
 
-    const term = value.trim().toLowerCase();
-    if (!term) {
-      this.famigliaSuggestions.set([]);
-      return;
-    }
-
-    this.famigliaSuggestions.set(
-      this.famiglie().filter((f) => f.nome.toLowerCase().includes(term)).slice(0, 8)
+    const term = valore.trim().toLowerCase();
+    this.suggerimenti.set(
+      term ? this.famiglie().filter((f) => f.nome.toLowerCase().includes(term)).slice(0, 8) : []
     );
   }
 
-  selectFamiglia(f: Famiglia): void {
-    this.nuovaFamigliaNome.set(f.nome);
-    this.selectedFamigliaId.set(f.id);
-    this.famigliaSuggestions.set([]);
+  scegliFamiglia(famiglia: Famiglia): void {
+    this.famigliaNome.set(famiglia.nome);
+    this.famigliaScelta.set(famiglia.id);
+    this.suggerimenti.set([]);
   }
 
-  hideFamigliaSuggestionsDelayed(): void {
-    setTimeout(() => this.famigliaSuggestions.set([]), 150);
+  chiudiSuggerimentiConRitardo(): void {
+    setTimeout(() => this.suggerimenti.set([]), 150);
   }
 
-  submitAddStrumento(): void {
+  salva(): void {
     const nome = this.nuovoNome().trim();
-    const famigliaNome = this.nuovaFamigliaNome().trim();
+    const famigliaNome = this.famigliaNome().trim();
 
     if (!nome || !famigliaNome) {
       this.error.set('Nome strumento e famiglia sono obbligatori.');
       return;
     }
 
-    const selectedId = this.selectedFamigliaId();
-    if (selectedId) {
-      this.createStrumento(nome, selectedId);
+    const scelta = this.famigliaScelta();
+    if (scelta) {
+      this.creaStrumento(nome, scelta);
       return;
     }
 
     const esatta = this.famiglie().find((f) => f.nome.toLowerCase() === famigliaNome.toLowerCase());
     if (esatta) {
-      this.createStrumento(nome, esatta.id);
+      this.creaStrumento(nome, esatta.id);
       return;
     }
 
-    this.pendingNuovaFamiglia.set(famigliaNome);
+    // La famiglia non esiste: prima chiediamo conferma.
+    this.famigliaDaCreare.set(famigliaNome);
   }
 
-  confermaCreaFamiglia(): void {
-    const nome = this.pendingNuovaFamiglia();
-    if (!nome) return;
+  confermaNuovaFamiglia(): void {
+    const nome = this.famigliaDaCreare();
+    if (!nome) {
+      return;
+    }
 
-    this.saving.set(true);
-    const request: FamigliaRequest = { nome };
-
-    this.famigliaService.create(request).subscribe({
+    this.salvando.set(true);
+    this.famigliaService.create({ nome }).subscribe({
       next: (famiglia) => {
         this.famiglie.set([...this.famiglie(), famiglia]);
-        this.pendingNuovaFamiglia.set(null);
-        this.createStrumento(this.nuovoNome().trim(), famiglia.id);
+        this.famigliaDaCreare.set(null);
+        this.creaStrumento(this.nuovoNome().trim(), famiglia.id);
       },
       error: () => {
-        this.saving.set(false);
+        this.salvando.set(false);
         this.error.set('Errore durante la creazione della famiglia.');
       }
     });
   }
 
-  annullaCreaFamiglia(): void {
-    this.pendingNuovaFamiglia.set(null);
+  annullaNuovaFamiglia(): void {
+    this.famigliaDaCreare.set(null);
   }
 
-  private createStrumento(nome: string, famigliaId: number): void {
-    this.saving.set(true);
+  private creaStrumento(nome: string, famigliaId: number): void {
+    this.salvando.set(true);
     this.error.set(null);
 
     this.strumentoService.create({ nome, famigliaId }).subscribe({
       next: (strumento) => {
         this.strumenti.set([...this.strumenti(), strumento]);
-        this.saving.set(false);
-        this.toggleAddForm();
+        this.salvando.set(false);
+        this.toggleForm();
       },
       error: (err) => {
-        this.saving.set(false);
-        if (err.status === 400 && err.error?.errors) {
-          this.error.set(Object.values(err.error.errors).join(', '));
-        } else {
-          this.error.set('Errore durante la creazione dello strumento.');
-        }
+        this.salvando.set(false);
+        this.error.set(err.error?.message ?? 'Errore durante la creazione dello strumento.');
       }
     });
   }
 
-  // --- Modifica strumento ---
-  startEditStrumento(s: Strumento): void {
-    this.editingStrumentoId.set(s.id);
-    this.editStrumentoNome.set(s.nome);
-    this.editStrumentoFamigliaId.set(s.famigliaId);
+  // ---------- modifica ----------
+  avviaModifica(strumento: Strumento): void {
+    this.inModificaId.set(strumento.id);
+    this.nomeModifica.set(strumento.nome);
+    this.famigliaModificaId.set(strumento.famigliaId);
   }
 
-  cancelEditStrumento(): void {
-    this.editingStrumentoId.set(null);
+  annullaModifica(): void {
+    this.inModificaId.set(null);
   }
 
-  saveEditStrumento(id: number): void {
-    const nome = this.editStrumentoNome().trim();
-    const famigliaId = this.editStrumentoFamigliaId();
+  salvaModifica(id: number): void {
+    const nome = this.nomeModifica().trim();
+    const famigliaId = this.famigliaModificaId();
     if (!nome || !famigliaId) {
       this.error.set('Nome e famiglia sono obbligatori.');
       return;
     }
 
-    this.savingEditStrumento.set(true);
+    this.salvandoModifica.set(true);
     this.strumentoService.update(id, { nome, famigliaId }).subscribe({
       next: (aggiornato) => {
         this.strumenti.set(this.strumenti().map((s) => (s.id === id ? aggiornato : s)));
-        this.savingEditStrumento.set(false);
-        this.editingStrumentoId.set(null);
+        this.salvandoModifica.set(false);
+        this.inModificaId.set(null);
       },
-      error: () => {
-        this.savingEditStrumento.set(false);
-        this.error.set('Errore durante la modifica dello strumento.');
+      error: (err) => {
+        this.salvandoModifica.set(false);
+        this.error.set(err.error?.message ?? 'Errore durante la modifica.');
       }
     });
   }
 
-  // --- Modifica sotto-strumento ---
-  startEditSf(sf: StrumentoFiglio): void {
-    this.editingSfId.set(sf.id);
-    this.editSfNome.set(sf.nome);
-    this.editSfStrumentoId.set(sf.strumentoId);
-  }
+  // ---------- eliminazione ----------
+  richiediEliminazione(strumento: Strumento): void {
+    this.controllandoId.set(strumento.id);
 
-  cancelEditSf(): void {
-    this.editingSfId.set(null);
-  }
-
-  saveEditSf(id: number): void {
-    const nome = this.editSfNome().trim();
-    const strumentoId = this.editSfStrumentoId();
-    if (!nome || !strumentoId) {
-      this.error.set('Nome e strumento sono obbligatori.');
-      return;
-    }
-
-    this.savingEditSf.set(true);
-    this.strumentoFiglioService.update(id, { nome, strumentoId }).subscribe({
-      next: (aggiornato) => {
-        this.strumentiFigli.set(this.strumentiFigli().map((sf) => (sf.id === id ? aggiornato : sf)));
-        this.savingEditSf.set(false);
-        this.editingSfId.set(null);
-      },
-      error: () => {
-        this.savingEditSf.set(false);
-        this.error.set('Errore durante la modifica della parte.');
-      }
-    });
-  }
-
-  // --- Eliminazione strumento ---
-  requestRemoveStrumento(id: number): void {
-    this.checkingStrumentoUtilizzo.set(true);
-    this.pendingDeleteStrumentoId.set(id);
-
-    this.strumentoService.getUtilizzo(id).subscribe({
+    this.strumentoService.getUtilizzo(strumento.id).subscribe({
       next: (utilizzo) => {
-        this.checkingStrumentoUtilizzo.set(false);
+        this.controllandoId.set(null);
         if (utilizzo.count === 0) {
-          if (confirm('Eliminare questo strumento?')) {
-            this.doDeleteStrumento(id);
+          if (confirm(`Eliminare «${strumento.nome}»?`)) {
+            this.elimina(strumento.id);
           }
-          this.pendingDeleteStrumentoId.set(null);
-        } else {
-          this.pendingDeleteStrumentoUtilizzo.set(utilizzo);
+          return;
         }
+        this.eliminazioneId.set(strumento.id);
+        this.eliminazioneUtilizzo.set(utilizzo);
       },
       error: () => {
-        this.checkingStrumentoUtilizzo.set(false);
-        this.pendingDeleteStrumentoId.set(null);
+        this.controllandoId.set(null);
         this.error.set("Errore durante il controllo dell'utilizzo.");
       }
     });
   }
 
-  confirmDeleteStrumentoAnyway(): void {
-    const id = this.pendingDeleteStrumentoId();
+  confermaEliminazione(): void {
+    const id = this.eliminazioneId();
     if (id) {
-      this.doDeleteStrumento(id);
+      this.elimina(id);
     }
-    this.cancelPendingDeleteStrumento();
+    this.annullaEliminazione();
   }
 
-  cancelPendingDeleteStrumento(): void {
-    this.pendingDeleteStrumentoId.set(null);
-    this.pendingDeleteStrumentoUtilizzo.set(null);
+  annullaEliminazione(): void {
+    this.eliminazioneId.set(null);
+    this.eliminazioneUtilizzo.set(null);
   }
 
-  private doDeleteStrumento(id: number): void {
+  private elimina(id: number): void {
     this.strumentoService.delete(id).subscribe({
-      next: () => this.loadAll(),
-      error: (err) => this.error.set(err.error?.message ?? "Errore durante l'eliminazione.")
-    });
-  }
-
-  // --- Eliminazione sotto-strumento ---
-  requestRemoveSottostrumento(id: number): void {
-    this.checkingSfUtilizzo.set(true);
-    this.pendingDeleteSfId.set(id);
-
-    this.strumentoFiglioService.getUtilizzo(id).subscribe({
-      next: (utilizzo) => {
-        this.checkingSfUtilizzo.set(false);
-        if (utilizzo.count === 0) {
-          if (confirm('Eliminare questa parte?')) {
-            this.doDeleteSf(id);
-          }
-          this.pendingDeleteSfId.set(null);
-        } else {
-          this.pendingDeleteSfUtilizzo.set(utilizzo);
-        }
-      },
-      error: () => {
-        this.checkingSfUtilizzo.set(false);
-        this.pendingDeleteSfId.set(null);
-        this.error.set("Errore durante il controllo dell'utilizzo.");
-      }
-    });
-  }
-
-  confirmDeleteSfAnyway(): void {
-    const id = this.pendingDeleteSfId();
-    if (id) {
-      this.doDeleteSf(id);
-    }
-    this.cancelPendingDeleteSf();
-  }
-
-  cancelPendingDeleteSf(): void {
-    this.pendingDeleteSfId.set(null);
-    this.pendingDeleteSfUtilizzo.set(null);
-  }
-
-  private doDeleteSf(id: number): void {
-    this.strumentoFiglioService.delete(id).subscribe({
-      next: () => this.loadAll(),
+      next: () => this.carica(),
       error: (err) => this.error.set(err.error?.message ?? "Errore durante l'eliminazione.")
     });
   }

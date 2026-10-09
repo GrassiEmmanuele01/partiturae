@@ -1,163 +1,173 @@
 <div class="page-header">
-  <a routerLink="/partiture" class="back-link">&larr; Torna alle partiture</a>
-  @if (partitura(); as p) {
-    <h2>{{ p.nome }}</h2>
-    <p class="subtitle">{{ p.autore.nominativo }} @if (p.anno) { · {{ p.anno }} }</p>
-  }
+  <div>
+    <a routerLink="/partiture" class="back-link">&larr; Torna alle partiture</a>
+    @if (partitura(); as p) {
+      <h2>{{ p.nome }}</h2>
+      <p class="subtitle">{{ p.autore.nominativo }}{{ p.anno ? ' · ' + p.anno : '' }}</p>
+    }
+  </div>
 </div>
 
 @if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="error-text">{{ error() }}</p>
 }
 
-<section class="add-parte">
+<section class="panel">
   <h3>Aggiungi parte</h3>
-  <form [formGroup]="form" (ngSubmit)="addParte()">
-    <div class="field">
-      <label for="nome">Nome parte</label>
-      <input id="nome" type="text" formControlName="nome" placeholder="es. Flicorno tenore 2">
-      @if (form.controls.nome.invalid && form.controls.nome.touched) {
-        <span class="field-error">Il nome è obbligatorio</span>
-      }
-    </div>
 
-    <div class="field autocomplete">
-      <label for="strumentoFiglioNome">Strumento</label>
-      <input
-        id="strumentoFiglioNome"
-        type="text"
-        formControlName="strumentoFiglioNome"
-        autocomplete="off"
-        placeholder="Scrivi il nome dello strumento..."
-        (input)="onStrumentoFiglioInput()"
-        (focus)="onStrumentoFiglioInput()"
-        (blur)="hideSfSuggestionsDelayed()"
-      >
+  <div class="field autocomplete">
+    <label for="ricerca">Strumenti (puoi sceglierne più di uno se il PDF vale per tutti)</label>
 
-      @if (sfSuggestions().length > 0) {
-        <ul class="suggestions">
-          @for (sf of sfSuggestions(); track sf.id) {
-            <li (mousedown)="selectStrumentoFiglio(sf)">{{ sf.nome }} <span class="muted">({{ sf.strumentoNome }})</span></li>
-          }
-        </ul>
-      }
+    @if (selezionati().length > 0) {
+      <ul class="chips">
+        @for (s of selezionati(); track s.id) {
+          <li class="chip selected">
+            {{ s.nome }}
+            <button type="button" (click)="togliStrumento(s.id)" title="Togli">&times;</button>
+          </li>
+        }
+      </ul>
+    }
 
-      @if (form.controls.strumentoFiglioNome.invalid && form.controls.strumentoFiglioNome.touched) {
-        <span class="field-error">Lo strumento è obbligatorio</span>
-      }
-    </div>
+    <input
+      id="ricerca"
+      type="text"
+      autocomplete="off"
+      placeholder="Scrivi il nome dello strumento, es. Corno in Fa 1"
+      [value]="ricerca()"
+      (input)="onRicerca($any($event.target).value)"
+      (focus)="ricercaAperta.set(true)"
+      (blur)="chiudiSuggerimentiConRitardo()"
+    >
 
-    @if (creatingStrumentoFiglio()) {
-      <div class="cascade">
-        <p class="cascade-hint">
-          "{{ form.controls.strumentoFiglioNome.value }}" non esiste ancora — verrà creato. A quale strumento appartiene?
-        </p>
+    @if (ricercaAperta() && suggerimenti().length > 0) {
+      <ul class="suggestions">
+        @for (s of suggerimenti(); track s.id) {
+          <li (mousedown)="aggiungiStrumento(s)">{{ s.nome }} <span class="muted">({{ s.strumentoNome }})</span></li>
+        }
+      </ul>
+    }
 
+    @if (puoCreare() && !creazioneAperta()) {
+      <button type="button" class="link-action crea" (click)="apriCreazione()">
+        «{{ ricerca().trim() }}» non esiste: crealo
+      </button>
+    }
+  </div>
+
+  @if (creazioneAperta()) {
+    <div class="creazione">
+      <p class="creazione-titolo">Nuovo strumento «{{ nuovoNome() }}»</p>
+
+      <div class="field autocomplete">
+        <label for="genitore">Appartiene allo strumento</label>
+        <input
+          id="genitore"
+          type="text"
+          autocomplete="off"
+          placeholder="es. Flicorno tenore"
+          [value]="genitoreNome()"
+          (input)="genitoreNome.set($any($event.target).value)"
+        >
+        @if (genitoreSuggerimenti().length > 0) {
+          <ul class="suggestions">
+            @for (s of genitoreSuggerimenti(); track s.id) {
+              <li (mousedown)="scegliGenitore(s)">{{ s.nome }} <span class="muted">({{ s.famigliaNome }})</span></li>
+            }
+          </ul>
+        }
+        @if (genitoreNome().trim() && !genitoreEsistente()) {
+          <span class="field-hint">«{{ genitoreNome().trim() }}» è nuovo: indica anche la famiglia.</span>
+        }
+      </div>
+
+      @if (genitoreNome().trim() && !genitoreEsistente()) {
         <div class="field autocomplete">
-          <label for="strumentoNome">Strumento generico</label>
+          <label for="famiglia">Famiglia</label>
           <input
-            id="strumentoNome"
+            id="famiglia"
             type="text"
             autocomplete="off"
-            placeholder="es. Flicorno tenore"
-            [value]="strumentoNome()"
-            (input)="onStrumentoInput($any($event.target).value)"
-            (blur)="hideStrumentoSuggestionsDelayed()"
+            placeholder="es. Ottoni"
+            [value]="famigliaNome()"
+            (input)="famigliaNome.set($any($event.target).value)"
           >
-
-          @if (strumentoSuggestions().length > 0) {
+          @if (famigliaSuggerimenti().length > 0) {
             <ul class="suggestions">
-              @for (s of strumentoSuggestions(); track s.id) {
-                <li (mousedown)="selectStrumento(s)">{{ s.nome }} <span class="muted">({{ s.famigliaNome }})</span></li>
+              @for (f of famigliaSuggerimenti(); track f.id) {
+                <li (mousedown)="scegliFamiglia(f)">{{ f.nome }}</li>
               }
             </ul>
           }
+          @if (famigliaNome().trim() && !famigliaEsistente()) {
+            <span class="field-hint">Verrà creata la nuova famiglia «{{ famigliaNome().trim() }}».</span>
+          }
         </div>
+      }
 
-        @if (creatingStrumento()) {
-          <div class="cascade">
-            <p class="cascade-hint">
-              Anche "{{ strumentoNome() }}" non esiste ancora — verrà creato. Di che famiglia fa parte?
-            </p>
-
-            <div class="field autocomplete">
-              <label for="famigliaNome">Famiglia</label>
-              <input
-                id="famigliaNome"
-                type="text"
-                autocomplete="off"
-                placeholder="es. Ottoni"
-                [value]="famigliaNome()"
-                (input)="onFamigliaInput($any($event.target).value)"
-                (blur)="hideFamigliaSuggestionsDelayed()"
-              >
-
-              @if (famigliaSuggestions().length > 0) {
-                <ul class="suggestions">
-                  @for (f of famigliaSuggestions(); track f.id) {
-                    <li (mousedown)="selectFamiglia(f)">{{ f.nome }}</li>
-                  }
-                </ul>
-              }
-            </div>
-          </div>
-        }
+      <div class="form-actions">
+        <button type="button" class="btn-primary" (click)="confermaCreazione()" [disabled]="creating()">
+          {{ creating() ? 'Creazione...' : 'Crea e aggiungi' }}
+        </button>
+        <button type="button" class="btn-secondary" (click)="annullaCreazione()">Annulla</button>
       </div>
-    }
-
-    <div class="field-checkbox">
-      <label>
-        <input type="checkbox" formControlName="raccolta">
-        È un raccolta
-      </label>
     </div>
+  }
 
-    <div class="field">
-      <label for="pdfNuovaParte">PDF (opzionale, puoi caricarlo anche dopo)</label>
-      <input id="pdfNuovaParte" type="file" accept="application/pdf" (change)="onFileSelectedForNewParte($event)">
-    </div>
+  <div class="field">
+    <label for="pdf">PDF (facoltativo, lo puoi caricare anche dopo)</label>
+    <input #fileInput id="pdf" type="file" accept="application/pdf" (change)="onFileScelto($event)">
+    <span class="field-hint">Verrà salvato con il nome standard Strumento_NomePartitura.pdf</span>
+  </div>
 
-    <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Aggiungi parte' }}</button>
-  </form>
+  <button type="button" class="btn-primary" (click)="aggiungiParte()" [disabled]="saving()">
+    {{ saving() ? 'Salvataggio...' : 'Aggiungi parte' }}
+  </button>
 </section>
 
-<section class="parti-list">
-  <h3>Parti</h3>
+<section class="panel">
+  <h3>Parti caricate</h3>
 
   @if (loading()) {
     <p>Caricamento...</p>
-  } @else if (parti().length === 0) {
-    <p>Nessuna parte ancora aggiunta.</p>
+  } @else if (righe().length === 0) {
+    <p class="empty">Nessuna parte ancora aggiunta.</p>
   } @else {
-    <table>
+    <table class="data">
       <thead>
         <tr>
-          <th>Nome</th>
           <th>Strumento</th>
-          <th>Raccolta</th>
           <th>PDF</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        @for (parte of parti(); track parte.id) {
+        @for (riga of righe(); track riga.parte.id + '-' + riga.strumento.id) {
           <tr>
-            <td>{{ parte.nome }}</td>
-            <td>{{ parte.strumentoFiglioNome }}</td>
-            <td>{{ parte.raccolta ? 'Sì' : 'No' }}</td>
             <td>
-              @if (parte.pdfNome) {
-                <a [href]="pdfUrl(parte.id)" target="_blank">{{ parte.pdfNome }}</a>
-              } @else {
-                <span class="no-pdf">Nessun PDF</span>
+              {{ riga.strumento.nome }}
+              @if (riga.parte.strumenti.length > 1) {
+                <span class="condiviso">insieme a {{ condivisoCon(riga) }}</span>
               }
-              <label class="upload-label">
-                {{ uploadingId() === parte.id ? 'Caricamento...' : (parte.pdfNome ? 'Sostituisci' : 'Carica') }}
-                <input type="file" accept="application/pdf" (change)="onFileSelected($event, parte.id)" [disabled]="uploadingId() === parte.id">
+            </td>
+            <td>
+              @if (riga.parte.pdfPresente) {
+                <a [href]="pdfUrl(riga.parte.id)" target="_blank">{{ riga.parte.pdfNome }}</a>
+              } @else {
+                <span class="muted">Nessun PDF</span>
+              }
+              <label class="link-action upload">
+                {{ uploadingId() === riga.parte.id ? 'Caricamento...' : (riga.parte.pdfPresente ? 'Sostituisci' : 'Carica PDF') }}
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  (change)="onFilePerParte($event, riga.parte.id)"
+                  [disabled]="uploadingId() === riga.parte.id"
+                >
               </label>
             </td>
             <td class="actions">
-              <button (click)="removeParte(parte.id)">Elimina</button>
+              <button type="button" class="link-action danger" (click)="rimuoviRiga(riga)">Rimuovi</button>
             </td>
           </tr>
         }

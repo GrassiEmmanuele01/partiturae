@@ -1,75 +1,18 @@
-.page-header {
-  margin-bottom: 1.5rem;
-
-  .back-link {
-    display: inline-block;
-    color: var(--ink);
-    opacity: 0.6;
-    text-decoration: none;
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-  }
-
-  h2 {
-    margin: 0;
-  }
-
-  .subtitle {
-    margin: 0.25rem 0 0;
-    color: var(--ink);
-    opacity: 0.65;
-    font-size: 0.9rem;
-  }
-}
-
-.error {
-  color: var(--brick);
-}
-
-.empty {
-  color: var(--ink);
-  opacity: 0.5;
-}
-
-.gruppi {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  background: #fff;
-  border: 1px solid var(--mist);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.gruppo {
-  border-bottom: 1px solid var(--mist);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.gruppo-toggle {
-  width: 100%;
+.toggle {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   background: none;
   border: none;
+  padding: 0;
   text-align: left;
-  padding: 0.75rem 1rem;
   font-size: 0.95rem;
-  font-family: inherit;
   color: var(--ink);
   cursor: pointer;
 
-  &:hover {
-    background: var(--paper);
-  }
-
   .chevron {
-    transition: transform 0.15s ease;
     color: var(--brass-dark);
+    transition: transform 0.15s ease;
 
     &.open {
       transform: rotate(90deg);
@@ -77,23 +20,28 @@
   }
 
   .count {
-    margin-left: auto;
+    margin-left: 0.75rem;
     font-size: 0.8rem;
-    color: var(--ink);
     opacity: 0.5;
   }
 }
 
-.parti-dettaglio {
-  padding: 0.5rem 1rem 1rem 2.5rem;
-  background: var(--paper);
+.edit-input {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--mist);
+  border-radius: 4px;
+  font-size: 0.9rem;
 
-  .empty-mini {
-    color: var(--ink);
-    opacity: 0.5;
-    font-size: 0.85rem;
-    margin: 0;
+  &:focus {
+    outline: none;
+    border-color: var(--brass);
   }
+}
+
+.dettaglio {
+  padding: 0.25rem 1rem 1rem 2.4rem;
+  background: var(--paper);
 
   ul {
     list-style: none;
@@ -106,29 +54,35 @@
       gap: 0.75rem;
       padding: 0.4rem 0;
       font-size: 0.88rem;
+    }
+  }
 
-      .nome-parte {
-        font-weight: 600;
-      }
+  .titolo {
+    font-weight: 600;
+  }
 
-      .partitura-nome {
-        color: var(--ink);
-        opacity: 0.6;
-      }
+  .pdf {
+    margin-left: auto;
+    font-size: 0.82rem;
+  }
+}
 
-      .pdf-link {
-        margin-left: auto;
-        color: var(--brass-dark);
-        text-decoration: none;
-        font-size: 0.82rem;
-      }
+.nuova-voce {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+  max-width: 480px;
 
-      .no-pdf {
-        margin-left: auto;
-        color: var(--ink);
-        opacity: 0.4;
-        font-size: 0.82rem;
-      }
+  input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--mist);
+    border-radius: 4px;
+    font-size: 0.9rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--brass);
     }
   }
 }

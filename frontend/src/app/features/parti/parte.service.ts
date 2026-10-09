@@ -26,6 +26,10 @@ export class ParteService {
     return this.http.post<Parte>(this.baseUrl, request);
   }
 
+  updateStrumenti(id: number, strumentoFiglioIds: number[]): Observable<Parte> {
+    return this.http.put<Parte>(`${this.baseUrl}/${id}/strumenti`, { strumentoFiglioIds });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
