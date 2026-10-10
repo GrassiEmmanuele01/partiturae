@@ -24,3 +24,8 @@ backend/.mvn/wrapper/maven-wrapper.jar
 
 ### Env ###
 .env
+
+### File locali (log e prove con curl) ###
+*.log
+cookies.txt
+vecchio.txt
