@@ -49,4 +49,7 @@ public class RefreshToken {
 
     /** Valorizzato quando il token è stato usato (rinnovo), chiuso (logout) o revocato. */
     private Instant revocatoIl;
+
+    /** La banda in cui l'utente stava lavorando: al rinnovo si resta nella stessa banda. */
+    private Long bandaId;
 }

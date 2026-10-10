@@ -1,18 +1,10 @@
 package com.grassi.partiturae.auth;
 
-import com.grassi.partiturae.socio.Socio;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,12 +13,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
- * Credenziali di accesso. Il collegamento al socio è facoltativo: il primo amministratore
- * esiste prima che ci sia un libro soci; gli account dei musicisti verranno collegati al loro socio.
+ * La persona che accede. Non appartiene a una banda: lo fa tramite le {@link Appartenenza}
+ * (una per ogni banda, con i ruoli che ha lì).
  */
 @Entity
 @Table(name = "account")
@@ -47,17 +37,15 @@ public class Account {
     @Column(nullable = false)
     private String passwordHash;
 
+    private String nome;
+
+    private String cognome;
+
+    /** Gestisce la piattaforma (bande e account amministratore) ma non vede i dati delle bande. */
     @Builder.Default
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "account_ruolo", joinColumns = @JoinColumn(name = "account_id"))
-    @Column(name = "ruolo", nullable = false)
-    private Set<Ruolo> ruoli = new HashSet<>();
+    private boolean superadmin = false;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "socio_id", unique = true)
-    private Socio socio;
-
+    /** False = account bloccato: non può entrare in nessuna banda. */
     @Builder.Default
     private boolean attivo = true;
 
@@ -70,4 +58,7 @@ public class Account {
     private Instant bloccatoFino;
 
     private Instant ultimoAccesso;
+
+    /** Ultima banda in cui si è lavorato: al prossimo accesso si riparte da lì. */
+    private Long ultimaBandaId;
 }

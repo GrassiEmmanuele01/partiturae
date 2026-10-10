@@ -19,4 +19,7 @@ public class LoginRequest {
 
     @NotBlank(message = "La password è obbligatoria")
     private String password;
+
+    /** Facoltativa: la banda in cui entrare. Se manca si entra nell'ultima usata. */
+    private Long bandaId;
 }

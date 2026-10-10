@@ -31,13 +31,22 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return conCookie(authService.login(request.getEmail(), request.getPassword()));
+        return conCookie(authService.login(request.getEmail(), request.getPassword(), request.getBandaId()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(
             @CookieValue(name = REFRESH_COOKIE, required = false) String refreshToken) {
         return conCookie(authService.refresh(refreshToken));
+    }
+
+    /** Cambia la banda in cui si lavora (serve avere il cookie di sessione e un token valido). */
+    @PostMapping("/banda")
+    public ResponseEntity<AuthResponse> cambiaBanda(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody CambioBandaRequest request,
+            @CookieValue(name = REFRESH_COOKIE, required = false) String refreshToken) {
+        return conCookie(authService.cambiaBanda(refreshToken, request.getBandaId(), Long.valueOf(jwt.getSubject())));
     }
 
     @PostMapping("/logout")
@@ -52,7 +61,10 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<AccountResponse> me(@AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(authService.me(Long.valueOf(jwt.getSubject())));
+        Object banda = jwt.getClaim("banda");
+        Long bandaId = banda instanceof Number numero ? numero.longValue() : null;
+
+        return ResponseEntity.ok(authService.me(Long.valueOf(jwt.getSubject()), bandaId));
     }
 
     private ResponseEntity<AuthResponse> conCookie(AuthService.AuthResult result) {

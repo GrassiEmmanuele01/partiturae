@@ -1,7 +1,7 @@
 package com.grassi.partiturae.auth;
 
+import com.grassi.partiturae.banda.BandaResponse;
 import com.grassi.partiturae.common.exception.AuthException;
-import com.grassi.partiturae.socio.Socio;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +15,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class AuthService {
@@ -28,6 +30,7 @@ public class AuthService {
     }
 
     private final AccountRepository accountRepository;
+    private final AppartenenzaRepository appartenenzaRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -35,11 +38,13 @@ public class AuthService {
     private final String hashFittizio;
 
     public AuthService(AccountRepository accountRepository,
+                        AppartenenzaRepository appartenenzaRepository,
                         RefreshTokenRepository refreshTokenRepository,
                         PasswordEncoder passwordEncoder,
                         JwtService jwtService,
                         AuthProperties properties) {
         this.accountRepository = accountRepository;
+        this.appartenenzaRepository = appartenenzaRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -50,7 +55,7 @@ public class AuthService {
 
     // noRollbackFor: i tentativi falliti devono restare salvati anche se lanciamo l'errore.
     @Transactional(noRollbackFor = AuthException.class)
-    public AuthResult login(String email, String password) {
+    public AuthResult login(String email, String password, Long bandaRichiesta) {
         Account account = accountRepository.findByEmailIgnoreCase(email.trim()).orElse(null);
 
         if (account == null) {
@@ -75,38 +80,19 @@ public class AuthService {
         account.setTentativiFalliti(0);
         account.setBloccatoFino(null);
         account.setUltimoAccesso(ora);
-        accountRepository.save(account);
 
-        return emettiToken(account, ora);
+        return emettiToken(account, bandaRichiesta, ora);
     }
 
     @Transactional(noRollbackFor = AuthException.class)
     public AuthResult refresh(String refreshTokenGrezzo) {
-        if (refreshTokenGrezzo == null || refreshTokenGrezzo.isBlank()) {
-            throw new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA);
-        }
+        return rinnova(refreshTokenGrezzo, null, null);
+    }
 
-        RefreshToken salvato = refreshTokenRepository.findByTokenHash(hash(refreshTokenGrezzo))
-                .orElseThrow(() -> new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA));
-
-        Instant ora = Instant.now();
-
-        if (salvato.getRevocatoIl() != null) {
-            // Un token già usato che ricompare: potrebbe essere stato rubato.
-            // Per prudenza si chiudono tutte le sessioni dell'account.
-            refreshTokenRepository.revocaTutti(salvato.getAccount().getId(), ora);
-            throw new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA);
-        }
-
-        if (salvato.getScadenza().isBefore(ora) || !salvato.getAccount().isAttivo()) {
-            throw new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA);
-        }
-
-        // Rotazione: ogni token si può usare una volta sola, poi se ne emette uno nuovo.
-        salvato.setRevocatoIl(ora);
-        refreshTokenRepository.save(salvato);
-
-        return emettiToken(salvato.getAccount(), ora);
+    /** Passa a un'altra banda in cui l'utente è presente: si emette una nuova coppia di token per quella banda. */
+    @Transactional(noRollbackFor = AuthException.class)
+    public AuthResult cambiaBanda(String refreshTokenGrezzo, Long bandaId, Long accountId) {
+        return rinnova(refreshTokenGrezzo, bandaId, accountId);
     }
 
     @Transactional
@@ -124,11 +110,77 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse me(Long accountId) {
+    public AccountResponse me(Long accountId, Long bandaId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA));
 
-        return toResponse(account);
+        List<Appartenenza> attive = appartenenzaRepository.findAttiveByAccount(accountId);
+        Appartenenza corrente = attive.stream()
+                .filter(a -> a.getBanda().getId().equals(bandaId))
+                .findFirst()
+                .orElse(null);
+
+        return toResponse(account, corrente, attive);
+    }
+
+    private AuthResult rinnova(String refreshTokenGrezzo, Long bandaScelta, Long accountAtteso) {
+        if (refreshTokenGrezzo == null || refreshTokenGrezzo.isBlank()) {
+            throw new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA);
+        }
+
+        RefreshToken salvato = refreshTokenRepository.findByTokenHash(hash(refreshTokenGrezzo))
+                .orElseThrow(() -> new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA));
+
+        Instant ora = Instant.now();
+
+        if (salvato.getRevocatoIl() != null) {
+            // Un token già usato che ricompare: potrebbe essere stato rubato.
+            // Per prudenza si chiudono tutte le sessioni dell'account.
+            refreshTokenRepository.revocaTutti(salvato.getAccount().getId(), ora);
+            throw new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA);
+        }
+
+        Account account = salvato.getAccount();
+
+        if (salvato.getScadenza().isBefore(ora) || !account.isAttivo()
+                || (accountAtteso != null && !accountAtteso.equals(account.getId()))) {
+            throw new AuthException(HttpStatus.UNAUTHORIZED, SESSIONE_SCADUTA);
+        }
+
+        // Rotazione: ogni token si può usare una volta sola, poi se ne emette uno nuovo.
+        salvato.setRevocatoIl(ora);
+        refreshTokenRepository.save(salvato);
+
+        // Si resta nella banda della sessione, salvo che l'utente ne abbia scelta un'altra.
+        Long banda = bandaScelta != null ? bandaScelta : salvato.getBandaId();
+
+        return emettiToken(account, banda, ora);
+    }
+
+    /**
+     * Sceglie la banda in cui lavorare: quella richiesta (se l'utente ne fa parte), altrimenti l'ultima usata,
+     * altrimenti la prima in ordine alfabetico. Restituisce null solo per un superadmin senza bande.
+     */
+    private Appartenenza scegliBanda(Account account, List<Appartenenza> attive, Long richiesta) {
+        if (richiesta != null) {
+            return attive.stream()
+                    .filter(a -> a.getBanda().getId().equals(richiesta))
+                    .findFirst()
+                    .orElseThrow(() -> new AuthException(HttpStatus.FORBIDDEN, "Non fai parte di questa banda."));
+        }
+
+        if (attive.isEmpty()) {
+            if (account.isSuperadmin()) {
+                return null;
+            }
+            throw new AuthException(HttpStatus.FORBIDDEN, "Il tuo account non è collegato a nessuna banda attiva.");
+        }
+
+        Long ultima = account.getUltimaBandaId();
+        return attive.stream()
+                .filter(a -> a.getBanda().getId().equals(ultima))
+                .findFirst()
+                .orElse(attive.get(0));
     }
 
     private void registraFallimento(Account account, Instant ora) {
@@ -143,7 +195,16 @@ public class AuthService {
         accountRepository.save(account);
     }
 
-    private AuthResult emettiToken(Account account, Instant ora) {
+    private AuthResult emettiToken(Account account, Long bandaRichiesta, Instant ora) {
+        List<Appartenenza> attive = appartenenzaRepository.findAttiveByAccount(account.getId());
+        Appartenenza corrente = scegliBanda(account, attive, bandaRichiesta);
+        Long bandaId = corrente != null ? corrente.getBanda().getId() : null;
+
+        if (bandaId != null) {
+            account.setUltimaBandaId(bandaId);
+        }
+        accountRepository.save(account);
+
         String refreshGrezzo = generaTokenCasuale();
 
         refreshTokenRepository.save(RefreshToken.builder()
@@ -151,29 +212,42 @@ public class AuthService {
                 .tokenHash(hash(refreshGrezzo))
                 .creatoIl(ora)
                 .scadenza(ora.plus(properties.refreshTokenDays(), ChronoUnit.DAYS))
+                .bandaId(bandaId)
                 .build());
 
+        Set<Ruolo> ruoli = corrente != null ? corrente.getRuoli() : Set.of();
+
         AuthResponse risposta = AuthResponse.builder()
-                .accessToken(jwtService.creaAccessToken(account))
+                .accessToken(jwtService.creaAccessToken(account, bandaId, ruoli))
                 .tokenType("Bearer")
                 .expiresIn(properties.accessTokenMinutes() * 60)
-                .account(toResponse(account))
+                .account(toResponse(account, corrente, attive))
                 .build();
 
         return new AuthResult(risposta, refreshGrezzo);
     }
 
-    private AccountResponse toResponse(Account account) {
-        Socio socio = account.getSocio();
+    private AccountResponse toResponse(Account account, Appartenenza corrente, List<Appartenenza> attive) {
+        List<BandaResponse> bande = attive.stream()
+                .map(a -> BandaResponse.builder().id(a.getBanda().getId()).nome(a.getBanda().getNome()).build())
+                .toList();
+
+        BandaResponse bandaCorrente = corrente == null ? null : BandaResponse.builder()
+                .id(corrente.getBanda().getId())
+                .nome(corrente.getBanda().getNome())
+                .build();
 
         return AccountResponse.builder()
                 .id(account.getId())
                 .email(account.getEmail())
-                .ruoli(account.getRuoli().stream().sorted().toList())
-                .socioId(socio != null ? socio.getId() : null)
-                .nome(socio != null ? socio.getNome() : null)
-                .cognome(socio != null ? socio.getCognome() : null)
+                .nome(account.getNome())
+                .cognome(account.getCognome())
+                .superadmin(account.isSuperadmin())
                 .deveCambiarePassword(account.isDeveCambiarePassword())
+                .bandaCorrente(bandaCorrente)
+                .ruoli(corrente == null ? List.of() : corrente.getRuoli().stream().sorted().toList())
+                .bande(bande)
+                .socioId(corrente == null ? null : corrente.getSocioId())
                 .build();
     }
 

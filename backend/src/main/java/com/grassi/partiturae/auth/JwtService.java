@@ -9,10 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Crea gli access token: brevi (15 minuti di default), firmati con HMAC-SHA256,
- * con dentro id, email e ruoli dell'account.
+ * con dentro account, banda in cui si lavora e ruoli in quella banda.
  */
 @Service
 public class JwtService {
@@ -27,20 +30,32 @@ public class JwtService {
         this.properties = properties;
     }
 
-    public String creaAccessToken(Account account) {
+    /**
+     * @param bandaId la banda in cui si lavora (null per un superadmin che non è in nessuna banda)
+     * @param ruoli   i ruoli dell'account in quella banda
+     */
+    public String creaAccessToken(Account account, Long bandaId, Set<Ruolo> ruoli) {
         Instant ora = Instant.now();
 
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        List<String> ruoliNelToken = new ArrayList<>(ruoli.stream().map(Ruolo::name).sorted().toList());
+        if (account.isSuperadmin()) {
+            ruoliNelToken.add("SUPERADMIN");
+        }
+
+        JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
                 .issuer(ISSUER)
                 .issuedAt(ora)
                 .expiresAt(ora.plus(properties.accessTokenMinutes(), ChronoUnit.MINUTES))
                 .subject(String.valueOf(account.getId()))
                 .claim("email", account.getEmail())
-                .claim("roles", account.getRuoli().stream().map(Ruolo::name).sorted().toList())
-                .build();
+                .claim("roles", ruoliNelToken);
+
+        if (bandaId != null) {
+            claims.claim("banda", bandaId);
+        }
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
     }
 }

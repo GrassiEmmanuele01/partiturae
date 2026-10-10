@@ -17,6 +17,8 @@ public record AuthProperties(
         /** True in produzione (HTTPS): il cookie di sessione viaggia solo su connessioni cifrate. */
         @DefaultValue("false") boolean cookieSecure,
         @DefaultValue("http://localhost:4200") List<String> allowedOrigins,
+        /** Nome della prima banda, creata al primo avvio. */
+        @DefaultValue("La mia banda") String initialBandName,
         @DefaultValue("admin@partiturae.local") String adminEmail,
         /** Password del primo amministratore. Se vuota viene generata e mostrata una sola volta nel log. */
         String adminPassword,

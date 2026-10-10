@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TenantId;
 
 @Entity
 @Table(name = "parte_documento")
@@ -29,4 +30,9 @@ public class ParteDocumento {
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] contenuto;
+
+    // Banda proprietaria del dato: la imposta Hibernate da solo e ogni ricerca vede solo la banda corrente.
+    @TenantId
+    @Column(name = "banda_id", nullable = false, updatable = false)
+    private Long bandaId;
 }
