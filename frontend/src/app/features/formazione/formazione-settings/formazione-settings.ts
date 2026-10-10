@@ -4,10 +4,11 @@ import { RouterLink } from '@angular/router';
 
 import { FormazioneService } from '../formazione.service';
 import { MembroDirettivo } from '../../direttivo/membro-direttivo.model';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-formazione-settings',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, PuoDirective],
   templateUrl: './formazione-settings.html',
   styleUrl: './formazione-settings.scss'
 })

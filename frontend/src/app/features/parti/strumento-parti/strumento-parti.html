@@ -58,8 +58,9 @@
               </button>
               <div class="actions">
                 <a class="link-action" [routerLink]="['/strumenti-figli', g.figlio.id, 'parti']">Apri</a>
-                <button type="button" class="link-action" (click)="avviaModifica(g.figlio)">Modifica</button>
+                <button *puo="'catalogo:scrivere'" type="button" class="link-action" (click)="avviaModifica(g.figlio)">Modifica</button>
                 <button
+                  *puo="'catalogo:eliminare'"
                   type="button"
                   class="link-action danger"
                   (click)="richiediEliminazione(g.figlio)"
@@ -99,7 +100,7 @@
     </ul>
   }
 
-  <div class="nuova-voce">
+  <div *puo="'catalogo:scrivere'" class="nuova-voce">
     <input
       type="text"
       placeholder="Nuova voce, es. {{ strumento()?.nome }} 3"

@@ -4,10 +4,11 @@ import { RouterLink } from '@angular/router';
 import { Utilizzo } from '../../../shared/utilizzo.model';
 import { Autore } from '../autore.model';
 import { AutoreService } from '../autore.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-autori-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './autori-list.html',
   styleUrl: './autori-list.scss'
 })

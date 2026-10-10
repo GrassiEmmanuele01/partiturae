@@ -9,6 +9,7 @@ import { StrumentoFiglio } from '../../strumenti-figli/strumento-figlio.model';
 import { StrumentoFiglioService } from '../../strumenti-figli/strumento-figlio.service';
 import { Parte } from '../parte.model';
 import { ParteService } from '../parte.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 interface GruppoParti {
   figlio: StrumentoFiglio;
@@ -17,7 +18,7 @@ interface GruppoParti {
 
 @Component({
   selector: 'app-strumento-parti',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './strumento-parti.html',
   styleUrl: './strumento-parti.scss'
 })

@@ -6,6 +6,7 @@ import { Famiglia } from '../../famiglie/famiglia.model';
 import { FamigliaService } from '../../famiglie/famiglia.service';
 import { Strumento } from '../strumento.model';
 import { StrumentoService } from '../strumento.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 interface FamigliaGroup {
   id: number;
@@ -15,7 +16,7 @@ interface FamigliaGroup {
 
 @Component({
   selector: 'app-strumenti-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './strumenti-list.html',
   styleUrl: './strumenti-list.scss'
 })

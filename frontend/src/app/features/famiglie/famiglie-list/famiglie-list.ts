@@ -4,10 +4,11 @@ import { RouterLink } from '@angular/router';
 import { Utilizzo } from '../../../shared/utilizzo.model';
 import { Famiglia } from '../famiglia.model';
 import { FamigliaService } from '../famiglia.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-famiglie-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './famiglie-list.html',
   styleUrl: './famiglie-list.scss'
 })

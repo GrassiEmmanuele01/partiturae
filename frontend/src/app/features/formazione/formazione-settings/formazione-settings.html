@@ -12,7 +12,7 @@
     } @else {
       <p class="no-logo">Nessun logo caricato.</p>
     }
-    <label class="upload-label">
+    <label *puo="'formazione:scrivere'" class="upload-label">
       {{ uploadingLogo() ? 'Caricamento...' : (logoSrc() ? 'Sostituisci logo' : 'Carica logo') }}
       <input type="file" accept="image/png,image/jpeg,image/svg+xml" (change)="onLogoSelected($event)" [disabled]="uploadingLogo()">
     </label>
@@ -97,7 +97,7 @@
         <p class="success">{{ success() }}</p>
       }
 
-      <button type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
+      <button *puo="'formazione:scrivere'" type="submit" [disabled]="saving()">{{ saving() ? 'Salvataggio...' : 'Salva' }}</button>
     </form>
   </section>
 }

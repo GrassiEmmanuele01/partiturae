@@ -1,6 +1,6 @@
 <div class="page-header">
   <h2>Strumenti (dettaglio)</h2>
-  <a routerLink="/strumenti-figli/nuovo" class="btn-primary">+ Nuovo</a>
+  <a *puo="'catalogo:scrivere'" routerLink="/strumenti-figli/nuovo" class="btn-primary">+ Nuovo</a>
 </div>
 
 @if (loading()) {
@@ -24,8 +24,8 @@
           <td>{{ sf.nome }}</td>
           <td>{{ sf.strumentoNome }}</td>
           <td class="actions">
-            <a [routerLink]="['/strumenti-figli', sf.id]">Modifica</a>
-            <button (click)="remove(sf.id)">Elimina</button>
+            <a *puo="'catalogo:scrivere'" [routerLink]="['/strumenti-figli', sf.id]">Modifica</a>
+            <button *puo="'catalogo:eliminare'" (click)="remove(sf.id)">Elimina</button>
           </td>
         </tr>
       }

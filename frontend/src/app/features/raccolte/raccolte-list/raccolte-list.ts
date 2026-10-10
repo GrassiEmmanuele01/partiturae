@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 
 import { Raccolta } from '../raccolta.model';
 import { RaccoltaService } from '../raccolta.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-raccolte-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './raccolte-list.html',
   styleUrl: './raccolte-list.scss'
 })

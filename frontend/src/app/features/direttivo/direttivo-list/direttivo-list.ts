@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 
 import { CARICA_DIRETTIVO_LABELS, MembroDirettivo } from '../membro-direttivo.model';
 import { MembroDirettivoService } from '../membro-direttivo.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-direttivo-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './direttivo-list.html',
   styleUrl: './direttivo-list.scss'
 })

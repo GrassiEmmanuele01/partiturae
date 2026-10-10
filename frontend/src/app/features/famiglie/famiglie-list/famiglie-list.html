@@ -1,6 +1,6 @@
 <div class="page-header">
   <h2>Famiglie strumenti</h2>
-  <a routerLink="/famiglie/nuovo" class="btn-primary">+ Nuova famiglia</a>
+  <a *puo="'catalogo:scrivere'" routerLink="/famiglie/nuovo" class="btn-primary">+ Nuova famiglia</a>
 </div>
 
 @if (error()) {
@@ -39,8 +39,8 @@
         <tr>
           <td>{{ famiglia.nome }}</td>
           <td class="actions">
-            <a [routerLink]="['/famiglie', famiglia.id]">Modifica</a>
-            <button (click)="requestRemove(famiglia.id)" [disabled]="checkingUtilizzo() && pendingDeleteId() === famiglia.id">
+            <a *puo="'catalogo:scrivere'" [routerLink]="['/famiglie', famiglia.id]">Modifica</a>
+            <button *puo="'catalogo:eliminare'" (click)="requestRemove(famiglia.id)" [disabled]="checkingUtilizzo() && pendingDeleteId() === famiglia.id">
               {{ checkingUtilizzo() && pendingDeleteId() === famiglia.id ? 'Controllo...' : 'Elimina' }}
             </button>
           </td>

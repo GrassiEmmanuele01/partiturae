@@ -5,10 +5,11 @@ import { Partitura, TIPO_PARTITURA_LABELS } from '../../partiture/partitura.mode
 import { PartituraService } from '../../partiture/partitura.service';
 import { Raccolta } from '../raccolta.model';
 import { RaccoltaService } from '../raccolta.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-raccolta-dettaglio',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './raccolta-dettaglio.html',
   styleUrl: './raccolta-dettaglio.scss'
 })

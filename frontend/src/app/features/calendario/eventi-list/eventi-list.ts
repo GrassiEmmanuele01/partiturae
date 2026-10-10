@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 
 import { Evento, TIPO_EVENTO_LABELS } from '../evento.model';
 import { EventoService } from '../evento.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-eventi-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './eventi-list.html',
   styleUrl: './eventi-list.scss'
 })

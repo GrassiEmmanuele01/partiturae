@@ -1,6 +1,6 @@
 <div class="page-header">
   <h2>Partiture</h2>
-  <a routerLink="/partiture/nuovo" class="btn-primary">+ Nuova partitura</a>
+  <a *puo="'partiture:scrivere'" routerLink="/partiture/nuovo" class="btn-primary">+ Nuova partitura</a>
 </div>
 
 @if (loading()) {
@@ -28,9 +28,9 @@
           <td>{{ partitura.autore.nominativo }}</td>
           <td>{{ partitura.anno || '-' }}</td>
           <td class="actions">
-            <a [routerLink]="['/partiture', partitura.id, 'parti']">Parti</a>
-            <a [routerLink]="['/partiture', partitura.id]">Modifica</a>
-            <button (click)="remove(partitura.id)">Elimina</button>
+            <a *puo="'parti:leggere'" [routerLink]="['/partiture', partitura.id, 'parti']">Parti</a>
+            <a *puo="'partiture:scrivere'" [routerLink]="['/partiture', partitura.id]">Modifica</a>
+            <button *puo="'partiture:eliminare'" (click)="remove(partitura.id)">Elimina</button>
           </td>
         </tr>
       }

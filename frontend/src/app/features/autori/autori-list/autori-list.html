@@ -1,6 +1,6 @@
 <div class="page-header">
   <h2>Autori</h2>
-  <a routerLink="/autori/nuovo" class="btn-primary">+ Nuovo autore</a>
+  <a *puo="'catalogo:scrivere'" routerLink="/autori/nuovo" class="btn-primary">+ Nuovo autore</a>
 </div>
 
 @if (error()) {
@@ -39,8 +39,8 @@
         <tr>
           <td>{{ autore.nominativo }}</td>
           <td class="actions">
-            <a [routerLink]="['/autori', autore.id]">Modifica</a>
-            <button (click)="requestRemove(autore.id)" [disabled]="checkingUtilizzo() && pendingDeleteId() === autore.id">
+            <a *puo="'catalogo:scrivere'" [routerLink]="['/autori', autore.id]">Modifica</a>
+            <button *puo="'catalogo:eliminare'" (click)="requestRemove(autore.id)" [disabled]="checkingUtilizzo() && pendingDeleteId() === autore.id">
               {{ checkingUtilizzo() && pendingDeleteId() === autore.id ? 'Controllo...' : 'Elimina' }}
             </button>
           </td>
