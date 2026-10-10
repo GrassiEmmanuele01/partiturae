@@ -66,10 +66,12 @@ describe('Elenco partiture: i pulsanti dipendono dal ruolo', () => {
     const azioni = await apriPaginaCome(['MAESTRO']);
     expect(azioni).toEqual(expect.arrayContaining(['+ Nuova partitura', 'Parti', 'Modifica']));
     expect(azioni).not.toContain('Elimina');
+    expect(azioni).not.toContain('La mia parte');
   });
 
-  it('il musicista consulta soltanto: nessuna azione', async () => {
+  it('il musicista consulta soltanto e arriva alla propria parte', async () => {
     const azioni = await apriPaginaCome(['MUSICISTA']);
+    expect(azioni).toContain('La mia parte');
     expect(azioni).not.toContain('+ Nuova partitura');
     expect(azioni).not.toContain('Modifica');
     expect(azioni).not.toContain('Elimina');

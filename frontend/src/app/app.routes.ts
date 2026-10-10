@@ -12,6 +12,7 @@ import { MusicistaForm } from './features/musicisti/musicista-form/musicista-for
 import { MusicistaMusicale } from './features/musicisti/musicista-musicale/musicista-musicale';
 import { PartitureList } from './features/partiture/partiture-list/partiture-list';
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
+import { MieParti } from './features/mie-parti/mie-parti/mie-parti';
 import { PartituraParti } from './features/parti/partitura-parti/partitura-parti';
 import { StrumentoParti } from './features/parti/strumento-parti/strumento-parti';
 import { StrumentoFiglioParti } from './features/parti/strumento-figlio-parti/strumento-figlio-parti';
@@ -52,7 +53,9 @@ export const routes: Routes = [
       { path: 'partiture', component: PartitureList, canActivate: [permessoGuard('partiture')] },
       { path: 'partiture/nuovo', component: PartituraForm, canActivate: [permessoGuard('partiture', 'scrivere')] },
       { path: 'partiture/:id/parti', component: PartituraParti, canActivate: [permessoGuard('parti')] },
+      { path: 'partiture/:id/mie-parti', component: MieParti, canActivate: [permessoGuard('mieParti')] },
       { path: 'partiture/:id', component: PartituraForm, canActivate: [permessoGuard('partiture', 'scrivere')] },
+      { path: 'mie-parti', component: MieParti, canActivate: [permessoGuard('mieParti')] },
       { path: 'raccolte', component: RaccolteList, canActivate: [permessoGuard('raccolte')] },
       { path: 'raccolte/nuovo', component: RaccoltaForm, canActivate: [permessoGuard('raccolte', 'scrivere')] },
       { path: 'raccolte/:id/modifica', component: RaccoltaForm, canActivate: [permessoGuard('raccolte', 'scrivere')] },

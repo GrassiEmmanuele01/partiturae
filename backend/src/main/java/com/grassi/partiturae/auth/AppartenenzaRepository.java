@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AppartenenzaRepository extends JpaRepository<Appartenenza, Long> {
@@ -16,4 +17,7 @@ public interface AppartenenzaRepository extends JpaRepository<Appartenenza, Long
     @Query("select a from Appartenenza a where a.account.id = :accountId and a.attiva = true "
             + "and a.banda.attiva = true order by a.banda.nome")
     List<Appartenenza> findAttiveByAccount(@Param("accountId") Long accountId);
+
+    /** L'appartenenza di un account a una banda (c'è al massimo una). */
+    Optional<Appartenenza> findByAccountIdAndBandaId(Long accountId, Long bandaId);
 }

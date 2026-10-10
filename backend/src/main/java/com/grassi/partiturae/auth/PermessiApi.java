@@ -50,6 +50,9 @@ public class PermessiApi
     /** Chi elimina dall'archivio. */
     private static final String[] GESTORI_ARCHIVIO = {ADMIN, ARCHIVISTA};
 
+    /** Chi suona e vede le parti dei propri strumenti. Chi suona e ha anche altri compiti ha entrambi i ruoli. */
+    private static final String[] MUSICISTI = {MUSICISTA, ALLIEVO};
+
     /** Chi consulta il repertorio (titoli, autori, raccolte). Il socio semplice no. */
     private static final String[] CHI_LEGGE_REPERTORIO = {ADMIN, ARCHIVISTA, MAESTRO, MAESTROALLIEVI, MUSICISTA, ALLIEVO};
 
@@ -86,13 +89,16 @@ public class PermessiApi
                 .requestMatchers("/api/famiglie/**", "/api/strumenti/**", "/api/strumenti-figli/**", "/api/autori/**")
                         .hasAnyRole(CHI_COMPONE)
 
+                // --- le mie parti: le parti dei propri strumenti (il collegamento è fra l'account e il suo socio) ---
+                .requestMatchers(GET, "/api/mie-parti/**").hasAnyRole(MUSICISTI)
+
                 // --- partiture ---
                 .requestMatchers(GET, "/api/partiture/**").hasAnyRole(CHI_LEGGE_REPERTORIO)
                 .requestMatchers(DELETE, "/api/partiture/**").hasAnyRole(GESTORI_ARCHIVIO)
                 .requestMatchers("/api/partiture/**").hasAnyRole(CHI_COMPONE)
 
                 // --- parti e PDF ---
-                // (musicisti e allievi vedranno le parti dei propri strumenti con un'apposita richiesta)
+                // (musicisti e allievi usano /api/mie-parti, che mostra solo le parti dei loro strumenti)
                 .requestMatchers(DELETE, "/api/parti/**").hasAnyRole(GESTORI_ARCHIVIO)
                 .requestMatchers("/api/parti/**").hasAnyRole(CHI_COMPONE)
 

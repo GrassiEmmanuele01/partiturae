@@ -9,6 +9,7 @@ export type Area =
   | 'catalogo' // famiglie, strumenti, voci e autori
   | 'partiture'
   | 'parti' // le parti di una partitura e i loro PDF
+  | 'mieParti' // le parti dei propri strumenti (musicista e allievo)
   | 'raccolte'
   | 'calendario'
   | 'presenze';
@@ -22,6 +23,7 @@ const SEGRETERIA: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'DIRETTIVO']; // dati person
 const DIREZIONE_BANDA: Ruolo[] = ['ADMIN', 'DIRETTIVO']; // informazioni e direttivo della banda
 const CHI_COMPONE: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI']; // aggiungono e modificano
 const GESTORI_ARCHIVIO: Ruolo[] = ['ADMIN', 'ARCHIVISTA']; // eliminano dall'archivio
+const MUSICISTI: Ruolo[] = ['MUSICISTA', 'ALLIEVO']; // chi suona: vede le parti dei propri strumenti
 const CHI_LEGGE_REPERTORIO: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI', 'MUSICISTA', 'ALLIEVO'];
 const TUTTI_TRANNE_SOCIO: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI', 'DIRETTIVO', 'MUSICISTA', 'ALLIEVO'];
 const CALENDARI: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'DIRETTIVO', 'MAESTRO', 'MAESTROALLIEVI'];
@@ -44,6 +46,7 @@ export const PERMESSI: Record<Area, Record<Azione, readonly Ruolo[]>> = {
   catalogo: { leggere: TUTTI_TRANNE_SOCIO, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
   partiture: { leggere: CHI_LEGGE_REPERTORIO, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
   parti: { leggere: CHI_COMPONE, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
+  mieParti: { leggere: MUSICISTI, scrivere: [], eliminare: [] },
   raccolte: { leggere: CHI_LEGGE_REPERTORIO, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
 
   // calendario

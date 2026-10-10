@@ -25,6 +25,9 @@
         @if (auth.puoLeggere('partiture')) {
           <a routerLink="/partiture" routerLinkActive="active">Partiture</a>
         }
+        @if (auth.puoLeggere('mieParti')) {
+          <a routerLink="/mie-parti" routerLinkActive="active">Le mie parti</a>
+        }
         @if (auth.puoLeggere('raccolte')) {
           <a routerLink="/raccolte" routerLinkActive="active">Raccolte</a>
         }

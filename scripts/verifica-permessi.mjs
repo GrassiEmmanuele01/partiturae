@@ -16,6 +16,8 @@ import { spawnSync } from 'node:child_process';
 const JAVA = path.join('backend', 'src', 'main', 'java');
 const PERMESSI_JAVA = path.join(JAVA, 'com', 'grassi', 'partiturae', 'auth', 'PermessiApi.java');
 const PERMESSI_TS = path.join('frontend', 'src', 'app', 'features', 'auth', 'permessi.ts');
+// Aree personali: mostrano solo i dati di chi le apre, quindi non sono per tutti i ruoli (nemmeno per l'admin)
+const PERSONALI = ['/api/mie-parti'];
 const RUOLI = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI', 'DIRETTIVO', 'MUSICISTA', 'ALLIEVO', 'SOCIO'];
 
 for (const file of [PERMESSI_JAVA, PERMESSI_TS]) {
@@ -115,7 +117,7 @@ function areaAzione(metodo, percorso) {
   const aree = {
     soci: 'soci', musicisti: 'musicisti', direttivo: 'direttivo', formazione: 'formazione', famiglie: 'catalogo',
     strumenti: 'catalogo', 'strumenti-figli': 'catalogo', autori: 'catalogo', partiture: 'partiture', parti: 'parti',
-    raccolte: 'raccolte', eventi: percorso.includes('/presenze') ? 'presenze' : 'calendario'
+    raccolte: 'raccolte', 'mie-parti': 'mieParti', eventi: percorso.includes('/presenze') ? 'presenze' : 'calendario'
   };
   const azioni = { GET: 'leggere', POST: 'scrivere', PUT: 'scrivere', DELETE: 'eliminare' };
   return [aree[risorsa], azioni[metodo]];
@@ -124,7 +126,8 @@ function areaAzione(metodo, percorso) {
 // ---------- confronti ----------
 const problemi = [];
 for (const [metodo, percorso] of elenco) {
-  if (!consentito(metodo, percorso, 'ADMIN')) problemi.push(`ADMIN bloccato su ${metodo} ${percorso}`);
+  const personale = PERSONALI.some((p) => percorso.startsWith(p));
+  if (!personale && !consentito(metodo, percorso, 'ADMIN')) problemi.push(`ADMIN bloccato su ${metodo} ${percorso}`);
   if (consentito(metodo, percorso, 'SUPERADMIN')) problemi.push(`SUPERADMIN ammesso su ${metodo} ${percorso}`);
 }
 for (const percorso of ['/api/non-esiste', '/api/soci/1/segreto/2', '/altro']) {

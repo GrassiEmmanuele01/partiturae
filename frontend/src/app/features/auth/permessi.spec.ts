@@ -5,12 +5,12 @@ function puo(ruoli: Ruolo[], area: Area, azione: Azione): boolean {
   return haPermesso(ruoli, area, azione);
 }
 
-const AREE: Area[] = ['soci', 'musicisti', 'direttivo', 'formazione', 'catalogo', 'partiture', 'parti', 'raccolte', 'calendario', 'presenze'];
+const AREE: Area[] = ['soci', 'musicisti', 'direttivo', 'formazione', 'catalogo', 'partiture', 'parti', 'mieParti', 'raccolte', 'calendario', 'presenze'];
 const AZIONI: Azione[] = ['leggere', 'scrivere', 'eliminare'];
 
 describe('permessi per ruolo', () => {
-  it("l'admin può fare tutto", () => {
-    for (const area of AREE) {
+  it("l'admin può fare tutto (tranne le parti personali di chi suona)", () => {
+    for (const area of AREE.filter((a) => a !== 'mieParti')) {
       for (const azione of AZIONI) {
         expect(puo(['ADMIN'], area, azione)).toBe(true);
       }
@@ -50,7 +50,7 @@ describe('permessi per ruolo', () => {
     expect(puo(['DIRETTIVO'], 'raccolte', 'leggere')).toBe(false);
   });
 
-  it('musicista e allievo consultano repertorio e raccolte, ma non modificano e non vedono i soci né le parti (per ora)', () => {
+  it('musicista e allievo consultano repertorio e raccolte, vedono le proprie parti ma non quelle di tutti e non modificano', () => {
     for (const ruolo of ['MUSICISTA', 'ALLIEVO'] as Ruolo[]) {
       for (const area of ['partiture', 'raccolte', 'catalogo', 'calendario'] as Area[]) {
         expect(puo([ruolo], area, 'leggere')).toBe(true);
@@ -59,7 +59,16 @@ describe('permessi per ruolo', () => {
       for (const area of ['soci', 'musicisti', 'direttivo', 'formazione', 'parti', 'presenze'] as Area[]) {
         expect(puo([ruolo], area, 'leggere')).toBe(false);
       }
+      expect(puo([ruolo], 'mieParti', 'leggere')).toBe(true);
     }
+  });
+
+  it('le proprie parti sono solo per chi suona', () => {
+    for (const ruolo of ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI', 'DIRETTIVO', 'SOCIO'] as Ruolo[]) {
+      expect(puo([ruolo], 'mieParti', 'leggere')).toBe(false);
+    }
+    // chi suona e ha anche altri compiti ha entrambi i ruoli
+    expect(puo(['ARCHIVISTA', 'MUSICISTA'], 'mieParti', 'leggere')).toBe(true);
   });
 
   it('il socio vede solo il calendario', () => {

@@ -1,0 +1,95 @@
+<div class="page-header">
+  <div>
+    @if (partituraId !== null) {
+      <a routerLink="/partiture" class="back-link">&larr; Torna alle partiture</a>
+      <h2>La mia parte</h2>
+      @if (nomePartitura(); as nome) {
+        <p class="subtitle">{{ nome }}</p>
+      }
+    } @else {
+      <h2>Le mie parti</h2>
+      <p class="subtitle">Le parti degli strumenti del tuo profilo musicale.</p>
+    }
+  </div>
+</div>
+
+@if (loading()) {
+  <p>Caricamento...</p>
+} @else if (error()) {
+  <p class="error-text">{{ error() }}</p>
+} @else {
+  @let d = dati();
+  @if (d) {
+    @if (!d.profiloTrovato) {
+      <section class="panel">
+        <p class="empty">
+          Non trovo il tuo profilo musicale. Il tuo account deve avere la stessa email di un socio che ha un profilo
+          musicale: chiedi al segretario o all'amministratore della banda.
+        </p>
+      </section>
+    } @else {
+      <div class="strumenti">
+        <span class="muted">I tuoi strumenti:</span>
+        @if (d.strumenti.length > 0) {
+          <span class="chips">
+            @for (nome of d.strumenti; track nome) {
+              <span class="chip">{{ nome }}</span>
+            }
+          </span>
+        } @else {
+          <span class="muted">nessuno</span>
+        }
+      </div>
+
+      @if (d.strumenti.length === 0) {
+        <p class="empty">Il tuo profilo musicale non ha ancora strumenti: chiedi al segretario di aggiungerli.</p>
+      } @else if (d.parti.length === 0) {
+        <p class="empty">
+          {{ partituraId !== null
+            ? 'Per questa partitura non c\'è ancora nessuna parte per i tuoi strumenti.'
+            : 'Non ci sono ancora parti per i tuoi strumenti.' }}
+        </p>
+      } @else {
+        @if (partituraId === null) {
+          <div class="ricerca">
+            <input
+              type="search"
+              placeholder="Cerca una partitura..."
+              [value]="ricerca()"
+              (input)="ricerca.set($any($event.target).value)"
+            >
+          </div>
+        }
+
+        @if (parti().length === 0) {
+          <p class="empty">Nessuna partitura corrisponde alla ricerca.</p>
+        } @else {
+          <table class="data">
+            <thead>
+              <tr>
+                <th>Partitura</th>
+                <th>Voce</th>
+                <th>PDF</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (parte of parti(); track parte.id) {
+                <tr>
+                  <td>{{ parte.partituraNome }}</td>
+                  <td class="voci">{{ voci(parte) }}</td>
+                  <td>
+                    @if (parte.pdfPresente) {
+                      <a [href]="pdfUrl(parte.id)">{{ parte.pdfNome }}</a>
+                    } @else {
+                      <span class="muted">PDF non ancora caricato</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      }
+    }
+  }
+}

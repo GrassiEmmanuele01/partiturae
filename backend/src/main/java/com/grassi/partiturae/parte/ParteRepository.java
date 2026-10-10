@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -24,4 +25,10 @@ public interface ParteRepository extends JpaRepository<Parte, Long> {
     @Query("select distinct p from Parte p where p.id in "
             + "(select p2.id from Parte p2 join p2.strumenti sf where sf.strumento.id = :strumentoId)")
     List<Parte> findAllByStrumento(@Param("strumentoId") Long strumentoId);
+
+    /** Le parti che riguardano almeno uno degli strumenti indicati (qualunque voce). */
+    @EntityGraph(attributePaths = {"partitura", "strumenti", "strumenti.strumento"})
+    @Query("select distinct p from Parte p where p.id in "
+            + "(select p2.id from Parte p2 join p2.strumenti sf where sf.strumento.id in :strumentoIds)")
+    List<Parte> findAllByStrumenti(@Param("strumentoIds") Collection<Long> strumentoIds);
 }
