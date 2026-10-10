@@ -57,7 +57,7 @@ describe('AuthService con più bande', () => {
 
     expect(auth.bandaCorrente()?.nome).toBe('Banda A');
     expect(auth.puoScrivere('parti')).toBe(true); // ARCHIVISTA
-    expect(auth.puoScrivere('calendario')).toBe(false);
+    expect(auth.puoScrivere('formazione')).toBe(false); // l'archivista non modifica le informazioni della banda
   });
 
   it('cambiando banda si prendono i ruoli della nuova banda', () => {

@@ -13,36 +13,45 @@ export type Area =
   | 'calendario'
   | 'presenze';
 
-export type Azione = 'leggere' | 'scrivere';
+/** leggere = vedere, scrivere = aggiungere e modificare, eliminare = cancellare. */
+export type Azione = 'leggere' | 'scrivere' | 'eliminare';
 
-/** 'tutti' = qualunque utente che ha fatto il login. */
-type Consentiti = Ruolo[] | 'tutti';
+// Gruppi di ruoli (gli stessi nomi di PermessiApi.java nel backend)
+const TUTTI: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI', 'DIRETTIVO', 'MUSICISTA', 'ALLIEVO', 'SOCIO'];
+const SEGRETERIA: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'DIRETTIVO']; // dati personali dei soci
+const DIREZIONE_BANDA: Ruolo[] = ['ADMIN', 'DIRETTIVO']; // informazioni e direttivo della banda
+const CHI_COMPONE: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI']; // aggiungono e modificano
+const GESTORI_ARCHIVIO: Ruolo[] = ['ADMIN', 'ARCHIVISTA']; // eliminano dall'archivio
+const CHI_LEGGE_REPERTORIO: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI', 'MUSICISTA', 'ALLIEVO'];
+const TUTTI_TRANNE_SOCIO: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'MAESTRO', 'MAESTROALLIEVI', 'DIRETTIVO', 'MUSICISTA', 'ALLIEVO'];
+const CALENDARI: Ruolo[] = ['ADMIN', 'ARCHIVISTA', 'DIRETTIVO', 'MAESTRO', 'MAESTROALLIEVI'];
 
 /**
- * Chi può fare cosa. Le stesse regole sono applicate dal backend (SecurityConfig): questa tabella serve
+ * Chi può fare cosa. Le stesse regole sono applicate dal backend (PermessiApi.java): questa tabella serve
  * solo a nascondere ciò che non si può usare, la protezione vera sta sul server.
  * Se cambi una regola, cambiala in entrambi i posti.
  */
-export const PERMESSI: Record<Area, Record<Azione, Consentiti>> = {
-  // dati personali dei soci: solo l'amministratore
-  soci: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
-  musicisti: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
-  direttivo: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
-  formazione: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
+export const PERMESSI: Record<Area, Record<Azione, readonly Ruolo[]>> = {
+  // libro soci: dati personali
+  soci: { leggere: SEGRETERIA, scrivere: SEGRETERIA, eliminare: SEGRETERIA },
+  musicisti: { leggere: SEGRETERIA, scrivere: SEGRETERIA, eliminare: SEGRETERIA },
+
+  // informazioni e direttivo della banda
+  direttivo: { leggere: SEGRETERIA, scrivere: DIREZIONE_BANDA, eliminare: DIREZIONE_BANDA },
+  formazione: { leggere: SEGRETERIA, scrivere: DIREZIONE_BANDA, eliminare: DIREZIONE_BANDA },
 
   // archivio
-  catalogo: { leggere: 'tutti', scrivere: ['ADMIN', 'ARCHIVISTA'] },
-  partiture: { leggere: 'tutti', scrivere: ['ADMIN', 'ARCHIVISTA'] },
-  parti: { leggere: ['ADMIN', 'MAESTRO', 'ARCHIVISTA'], scrivere: ['ADMIN', 'ARCHIVISTA'] },
-  raccolte: { leggere: 'tutti', scrivere: ['ADMIN', 'MAESTRO', 'ARCHIVISTA'] },
+  catalogo: { leggere: TUTTI_TRANNE_SOCIO, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
+  partiture: { leggere: CHI_LEGGE_REPERTORIO, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
+  parti: { leggere: CHI_COMPONE, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
+  raccolte: { leggere: CHI_LEGGE_REPERTORIO, scrivere: CHI_COMPONE, eliminare: GESTORI_ARCHIVIO },
 
   // calendario
-  calendario: { leggere: 'tutti', scrivere: ['ADMIN', 'MAESTRO'] },
-  presenze: { leggere: ['ADMIN', 'MAESTRO'], scrivere: ['ADMIN', 'MAESTRO'] }
+  calendario: { leggere: TUTTI, scrivere: CALENDARI, eliminare: CALENDARI },
+  presenze: { leggere: CALENDARI, scrivere: CALENDARI, eliminare: CALENDARI }
 };
 
 /** True se almeno uno dei ruoli posseduti è tra quelli consentiti. */
 export function haPermesso(ruoliPosseduti: readonly Ruolo[], area: Area, azione: Azione): boolean {
-  const consentiti = PERMESSI[area][azione];
-  return consentiti === 'tutti' || consentiti.some((ruolo) => ruoliPosseduti.includes(ruolo));
+  return PERMESSI[area][azione].some((ruolo) => ruoliPosseduti.includes(ruolo));
 }

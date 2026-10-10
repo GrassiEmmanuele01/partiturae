@@ -126,6 +126,10 @@ export class AuthService {
     return this.bandaCorrente() !== null && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'scrivere');
   }
 
+  puoEliminare(area: Area): boolean {
+    return this.bandaCorrente() !== null && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'eliminare');
+  }
+
   hasRole(...ruoli: Ruolo[]): boolean {
     const mieiRuoli = this.accountSignal()?.ruoli ?? [];
     return ruoli.some((ruolo) => mieiRuoli.includes(ruolo));

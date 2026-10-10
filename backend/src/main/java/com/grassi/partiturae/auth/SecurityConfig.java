@@ -27,17 +27,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(AuthProperties.class)
 public class SecurityConfig {
-
-    private static final String[] RUOLI_DI_BANDA = Arrays.stream(Ruolo.values())
-            .map(Ruolo::name)
-            .toArray(String[]::new);
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -86,16 +81,8 @@ public class SecurityConfig {
                 // quindi la protezione CSRF classica non serve.
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/error").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/logout").permitAll()
-                        // /api/auth/me e /api/auth/banda: basta essere entrati
-                        .requestMatchers("/api/auth/**").authenticated()
-                        // I dati di lavoro si usano solo da dentro una banda (cioè con almeno un ruolo di banda):
-                        // il superadmin, che non ha ruoli di banda, non vi accede.
-                        // I permessi precisi per ruolo arrivano nel prossimo passo.
-                        .requestMatchers("/api/**").hasAnyRole(RUOLI_DI_BANDA)
-                        .anyRequest().denyAll())
+                // Tutta la tabella dei permessi sta in PermessiApi.
+                .authorizeHttpRequests(new PermessiApi())
                 .oauth2ResourceServer(oauth -> oauth
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 

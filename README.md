@@ -10,7 +10,7 @@ Gestionale per l'archivio di una formazione musicale (banda, orchestra): libro s
 - **Partiture e parti**: autori, tipologie, un PDF per ogni parte. Un PDF può valere per più strumenti (es. "Corno in Fa 1-2") e viene scaricato con un nome standard, come `Ottavino1_InnoDiMameli.pdf`.
 - **Raccolte**: elenchi ordinati di partiture.
 - **Calendario**: prove, concerti e assemblee, con le presenze dei soci.
-- **Accesso con login**: sessioni sicure con token. I permessi per ruolo e la gestione degli account dall'interfaccia sono in arrivo (vedi [docs/autenticazione.md](docs/autenticazione.md)).
+- **Più bande e ruoli**: ogni banda ha i suoi dati, separati da quelli delle altre. Chi accede ha uno o più ruoli per banda (admin, archivista, maestro, direttivo, musicista, socio...) e vede e modifica solo ciò che il ruolo permette. Dettagli in [docs/autenticazione.md](docs/autenticazione.md).
 
 ## Stack
 
@@ -67,7 +67,7 @@ Parte su **http://localhost:4200**.
 
 ## Primo accesso
 
-Al primo avvio, se non esiste nessun account, il backend crea l'amministratore `admin@partiturae.local` e scrive la password **una sola volta** nel log, dentro un riquadro "Creato il primo account amministratore". Copiala da lì.
+Al primo avvio il backend crea la prima banda ("La mia banda") e, se non esiste nessun account, il primo account: `admin@partiturae.local`, superadmin e Admin di quella banda. La password viene scritta **una sola volta** nel log, dentro un riquadro "Creato il primo account". Copiala da lì.
 
 Se preferisci scegliere tu la password, impostala prima di avviare il backend (funziona solo a tabella `account` vuota):
 ```bash
@@ -84,7 +84,8 @@ Password dimenticata o account bloccato? Vedi la sezione "Gestire le password da
 partiturae/
 ├── backend/                  Spring Boot
 │   └── src/main/java/com/grassi/partiturae/
-│       ├── auth/             login, account, ruoli, sessioni
+│       ├── banda/            bande e separazione dei dati
+│       ├── auth/             login, account, ruoli per banda, permessi
 │       ├── autore/ famiglia/ strumento/ strumentofiglio/
 │       ├── partitura/ parte/ raccolta/
 │       ├── socio/ musicista/ direttivo/ formazione/ evento/
@@ -117,6 +118,12 @@ cd backend && ./mvnw clean compile
 # frontend: build e test
 cd frontend && ng build
 cd frontend && ng test --watch=false
+
+# permessi: controlla che regole del backend e dell'interfaccia coincidano
+node scripts/verifica-permessi.mjs
+
+# account: crealo (o aggiungilo a un'altra banda) da terminale
+bash scripts/create-account.sh maestro@esempio.it MAESTRO
 
 # database: elenco account (utile per controllare chi può entrare)
 docker exec -it partiturae-db mysql -uroot -proot partiturae -e "SELECT id, email, attivo, ultimo_accesso FROM account;"

@@ -23,7 +23,8 @@ Il codice è organizzato **per funzionalità**, non per tipo di classe: ogni fun
 | `parte` | parti: PDF di una partitura collegato a uno o più strumenti |
 | `raccolta` | raccolte ordinate di partiture |
 | `evento` | calendario e presenze |
-| `auth` | login, account, ruoli, sessioni, configurazione di sicurezza |
+| `banda` | le bande e la separazione dei dati: ogni dato di lavoro appartiene a una banda |
+| `auth` | login, account, appartenenze (ruoli per banda), sessioni, permessi |
 | `common` | eccezioni, gestione errori e DTO condivisi |
 | `seed` | strumenti inseriti al primo avvio |
 
@@ -40,8 +41,9 @@ Regole seguite:
 - **Formazione**: una sola riga (le impostazioni della formazione).
 - **Direttivo**: alcune cariche (presidente, vicepresidente, segretario, tesoriere, maestro concertatore) sono uniche nello stesso periodo; il controllo è nel servizio.
 - **Parti**: una parte è un PDF di una partitura legato a uno o più strumenti (tabella `parte_strumento`). Il PDF sta in una tabella a parte (`parte_documento`) e viene letto solo quando serve, così elencare le parti resta veloce. Il nome del file scaricato si calcola da strumenti e titolo (`Strumento_NomePartitura.pdf`, senza spazi) e quindi resta coerente se qualcosa viene rinominato.
+- **Più bande**: ogni tabella di lavoro ha la colonna `banda_id` (campo `@TenantId` di Hibernate): Hibernate filtra da solo tutte le ricerche per la banda del token e la scrive in ogni inserimento. Account e bande non hanno `banda_id`. I permessi per ruolo sono in `auth/PermessiApi.java` (vedi [autenticazione](autenticazione.md)).
 - **Eliminazioni sicure**: autori, famiglie, strumenti e voci hanno un endpoint `/{id}/utilizzo` che elenca dove sono usati; l'interfaccia lo mostra prima di eliminare.
-- **Catalogo di partenza**: gli strumenti iniziali sono in `seed/InstrumentCatalog.java` (solo dati). Vengono inseriti solo se il catalogo è vuoto.
+- **Catalogo di partenza**: gli strumenti iniziali sono in `seed/InstrumentCatalog.java` (solo dati). Ogni banda ha il suo catalogo: viene inserito per le bande che non hanno ancora nessuna famiglia.
 
 ## Modello dati
 
@@ -57,7 +59,8 @@ Regole seguite:
 | `parte`, `parte_strumento`, `parte_documento` | parti, strumenti collegati, PDF |
 | `raccolta`, `raccolta_partitura` | raccolte e ordine delle partiture |
 | `evento`, `presenza` | calendario e presenze (univoche per evento e socio) |
-| `account`, `account_ruolo`, `refresh_token` | accessi, ruoli e sessioni |
+| `banda` | le bande (nome, attiva o bloccata) |
+| `account`, `appartenenza`, `appartenenza_ruolo`, `refresh_token` | persone che accedono, banda e ruoli in quella banda, sessioni |
 
 ## API
 
@@ -74,12 +77,13 @@ Tutte le risorse stanno sotto `/api`. Le operazioni standard sono `GET` (elenco 
 | `/api/parti` | filtri `?partituraId=`, `?strumentoFiglioId=`, `?strumentoId=`; `PUT /{id}/strumenti`; `POST` e `GET /{id}/pdf` |
 | `/api/raccolte` | `POST /{id}/partiture`, `DELETE /{id}/partiture/{partituraId}`, `PUT /{id}/partiture/ordine` |
 | `/api/eventi` | `/{eventoId}/presenze` e `PUT /{eventoId}/presenze/{socioId}` |
-| `/api/auth` | `login`, `refresh`, `logout`, `me` (vedi [autenticazione](autenticazione.md)) |
+| `/api/auth` | `login`, `refresh`, `logout`, `me`, `banda` per cambiare banda (vedi [autenticazione](autenticazione.md)) |
 
 ## Frontend
 
 - Componenti standalone, rilevamento delle modifiche senza zone (`provideZonelessChangeDetection`), stato con i signals.
 - `src/app/features/<funzionalità>/` contiene modelli, servizio HTTP e pagine di ogni funzionalità.
 - `src/styles.scss` contiene i colori e i componenti grafici condivisi (bottoni, tabelle, chip, form, avvisi): le pagine usano quelle classi invece di ridefinirle.
-- `features/auth/` gestisce login, sessione, intercettore HTTP (aggiunge il token e rinnova la sessione se scade) e protezione delle pagine.
+- `features/auth/` gestisce login, sessione, banda corrente, intercettore HTTP (aggiunge il token, rinnova la sessione se scade e avvisa se manca un permesso), protezione delle pagine per ruolo e la tabella dei permessi usata per nascondere le voci non permesse.
+- I PDF e il logo si scaricano con richieste autenticate (un normale link non può mandare il token): ogni link verso l'API viene intercettato e gestito da `shared/file.service.ts`.
 - L'indirizzo dell'API sta in `src/environments/`.
