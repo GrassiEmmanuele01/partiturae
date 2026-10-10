@@ -1,0 +1,27 @@
+mie-parti.scss.strumenti {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.ricerca {
+  margin-bottom: 1rem;
+
+  input {
+    width: 100%;
+    max-width: 22rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--mist);
+    border-radius: 6px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 0.95rem;
+  }
+}
+
+.voci {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}

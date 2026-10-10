@@ -1,36 +1,90 @@
-<div class="layout">
-  <aside class="sidebar">
-    <div class="brand">
-      <span class="brand-mark">♪</span>
-      <span class="brand-name">Partiturae</span>
-    </div>
+<div class="layout" [class.public]="!auth.isAuthenticated()">
+  @if (auth.isAuthenticated()) {
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">♪</span>
+        <span class="brand-name">Partiturae</span>
+      </div>
 
-    <nav>
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-      <a routerLink="/partiture" routerLinkActive="active">Partiture</a>
-      <a routerLink="/raccolte" routerLinkActive="active">Raccolte</a>
-      <a routerLink="/strumenti" routerLinkActive="active">Strumenti</a>
-      <a routerLink="/calendario" routerLinkActive="active">Calendario</a>
-
-      <div class="nav-group">
-        <button type="button" class="nav-group-toggle" [class.open]="formazioneMenuOpen()" (click)="toggleFormazioneMenu()">
-          <span>Formazione</span>
-          <span class="chevron">&rsaquo;</span>
-        </button>
-
-        @if (formazioneMenuOpen()) {
-          <div class="nav-group-items">
-            <a routerLink="/soci" routerLinkActive="active">Libro soci</a>
-            <a routerLink="/formazione" routerLinkActive="active">Direttivo</a>
-          </div>
+      <div class="banda-box">
+        @if (auth.bande().length > 1) {
+          <label for="banda-corrente">Banda</label>
+          <select id="banda-corrente" (change)="cambiaBanda($event)">
+            @for (b of auth.bande(); track b.id) {
+              <option [value]="b.id" [selected]="b.id === auth.bandaCorrente()?.id">{{ b.nome }}</option>
+            }
+          </select>
+        } @else {
+          <span class="banda-nome">{{ auth.bandaCorrente()?.nome ?? 'Nessuna banda' }}</span>
         }
       </div>
 
-      <a routerLink="/impostazioni" routerLinkActive="active">Impostazioni</a>
-    </nav>
-  </aside>
+      <nav>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+
+        @if (auth.puoLeggere('partiture')) {
+          <a routerLink="/partiture" routerLinkActive="active">Partiture</a>
+        }
+        @if (auth.puoLeggere('mieParti')) {
+          <a routerLink="/mie-parti" routerLinkActive="active">Le mie parti</a>
+        }
+        @if (auth.puoLeggere('raccolte')) {
+          <a routerLink="/raccolte" routerLinkActive="active">Raccolte</a>
+        }
+        @if (auth.puoLeggere('catalogo')) {
+          <a routerLink="/strumenti" routerLinkActive="active">Strumenti</a>
+        }
+        @if (auth.puoLeggere('calendario')) {
+          <a routerLink="/calendario" routerLinkActive="active">Calendario</a>
+        }
+
+        @if (mostraGruppoFormazione()) {
+          <div class="nav-group">
+            <button type="button" class="nav-group-toggle" [class.open]="formazioneMenuOpen()" (click)="toggleFormazioneMenu()">
+              <span>Formazione</span>
+              <span class="chevron">&rsaquo;</span>
+            </button>
+
+            @if (formazioneMenuOpen()) {
+              <div class="nav-group-items">
+                @if (auth.puoLeggere('soci')) {
+                  <a routerLink="/soci" routerLinkActive="active">Libro soci</a>
+                }
+                @if (auth.puoLeggere('formazione')) {
+                  <a routerLink="/formazione" routerLinkActive="active">Direttivo</a>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (auth.puoScrivere('catalogo')) {
+          <a routerLink="/impostazioni" routerLinkActive="active">Impostazioni</a>
+        }
+      </nav>
+
+      <div class="user-box">
+        <div class="user-name">{{ auth.nomeVisualizzato() }}</div>
+        <div class="user-roles">
+          @for (ruolo of ruoliEtichette(); track ruolo) {
+            <span class="role-badge">{{ ruolo }}</span>
+          }
+        </div>
+        <button type="button" class="logout" (click)="esci()">Esci</button>
+      </div>
+    </aside>
+  }
 
   <main class="content">
     <router-outlet></router-outlet>
   </main>
+</div>
+
+<div class="toasts" aria-live="polite">
+  @for (n of notifiche.notifiche(); track n.id) {
+    <div class="toast" [class.errore]="n.tipo === 'errore'" [class.successo]="n.tipo === 'successo'" role="status">
+      <span>{{ n.testo }}</span>
+      <button type="button" class="chiudi" (click)="notifiche.chiudi(n.id)" aria-label="Chiudi">&times;</button>
+    </div>
+  }
 </div>

@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 
 import { Partitura, TIPO_PARTITURA_LABELS } from '../partitura.model';
 import { PartituraService } from '../partitura.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-partiture-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './partiture-list.html',
   styleUrl: './partiture-list.scss'
 })

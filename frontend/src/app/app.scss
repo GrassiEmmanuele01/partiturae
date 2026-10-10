@@ -31,6 +31,39 @@
     }
   }
 
+  .banda-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: -1rem;
+
+    label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.6;
+    }
+
+    .banda-nome {
+      font-size: 0.88rem;
+      opacity: 0.8;
+    }
+
+    select {
+      padding: 0.4rem 0.5rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      color: var(--paper);
+      font-size: 0.88rem;
+      font-family: inherit;
+
+      option {
+        color: var(--ink);
+      }
+    }
+  }
+
   nav {
     display: flex;
     flex-direction: column;
@@ -117,10 +150,108 @@
   }
 }
 
+.user-box {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .user-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    word-break: break-word;
+  }
+
+  .user-roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .role-badge {
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--paper);
+    font-size: 0.72rem;
+  }
+
+  .logout {
+    align-self: flex-start;
+    margin-top: 0.25rem;
+    padding: 0.35rem 0.9rem;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: var(--paper);
+    font-size: 0.85rem;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
 .content {
   flex: 1;
   padding: 2.25rem 2.5rem;
   background: var(--paper);
   overflow-y: auto;
   color: var(--ink);
+}
+
+// Senza sidebar (pagina di login) il contenuto occupa tutto lo schermo
+.layout.public .content {
+  padding: 0;
+}
+
+// Messaggi brevi in basso a destra
+.toasts {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 360px;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.9rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+
+  &.errore {
+    background: var(--brick);
+  }
+
+  &.successo {
+    background: var(--verdigris);
+  }
+
+  .chiudi {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }

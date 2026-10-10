@@ -12,7 +12,7 @@
   <p class="error-text">{{ error() }}</p>
 }
 
-<section class="panel">
+<section *puo="'parti:scrivere'" class="panel">
   <h3>Aggiungi parte</h3>
 
   <div class="field autocomplete">
@@ -156,7 +156,7 @@
               } @else {
                 <span class="muted">Nessun PDF</span>
               }
-              <label class="link-action upload">
+              <label *puo="'parti:scrivere'" class="link-action upload">
                 {{ uploadingId() === riga.parte.id ? 'Caricamento...' : (riga.parte.pdfPresente ? 'Sostituisci' : 'Carica PDF') }}
                 <input
                   type="file"
@@ -167,7 +167,7 @@
               </label>
             </td>
             <td class="actions">
-              <button type="button" class="link-action danger" (click)="rimuoviRiga(riga)">Rimuovi</button>
+              <button *puo="'parti:eliminare'" type="button" class="link-action danger" (click)="rimuoviRiga(riga)">Rimuovi</button>
             </td>
           </tr>
         }

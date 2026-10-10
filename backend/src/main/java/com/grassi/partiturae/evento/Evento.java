@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TenantId;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -43,4 +44,9 @@ public class Evento {
 
     @Column(columnDefinition = "TEXT")
     private String note;
+
+    // Banda proprietaria del dato: la imposta Hibernate da solo e ogni ricerca vede solo la banda corrente.
+    @TenantId
+    @Column(name = "banda_id", nullable = false, updatable = false)
+    private Long bandaId;
 }

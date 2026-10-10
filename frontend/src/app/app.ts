@@ -1,6 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
+
+import { environment } from '../environments/environment';
+import { RUOLO_LABELS } from './features/auth/auth.model';
+import { AuthService } from './features/auth/auth.service';
+import { FileService } from './shared/file.service';
+import { NotificheService } from './shared/notifiche.service';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +16,23 @@ import { filter } from 'rxjs';
 })
 export class App {
   private router = inject(Router);
+  private file = inject(FileService);
+  protected auth = inject(AuthService);
+  protected notifiche = inject(NotificheService);
 
   protected title = 'Partiturae';
 
   private readonly formazioneRoutes = ['/soci', '/formazione', '/direttivo'];
 
   formazioneMenuOpen = signal(this.isOnFormazioneRoute(this.router.url));
+
+  ruoliEtichette = computed(() => {
+    const etichette = (this.auth.account()?.ruoli ?? []).map((ruolo) => RUOLO_LABELS[ruolo]);
+    return this.auth.isSuperadmin() ? ['Superadmin', ...etichette] : etichette;
+  });
+
+  // Il gruppo "Formazione" compare solo se dentro c'è almeno una voce permessa.
+  mostraGruppoFormazione = computed(() => this.auth.puoLeggere('soci') || this.auth.puoLeggere('formazione'));
 
   constructor() {
     this.router.events
@@ -29,6 +46,42 @@ export class App {
 
   toggleFormazioneMenu(): void {
     this.formazioneMenuOpen.set(!this.formazioneMenuOpen());
+  }
+
+  esci(): void {
+    this.auth.logout();
+  }
+
+  /** Cambia banda dal selettore nel menu: i ruoli e quindi le voci disponibili cambiano con la banda. */
+  cambiaBanda(evento: Event): void {
+    const bandaId = Number((evento.target as HTMLSelectElement).value);
+    if (!bandaId || bandaId === this.auth.bandaCorrente()?.id) {
+      return;
+    }
+
+    this.auth.cambiaBanda(bandaId).subscribe({
+      next: () => this.router.navigateByUrl('/'),
+      error: () => this.notifiche.errore('Non è stato possibile cambiare banda.')
+    });
+  }
+
+  /**
+   * Un normale link verso l'API (es. il PDF di una parte) non può mandare il token di accesso:
+   * lo intercettiamo e il file viene scaricato con una richiesta autenticata.
+   */
+  @HostListener('document:click', ['$event'])
+  gestisciLinkApi(evento: MouseEvent): void {
+    if (evento.defaultPrevented || evento.button !== 0 || evento.ctrlKey || evento.metaKey || evento.shiftKey) {
+      return;
+    }
+
+    const link = (evento.target as HTMLElement | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+    if (!link || !link.href.startsWith(`${environment.apiUrl}/`)) {
+      return;
+    }
+
+    evento.preventDefault();
+    this.file.scarica(link.href);
   }
 
   private isOnFormazioneRoute(url: string): boolean {

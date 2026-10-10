@@ -3,7 +3,7 @@
     <h2>Strumenti</h2>
     <p class="subtitle">Organizzati per famiglia. Apri "Parti" per vedere i PDF dello strumento, divisi per voce.</p>
   </div>
-  <button type="button" class="btn-primary" (click)="toggleForm()">
+  <button *puo="'catalogo:scrivere'" type="button" class="btn-primary" (click)="toggleForm()">
     {{ mostraForm() ? 'Annulla' : '+ Aggiungi strumento' }}
   </button>
 </div>
@@ -100,9 +100,10 @@
                 <div class="row">
                   <span class="grow">{{ strumento.nome }}</span>
                   <div class="actions">
-                    <a class="link-action" [routerLink]="['/strumenti', strumento.id, 'parti']">Parti</a>
-                    <button type="button" class="link-action" (click)="avviaModifica(strumento)">Modifica</button>
+                    <a *puo="'parti:leggere'" class="link-action" [routerLink]="['/strumenti', strumento.id, 'parti']">Parti</a>
+                    <button *puo="'catalogo:scrivere'" type="button" class="link-action" (click)="avviaModifica(strumento)">Modifica</button>
                     <button
+                      *puo="'catalogo:eliminare'"
                       type="button"
                       class="link-action danger"
                       (click)="richiediEliminazione(strumento)"

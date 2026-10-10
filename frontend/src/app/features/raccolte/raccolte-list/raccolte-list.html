@@ -1,6 +1,6 @@
 <div class="page-header">
   <h2>Raccolte</h2>
-  <a routerLink="/raccolte/nuovo" class="btn-primary">+ Nuova raccolta</a>
+  <a *puo="'raccolte:scrivere'" routerLink="/raccolte/nuovo" class="btn-primary">+ Nuova raccolta</a>
 </div>
 
 @if (loading()) {
@@ -27,8 +27,8 @@
           <td>{{ raccolta.numeroPartiture }}</td>
           <td class="actions">
             <a [routerLink]="['/raccolte', raccolta.id]">Gestisci</a>
-            <a [routerLink]="['/raccolte', raccolta.id, 'modifica']">Modifica</a>
-            <button (click)="remove(raccolta.id)">Elimina</button>
+            <a *puo="'raccolte:scrivere'" [routerLink]="['/raccolte', raccolta.id, 'modifica']">Modifica</a>
+            <button *puo="'raccolte:eliminare'" (click)="remove(raccolta.id)">Elimina</button>
           </td>
         </tr>
       }

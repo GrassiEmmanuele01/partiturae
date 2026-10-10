@@ -1,6 +1,6 @@
 <div class="page-header">
   <h2>Calendario</h2>
-  <a routerLink="/calendario/nuovo" class="btn-primary">+ Nuovo evento</a>
+  <a *puo="'calendario:scrivere'" routerLink="/calendario/nuovo" class="btn-primary">+ Nuovo evento</a>
 </div>
 
 @if (loading()) {
@@ -30,9 +30,9 @@
           <td>{{ evento.luogo || '-' }}</td>
           <td>{{ evento.numeroPresenti }}</td>
           <td class="actions">
-            <a [routerLink]="['/calendario', evento.id, 'presenze']">Presenze</a>
-            <a [routerLink]="['/calendario', evento.id, 'modifica']">Modifica</a>
-            <button (click)="remove(evento.id)">Elimina</button>
+            <a *puo="'presenze:leggere'" [routerLink]="['/calendario', evento.id, 'presenze']">Presenze</a>
+            <a *puo="'calendario:scrivere'" [routerLink]="['/calendario', evento.id, 'modifica']">Modifica</a>
+            <button *puo="'calendario:eliminare'" (click)="remove(evento.id)">Elimina</button>
           </td>
         </tr>
       }

@@ -24,7 +24,8 @@ export class FormazioneService {
     return this.http.post<void>(`${this.baseUrl}/logo`, formData);
   }
 
-  logoUrl(): string {
-    return `${this.baseUrl}/logo`;
+  /** Il logo si chiede con il token (un tag <img> non può mandarlo) e si mostra come file in memoria. */
+  caricaLogo(): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/logo`, { responseType: 'blob' });
   }
 }

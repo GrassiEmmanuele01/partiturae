@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface SocioRepository extends JpaRepository<Socio, Long> {
     Optional<Socio> findByCodiceFiscale(String codiceFiscale);
     Optional<Socio> findByMail(String mail);
+    Optional<Socio> findByMailIgnoreCase(String mail);
 }

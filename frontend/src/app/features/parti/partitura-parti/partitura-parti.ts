@@ -12,6 +12,7 @@ import { StrumentoFiglio } from '../../strumenti-figli/strumento-figlio.model';
 import { StrumentoFiglioService } from '../../strumenti-figli/strumento-figlio.service';
 import { Parte } from '../parte.model';
 import { ParteService } from '../parte.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 interface RigaParte {
   parte: Parte;
@@ -20,7 +21,7 @@ interface RigaParte {
 
 @Component({
   selector: 'app-partitura-parti',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './partitura-parti.html',
   styleUrl: './partitura-parti.scss'
 })

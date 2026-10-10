@@ -13,7 +13,7 @@
 @if (loading()) {
   <p>Caricamento...</p>
 } @else {
-  <section class="add-section">
+  <section *puo="'raccolte:scrivere'" class="add-section">
     <h3>Aggiungi partitura</h3>
     <div class="field autocomplete">
       <input
@@ -45,7 +45,7 @@
             <span class="ordine">{{ lp.ordine }}</span>
             <span class="nome">{{ lp.partitura.nome }}</span>
             <span class="tipo">{{ tipoLabels[lp.partitura.tipo] }}</span>
-            <div class="row-actions">
+            <div *puo="'raccolte:scrivere'" class="row-actions">
               <button (click)="moveUp(i)" [disabled]="i === 0" title="Sposta su">&uarr;</button>
               <button (click)="moveDown(i)" [disabled]="i === raccolta()!.partiture!.length - 1" title="Sposta giù">&darr;</button>
               <button (click)="removePartitura(lp.partitura.id)" class="remove" title="Rimuovi">&times;</button>

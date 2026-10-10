@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,11 @@ public class ParteService {
     @Transactional(readOnly = true)
     public List<ParteResponse> getByStrumento(Long strumentoId) {
         return toSortedResponses(parteRepository.findAllByStrumento(strumentoId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParteResponse> getByStrumenti(Collection<Long> strumentoIds) {
+        return toSortedResponses(parteRepository.findAllByStrumenti(strumentoIds));
     }
 
     @Transactional

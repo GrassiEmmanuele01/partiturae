@@ -1,0 +1,49 @@
+<div class="login-card">
+  <div class="login-brand">
+    <span class="brand-mark">♪</span>
+    <span class="brand-name">Partiturae</span>
+  </div>
+  <p class="login-subtitle">Accedi all'archivio della formazione</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        autocomplete="username"
+        placeholder="nome@esempio.it"
+      >
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <span class="field-error">Inserisci la tua email</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="password-row">
+        <input
+          id="password"
+          [type]="mostraPassword() ? 'text' : 'password'"
+          formControlName="password"
+          autocomplete="current-password"
+        >
+        <button type="button" class="link-action" (click)="toggleMostraPassword()">
+          {{ mostraPassword() ? 'Nascondi' : 'Mostra' }}
+        </button>
+      </div>
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <span class="field-error">Inserisci la password</span>
+      }
+    </div>
+
+    @if (error()) {
+      <p class="error-text" role="alert">{{ error() }}</p>
+    }
+
+    <button type="submit" class="btn-primary accedi" [disabled]="loading()">
+      {{ loading() ? 'Accesso in corso...' : 'Accedi' }}
+    </button>
+  </form>
+</div>

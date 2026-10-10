@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 
 import { StrumentoFiglio } from '../strumento-figlio.model';
 import { StrumentoFiglioService } from '../strumento-figlio.service';
+import { PuoDirective } from '../../auth/puo.directive';
 
 @Component({
   selector: 'app-strumenti-figli-list',
-  imports: [RouterLink],
+  imports: [RouterLink, PuoDirective],
   templateUrl: './strumenti-figli-list.html',
   styleUrl: './strumenti-figli-list.scss'
 })

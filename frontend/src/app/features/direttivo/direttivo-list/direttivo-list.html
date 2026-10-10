@@ -1,6 +1,6 @@
 <div class="page-header">
   <h2>Direttivo</h2>
-  <a routerLink="/direttivo/nuovo" class="btn-primary">+ Nuova carica</a>
+  <a *puo="'direttivo:scrivere'" routerLink="/direttivo/nuovo" class="btn-primary">+ Nuova carica</a>
 </div>
 
 @if (loading()) {
@@ -32,8 +32,8 @@
             </span>
           </td>
           <td class="actions">
-            <a [routerLink]="['/direttivo', m.id]">Modifica</a>
-            <button (click)="remove(m.id)">Elimina</button>
+            <a *puo="'direttivo:scrivere'" [routerLink]="['/direttivo', m.id]">Modifica</a>
+            <button *puo="'direttivo:eliminare'" (click)="remove(m.id)">Elimina</button>
           </td>
         </tr>
       }

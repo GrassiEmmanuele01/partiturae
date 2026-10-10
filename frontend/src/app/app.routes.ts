@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
+import { Login } from './features/auth/login/login';
+import { authGuard, guestGuard, permessoGuard } from './features/auth/auth.guard';
 import { Impostazioni } from './pages/impostazioni/impostazioni';
 import { SociList } from './features/soci/soci-list/soci-list';
 import { SocioForm } from './features/soci/socio-form/socio-form';
@@ -10,6 +12,7 @@ import { MusicistaForm } from './features/musicisti/musicista-form/musicista-for
 import { MusicistaMusicale } from './features/musicisti/musicista-musicale/musicista-musicale';
 import { PartitureList } from './features/partiture/partiture-list/partiture-list';
 import { PartituraForm } from './features/partiture/partitura-form/partitura-form';
+import { MieParti } from './features/mie-parti/mie-parti/mie-parti';
 import { PartituraParti } from './features/parti/partitura-parti/partitura-parti';
 import { StrumentoParti } from './features/parti/strumento-parti/strumento-parti';
 import { StrumentoFiglioParti } from './features/parti/strumento-figlio-parti/strumento-figlio-parti';
@@ -30,44 +33,53 @@ import { EventoForm } from './features/calendario/evento-form/evento-form';
 import { EventoPresenze } from './features/calendario/evento-presenze/evento-presenze';
 
 export const routes: Routes = [
-  { path: '', component: Home },
-  { path: 'impostazioni', component: Impostazioni },
-  { path: 'soci', component: SociList },
-  { path: 'soci/nuovo', component: SocioForm },
-  { path: 'soci/:id', component: SocioForm },
-  { path: 'direttivo', component: DirettivoList },
-  { path: 'direttivo/nuovo', component: DirettivoForm },
-  { path: 'direttivo/:id', component: DirettivoForm },
-  { path: 'musicisti', component: MusicistiList },
-  { path: 'musicisti/nuovo', component: MusicistaForm },
-  { path: 'musicisti/:id/musicale', component: MusicistaMusicale },
-  { path: 'musicisti/:id', component: MusicistaForm },
-  { path: 'partiture', component: PartitureList },
-  { path: 'partiture/nuovo', component: PartituraForm },
-  { path: 'partiture/:id/parti', component: PartituraParti },
-  { path: 'partiture/:id', component: PartituraForm },
-  { path: 'raccolte', component: RaccolteList },
-  { path: 'raccolte/nuovo', component: RaccoltaForm },
-  { path: 'raccolte/:id/modifica', component: RaccoltaForm },
-  { path: 'raccolte/:id', component: RaccoltaDettaglio },
-  { path: 'autori', component: AutoriList },
-  { path: 'autori/nuovo', component: AutoreForm },
-  { path: 'autori/:id', component: AutoreForm },
-  { path: 'famiglie', component: FamiglieList },
-  { path: 'famiglie/nuovo', component: FamigliaForm },
-  { path: 'famiglie/:id', component: FamigliaForm },
-  { path: 'strumenti', component: StrumentiList },
-  { path: 'strumenti/nuovo', component: StrumentoForm },
-  { path: 'strumenti/:id/parti', component: StrumentoParti },
-  { path: 'strumenti/:id', component: StrumentoForm },
-  { path: 'strumenti-figli', component: StrumentiFigliList },
-  { path: 'strumenti-figli/nuovo', component: StrumentoFiglioForm },
-  { path: 'strumenti-figli/:id/parti', component: StrumentoFiglioParti },
-  { path: 'strumenti-figli/:id', component: StrumentoFiglioForm },
-  { path: 'formazione', component: FormazioneSettings },
-  { path: 'calendario', component: EventiList },
-  { path: 'calendario/nuovo', component: EventoForm },
-  { path: 'calendario/:id/presenze', component: EventoPresenze },
-  { path: 'calendario/:id/modifica', component: EventoForm },
+  { path: 'login', component: Login, canActivate: [guestGuard] },
+  {
+    path: '',
+    canActivateChild: [authGuard],
+    children: [
+      { path: '', component: Home },
+      { path: 'impostazioni', component: Impostazioni, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'soci', component: SociList, canActivate: [permessoGuard('soci')] },
+      { path: 'soci/nuovo', component: SocioForm, canActivate: [permessoGuard('soci', 'scrivere')] },
+      { path: 'soci/:id', component: SocioForm, canActivate: [permessoGuard('soci', 'scrivere')] },
+      { path: 'direttivo', component: DirettivoList, canActivate: [permessoGuard('direttivo')] },
+      { path: 'direttivo/nuovo', component: DirettivoForm, canActivate: [permessoGuard('direttivo', 'scrivere')] },
+      { path: 'direttivo/:id', component: DirettivoForm, canActivate: [permessoGuard('direttivo', 'scrivere')] },
+      { path: 'musicisti', component: MusicistiList, canActivate: [permessoGuard('musicisti')] },
+      { path: 'musicisti/nuovo', component: MusicistaForm, canActivate: [permessoGuard('musicisti', 'scrivere')] },
+      { path: 'musicisti/:id/musicale', component: MusicistaMusicale, canActivate: [permessoGuard('musicisti', 'scrivere')] },
+      { path: 'musicisti/:id', component: MusicistaForm, canActivate: [permessoGuard('musicisti', 'scrivere')] },
+      { path: 'partiture', component: PartitureList, canActivate: [permessoGuard('partiture')] },
+      { path: 'partiture/nuovo', component: PartituraForm, canActivate: [permessoGuard('partiture', 'scrivere')] },
+      { path: 'partiture/:id/parti', component: PartituraParti, canActivate: [permessoGuard('parti')] },
+      { path: 'partiture/:id/mie-parti', component: MieParti, canActivate: [permessoGuard('mieParti')] },
+      { path: 'partiture/:id', component: PartituraForm, canActivate: [permessoGuard('partiture', 'scrivere')] },
+      { path: 'mie-parti', component: MieParti, canActivate: [permessoGuard('mieParti')] },
+      { path: 'raccolte', component: RaccolteList, canActivate: [permessoGuard('raccolte')] },
+      { path: 'raccolte/nuovo', component: RaccoltaForm, canActivate: [permessoGuard('raccolte', 'scrivere')] },
+      { path: 'raccolte/:id/modifica', component: RaccoltaForm, canActivate: [permessoGuard('raccolte', 'scrivere')] },
+      { path: 'raccolte/:id', component: RaccoltaDettaglio, canActivate: [permessoGuard('raccolte')] },
+      { path: 'autori', component: AutoriList, canActivate: [permessoGuard('catalogo')] },
+      { path: 'autori/nuovo', component: AutoreForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'autori/:id', component: AutoreForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'famiglie', component: FamiglieList, canActivate: [permessoGuard('catalogo')] },
+      { path: 'famiglie/nuovo', component: FamigliaForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'famiglie/:id', component: FamigliaForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'strumenti', component: StrumentiList, canActivate: [permessoGuard('catalogo')] },
+      { path: 'strumenti/nuovo', component: StrumentoForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'strumenti/:id/parti', component: StrumentoParti, canActivate: [permessoGuard('parti')] },
+      { path: 'strumenti/:id', component: StrumentoForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'strumenti-figli', component: StrumentiFigliList, canActivate: [permessoGuard('catalogo')] },
+      { path: 'strumenti-figli/nuovo', component: StrumentoFiglioForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'strumenti-figli/:id/parti', component: StrumentoFiglioParti, canActivate: [permessoGuard('parti')] },
+      { path: 'strumenti-figli/:id', component: StrumentoFiglioForm, canActivate: [permessoGuard('catalogo', 'scrivere')] },
+      { path: 'formazione', component: FormazioneSettings, canActivate: [permessoGuard('formazione')] },
+      { path: 'calendario', component: EventiList, canActivate: [permessoGuard('calendario')] },
+      { path: 'calendario/nuovo', component: EventoForm, canActivate: [permessoGuard('calendario', 'scrivere')] },
+      { path: 'calendario/:id/presenze', component: EventoPresenze, canActivate: [permessoGuard('presenze')] },
+      { path: 'calendario/:id/modifica', component: EventoForm, canActivate: [permessoGuard('calendario', 'scrivere')] },
+    ]
+  },
   { path: '**', redirectTo: '' }
 ];
