@@ -4,10 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
-import { NotificheService } from '../../shared/notifiche.service';
 import { AuthResponse } from './auth.model';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from './auth.service';
+import { NotificheService } from '../../shared/notifiche.service';
 
 const API = environment.apiUrl;
 
@@ -16,7 +16,18 @@ function risposta(token: string): AuthResponse {
     accessToken: token,
     tokenType: 'Bearer',
     expiresIn: 900,
-    account: { id: 1, email: 'a@b.it', ruoli: ['ADMIN_BANDA'], socioId: null, nome: null, cognome: null, deveCambiarePassword: false }
+    account: {
+      id: 1,
+      email: 'a@b.it',
+      nome: null,
+      cognome: null,
+      superadmin: false,
+      deveCambiarePassword: false,
+      bandaCorrente: { id: 1, nome: 'Banda di prova' },
+      ruoli: ['ADMIN'],
+      bande: [{ id: 1, nome: 'Banda di prova' }],
+      socioId: null
+    }
   };
 }
 

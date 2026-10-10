@@ -7,13 +7,13 @@
 } @else {
   <section class="logo-section">
     <h3>Logo</h3>
-    @if (hasLogo()) {
-      <img [src]="logoUrl()" alt="Logo formazione" class="logo-preview">
+    @if (logoSrc(); as src) {
+      <img [src]="src" alt="Logo formazione" class="logo-preview">
     } @else {
       <p class="no-logo">Nessun logo caricato.</p>
     }
     <label class="upload-label">
-      {{ uploadingLogo() ? 'Caricamento...' : (hasLogo() ? 'Sostituisci logo' : 'Carica logo') }}
+      {{ uploadingLogo() ? 'Caricamento...' : (logoSrc() ? 'Sostituisci logo' : 'Carica logo') }}
       <input type="file" accept="image/png,image/jpeg,image/svg+xml" (change)="onLogoSelected($event)" [disabled]="uploadingLogo()">
     </label>
   </section>

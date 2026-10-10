@@ -6,6 +6,19 @@
         <span class="brand-name">Partiturae</span>
       </div>
 
+      <div class="banda-box">
+        @if (auth.bande().length > 1) {
+          <label for="banda-corrente">Banda</label>
+          <select id="banda-corrente" (change)="cambiaBanda($event)">
+            @for (b of auth.bande(); track b.id) {
+              <option [value]="b.id" [selected]="b.id === auth.bandaCorrente()?.id">{{ b.nome }}</option>
+            }
+          </select>
+        } @else {
+          <span class="banda-nome">{{ auth.bandaCorrente()?.nome ?? 'Nessuna banda' }}</span>
+        }
+      </div>
+
       <nav>
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
 

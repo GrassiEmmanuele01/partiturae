@@ -26,6 +26,9 @@ export class AuthService {
   readonly accessToken = this.tokenSignal.asReadonly();
   readonly account = this.accountSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.accountSignal() !== null);
+  readonly isSuperadmin = computed(() => this.accountSignal()?.superadmin ?? false);
+  readonly bandaCorrente = computed(() => this.accountSignal()?.bandaCorrente ?? null);
+  readonly bande = computed(() => this.accountSignal()?.bande ?? []);
 
   readonly nomeVisualizzato = computed(() => {
     const account = this.accountSignal();
@@ -39,6 +42,16 @@ export class AuthService {
   login(email: string, password: string): Observable<Account> {
     return this.http
       .post<AuthResponse>(`${this.baseUrl}/login`, { email, password }, { withCredentials: true })
+      .pipe(
+        tap((risposta) => this.impostaSessione(risposta)),
+        map((risposta) => risposta.account)
+      );
+  }
+
+  /** Passa a un'altra banda in cui si è presenti: il server emette un nuovo token (con i ruoli di quella banda). */
+  cambiaBanda(bandaId: number): Observable<Account> {
+    return this.http
+      .post<AuthResponse>(`${this.baseUrl}/banda`, { bandaId }, { withCredentials: true })
       .pipe(
         tap((risposta) => this.impostaSessione(risposta)),
         map((risposta) => risposta.account)
@@ -103,12 +116,14 @@ export class AuthService {
     }
   }
 
+  // I dati di lavoro esistono solo dentro una banda: senza banda (es. un superadmin appena entrato)
+  // non c'è niente da leggere né da modificare.
   puoLeggere(area: Area): boolean {
-    return this.isAuthenticated() && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'leggere');
+    return this.bandaCorrente() !== null && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'leggere');
   }
 
   puoScrivere(area: Area): boolean {
-    return this.isAuthenticated() && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'scrivere');
+    return this.bandaCorrente() !== null && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'scrivere');
   }
 
   hasRole(...ruoli: Ruolo[]): boolean {

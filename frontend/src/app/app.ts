@@ -26,7 +26,10 @@ export class App {
 
   formazioneMenuOpen = signal(this.isOnFormazioneRoute(this.router.url));
 
-  ruoliEtichette = computed(() => (this.auth.account()?.ruoli ?? []).map((ruolo) => RUOLO_LABELS[ruolo]));
+  ruoliEtichette = computed(() => {
+    const etichette = (this.auth.account()?.ruoli ?? []).map((ruolo) => RUOLO_LABELS[ruolo]);
+    return this.auth.isSuperadmin() ? ['Superadmin', ...etichette] : etichette;
+  });
 
   // Il gruppo "Formazione" compare solo se dentro c'è almeno una voce permessa.
   mostraGruppoFormazione = computed(() => this.auth.puoLeggere('soci') || this.auth.puoLeggere('formazione'));
@@ -47,6 +50,19 @@ export class App {
 
   esci(): void {
     this.auth.logout();
+  }
+
+  /** Cambia banda dal selettore nel menu: i ruoli e quindi le voci disponibili cambiano con la banda. */
+  cambiaBanda(evento: Event): void {
+    const bandaId = Number((evento.target as HTMLSelectElement).value);
+    if (!bandaId || bandaId === this.auth.bandaCorrente()?.id) {
+      return;
+    }
+
+    this.auth.cambiaBanda(bandaId).subscribe({
+      next: () => this.router.navigateByUrl('/'),
+      error: () => this.notifiche.errore('Non è stato possibile cambiare banda.')
+    });
   }
 
   /**

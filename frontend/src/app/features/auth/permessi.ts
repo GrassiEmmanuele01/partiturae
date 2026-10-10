@@ -25,20 +25,20 @@ type Consentiti = Ruolo[] | 'tutti';
  */
 export const PERMESSI: Record<Area, Record<Azione, Consentiti>> = {
   // dati personali dei soci: solo l'amministratore
-  soci: { leggere: ['ADMIN_BANDA'], scrivere: ['ADMIN_BANDA'] },
-  musicisti: { leggere: ['ADMIN_BANDA'], scrivere: ['ADMIN_BANDA'] },
-  direttivo: { leggere: ['ADMIN_BANDA'], scrivere: ['ADMIN_BANDA'] },
-  formazione: { leggere: ['ADMIN_BANDA'], scrivere: ['ADMIN_BANDA'] },
+  soci: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
+  musicisti: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
+  direttivo: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
+  formazione: { leggere: ['ADMIN'], scrivere: ['ADMIN'] },
 
   // archivio
-  catalogo: { leggere: 'tutti', scrivere: ['ADMIN_BANDA', 'ARCHIVISTA'] },
-  partiture: { leggere: 'tutti', scrivere: ['ADMIN_BANDA', 'ARCHIVISTA'] },
-  parti: { leggere: ['ADMIN_BANDA', 'MAESTRO', 'ARCHIVISTA'], scrivere: ['ADMIN_BANDA', 'ARCHIVISTA'] },
-  raccolte: { leggere: 'tutti', scrivere: ['ADMIN_BANDA', 'MAESTRO', 'ARCHIVISTA'] },
+  catalogo: { leggere: 'tutti', scrivere: ['ADMIN', 'ARCHIVISTA'] },
+  partiture: { leggere: 'tutti', scrivere: ['ADMIN', 'ARCHIVISTA'] },
+  parti: { leggere: ['ADMIN', 'MAESTRO', 'ARCHIVISTA'], scrivere: ['ADMIN', 'ARCHIVISTA'] },
+  raccolte: { leggere: 'tutti', scrivere: ['ADMIN', 'MAESTRO', 'ARCHIVISTA'] },
 
   // calendario
-  calendario: { leggere: 'tutti', scrivere: ['ADMIN_BANDA', 'MAESTRO'] },
-  presenze: { leggere: ['ADMIN_BANDA', 'MAESTRO'], scrivere: ['ADMIN_BANDA', 'MAESTRO'] }
+  calendario: { leggere: 'tutti', scrivere: ['ADMIN', 'MAESTRO'] },
+  presenze: { leggere: ['ADMIN', 'MAESTRO'], scrivere: ['ADMIN', 'MAESTRO'] }
 };
 
 /** True se almeno uno dei ruoli posseduti è tra quelli consentiti. */

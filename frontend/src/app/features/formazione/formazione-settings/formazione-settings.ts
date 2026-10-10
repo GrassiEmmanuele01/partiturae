@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -14,11 +14,12 @@ import { MembroDirettivo } from '../../direttivo/membro-direttivo.model';
 export class FormazioneSettings {
   private fb = inject(FormBuilder);
   private formazioneService = inject(FormazioneService);
+  private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   saving = signal(false);
   uploadingLogo = signal(false);
-  hasLogo = signal(false);
+  logoSrc = signal<string | null>(null);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
 
@@ -37,6 +38,7 @@ export class FormazioneSettings {
   });
 
   constructor() {
+    this.destroyRef.onDestroy(() => this.rilasciaLogo());
     this.load();
   }
 
@@ -57,8 +59,8 @@ export class FormazioneSettings {
         });
         this.numeroAssociati.set(formazione.numeroAssociatiAnnoCorrente);
         this.direttivoInCarica.set(formazione.direttivoInCarica);
-        this.hasLogo.set(true);
         this.loading.set(false);
+        this.caricaLogo();
       },
       error: (err) => {
         // 404 = nessuna formazione ancora configurata: è normale alla primissima apertura.
@@ -122,8 +124,8 @@ export class FormazioneSettings {
     this.formazioneService.uploadLogo(file).subscribe({
       next: () => {
         this.uploadingLogo.set(false);
-        this.hasLogo.set(true);
         input.value = '';
+        this.caricaLogo();
       },
       error: () => {
         this.uploadingLogo.set(false);
@@ -132,7 +134,24 @@ export class FormazioneSettings {
     });
   }
 
-  logoUrl(): string {
-    return this.formazioneService.logoUrl();
+  private caricaLogo(): void {
+    this.formazioneService.caricaLogo().subscribe({
+      next: (blob) => {
+        this.rilasciaLogo();
+        this.logoSrc.set(URL.createObjectURL(blob));
+      },
+      // 404 = nessun logo caricato
+      error: () => {
+        this.rilasciaLogo();
+        this.logoSrc.set(null);
+      }
+    });
+  }
+
+  private rilasciaLogo(): void {
+    const attuale = this.logoSrc();
+    if (attuale) {
+      URL.revokeObjectURL(attuale);
+    }
   }
 }

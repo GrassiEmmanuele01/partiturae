@@ -9,8 +9,8 @@ describe('permessi per ruolo', () => {
   it("l'amministratore può fare tutto", () => {
     const aree: Area[] = ['soci', 'musicisti', 'direttivo', 'formazione', 'catalogo', 'partiture', 'parti', 'raccolte', 'calendario', 'presenze'];
     for (const area of aree) {
-      expect(puo(['ADMIN_BANDA'], area, 'leggere')).toBe(true);
-      expect(puo(['ADMIN_BANDA'], area, 'scrivere')).toBe(true);
+      expect(puo(['ADMIN'], area, 'leggere')).toBe(true);
+      expect(puo(['ADMIN'], area, 'scrivere')).toBe(true);
     }
   });
 
