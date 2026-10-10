@@ -85,5 +85,6 @@ Tutte le risorse stanno sotto `/api`. Le operazioni standard sono `GET` (elenco 
 - `src/app/features/<funzionalità>/` contiene modelli, servizio HTTP e pagine di ogni funzionalità.
 - `src/styles.scss` contiene i colori e i componenti grafici condivisi (bottoni, tabelle, chip, form, avvisi): le pagine usano quelle classi invece di ridefinirle.
 - `features/auth/` gestisce login, sessione, banda corrente, intercettore HTTP (aggiunge il token, rinnova la sessione se scade e avvisa se manca un permesso), protezione delle pagine per ruolo e la tabella dei permessi usata per nascondere le voci non permesse.
+- Per mostrare un elemento solo a chi ne ha il diritto si usa la direttiva `*puo="'area:azione'"` (`features/auth/puo.directive.ts`), che segue la banda e i ruoli correnti.
 - I PDF e il logo si scaricano con richieste autenticate (un normale link non può mandare il token): ogni link verso l'API viene intercettato e gestito da `shared/file.service.ts`.
 - L'indirizzo dell'API sta in `src/environments/`.

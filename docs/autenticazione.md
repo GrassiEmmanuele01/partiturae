@@ -67,7 +67,7 @@ Casi particolari:
 - Togliere **una** partitura da una raccolta è una modifica (la fanno anche i maestri); eliminare la raccolta intera no.
 - Il superadmin non passa da nessuna di queste regole.
 
-Le regole stanno in `backend/.../auth/PermessiApi.java`; l'interfaccia ne usa una copia (`frontend/src/app/features/auth/permessi.ts`) solo per nascondere ciò che non si può usare. Per controllare che le due non divergano:
+Le regole stanno in `backend/.../auth/PermessiApi.java`; l'interfaccia ne usa una copia (`frontend/src/app/features/auth/permessi.ts`) solo per nascondere ciò che non si può usare: le voci del menu, le pagine e i pulsanti ("Nuovo", "Modifica", "Elimina"...) non compaiono a chi non ha il permesso. Nei modelli delle pagine si usa la direttiva `*puo`, per esempio `<button *puo="'partiture:eliminare'">Elimina</button>`: se scrivi un permesso che non esiste, la compilazione fallisce. Per controllare che le due non divergano:
 
 ```bash
 node scripts/verifica-permessi.mjs
