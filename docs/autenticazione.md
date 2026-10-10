@@ -56,6 +56,7 @@ Leggere = vedere; aggiungere e modificare = `POST`/`PUT`; eliminare = `DELETE`. 
 | Strumenti, famiglie, voci, autori | tutti tranne Socio | Admin, Archivista, Maestro, Maestro allievi | Admin, Archivista |
 | Partiture | Admin, Archivista, Maestri, Musicista, Allievo | Admin, Archivista, Maestri | Admin, Archivista |
 | Parti e PDF | Admin, Archivista, Maestri | Admin, Archivista, Maestri | Admin, Archivista |
+| Le mie parti (le parti dei propri strumenti) | Musicista, Allievo | | |
 | Raccolte | Admin, Archivista, Maestri, Musicista, Allievo | Admin, Archivista, Maestri | Admin, Archivista |
 | Calendario | tutti | Admin, Archivista, Direttivo, Maestri | Admin, Archivista, Direttivo, Maestri |
 | Presenze | Admin, Archivista, Direttivo, Maestri | Admin, Archivista, Direttivo, Maestri | Admin, Archivista, Direttivo, Maestri |
@@ -65,6 +66,7 @@ Casi particolari:
 - Il **logo** della banda lo legge chiunque sia nella banda.
 - L'elenco "dove è usato" (`/{id}/utilizzo`) è per Admin e Archivista, perché mostra i nomi di musicisti e partiture.
 - Togliere **una** partitura da una raccolta è una modifica (la fanno anche i maestri); eliminare la raccolta intera no.
+- "Le mie parti" è un'area personale: mostra solo le parti degli strumenti del profilo musicale di chi la apre (vedi sotto). Chi suona e ha anche altri compiti ha anche il ruolo Musicista.
 - Il superadmin non passa da nessuna di queste regole.
 
 Le regole stanno in `backend/.../auth/PermessiApi.java`; l'interfaccia ne usa una copia (`frontend/src/app/features/auth/permessi.ts`) solo per nascondere ciò che non si può usare: le voci del menu, le pagine e i pulsanti ("Nuovo", "Modifica", "Elimina"...) non compaiono a chi non ha il permesso. Nei modelli delle pagine si usa la direttiva `*puo`, per esempio `<button *puo="'partiture:eliminare'">Elimina</button>`: se scrivi un permesso che non esiste, la compilazione fallisce. Per controllare che le due non divergano:
@@ -75,10 +77,20 @@ node scripts/verifica-permessi.mjs
 
 Lo script confronta le regole del backend, gli endpoint che esistono davvero nei controller e la tabella dell'interfaccia (serve Node 22.6 o più recente). Se cambi un permesso, cambialo in entrambi i posti e rilancia il controllo.
 
+### Come un musicista arriva alle sue parti
+
+Il collegamento tra l'account e la persona nella banda si fa così:
+
+1. nel libro soci c'è il socio, con la sua **email**;
+2. il socio ha un **profilo musicale** con i suoi strumenti (es. Tromba);
+3. l'account ha **la stessa email** del socio ed è nella banda con il ruolo `MUSICISTA` (o `ALLIEVO`).
+
+Chi ha fatto l'accesso trova "Le mie parti" nel menu e un link "La mia parte" su ogni partitura. Vede le parti di tutte le voci dei suoi strumenti (chi suona "Tromba" vede Tromba 1, Tromba 2...) e sceglie la propria. Se qualcosa non torna, la pagina dice cosa manca: profilo non trovato, nessuno strumento, nessuna parte ancora caricata. Un'appartenenza può anche avere un socio collegato esplicitamente (colonna `socio_id` della tabella `appartenenza`): in quel caso vale quello, altrimenti si cerca per email.
+
 ### Cosa manca ancora
 
 - Le sezioni banda e giovanile, e i due calendari: oggi `MAESTROALLIEVI` e `ALLIEVO` hanno gli stessi accessi di `MAESTRO` e `MUSICISTA`.
-- Musicisti e allievi che vedono le parti dei propri strumenti e creano raccolte personali (per ora non vedono le parti).
+- Raccolte personali per musicisti e allievi.
 - Il cestino, e le schermate per gestire bande e account.
 
 ## Configurazione
@@ -106,6 +118,40 @@ Al primo avvio il backend crea la prima banda (`La mia banda`) e, se la tabella 
 
 - se `PARTITURAE_ADMIN_PASSWORD` è impostata, usa quella;
 - altrimenti genera una password e la scrive **una volta sola** nel log, in un riquadro ben visibile.
+
+## Account di prova (solo sviluppo)
+
+Per provare i ruoli senza creare gli account a mano, il backend può inserire dei dati di prova. Sono spenti di default: si accendono con una variabile d'ambiente prima di avviare il backend.
+
+```bash
+export PARTITURAE_DEMO=true        # in PowerShell: $env:PARTITURAE_DEMO='true'
+./mvnw spring-boot:run
+```
+
+All'avvio crea:
+
+| Account | Banda | Ruoli |
+|---|---|---|
+| `archivista@prova.it` | La mia banda | Archivista |
+| `maestro@prova.it` | La mia banda | Maestro |
+| `maestroallievi@prova.it` | La mia banda | Maestro allievi |
+| `direttivo@prova.it` | La mia banda | Direttivo |
+| `musicista@prova.it` | La mia banda | Musicista (suona la Tromba) |
+| `allievo@prova.it` | La mia banda | Allievo (suona il Clarinetto soprano) |
+| `socio@prova.it` | La mia banda | Socio |
+| `multi@prova.it` | La mia banda e Banda di prova | Direttivo e Maestro nella prima, Musicista (Tromba) nella seconda |
+| `admin2@prova.it` | Banda di prova | Admin |
+
+- un **socio** per ogni persona, con la stessa email dell'account (è così che l'account trova il suo socio e le sue parti);
+- il **profilo musicale** del musicista, dell'allievo e di `multi@prova.it` nella seconda banda;
+- la seconda banda "Banda di prova", con il suo catalogo di strumenti;
+- due partiture nella prima banda ("Inno di Mameli (demo)" e "Marcia lenta (demo)") con parti di tromba, clarinetto e flauto, alcune con un PDF di prova e altre senza; nella seconda banda una partitura "Marcia della banda di prova (demo)".
+
+Tutti gli account di prova hanno la stessa password, `Prova-2026`, che si può cambiare con la variabile `PARTITURAE_DEMO_PASSWORD`. Le email, i ruoli e la password compaiono in un riquadro nel log. L'account `admin@partiturae.local` del primo avvio resta com'è.
+
+Si può rilanciare quando si vuole: crea solo ciò che manca e non modifica quello che c'è già. Per togliere tutto basta ripartire da un database nuovo (`docker compose down -v`).
+
+**Non va mai usato in produzione**, perché gli account hanno una password nota: il backend si rifiuta di partire con i dati di prova se `app.security.cookie-secure` è `true`, cioè quando il sito è servito in HTTPS.
 
 ## Gestire le password da terminale
 

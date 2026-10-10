@@ -24,9 +24,10 @@ Il codice è organizzato **per funzionalità**, non per tipo di classe: ogni fun
 | `raccolta` | raccolte ordinate di partiture |
 | `evento` | calendario e presenze |
 | `banda` | le bande e la separazione dei dati: ogni dato di lavoro appartiene a una banda |
+| `profilo` | collega chi ha fatto l'accesso al suo socio e al suo profilo musicale |
 | `auth` | login, account, appartenenze (ruoli per banda), sessioni, permessi |
 | `common` | eccezioni, gestione errori e DTO condivisi |
-| `seed` | strumenti inseriti al primo avvio |
+| `seed` | strumenti di partenza per ogni banda e, solo a richiesta, i dati di prova per lo sviluppo |
 
 Regole seguite:
 
@@ -43,6 +44,7 @@ Regole seguite:
 - **Parti**: una parte è un PDF di una partitura legato a uno o più strumenti (tabella `parte_strumento`). Il PDF sta in una tabella a parte (`parte_documento`) e viene letto solo quando serve, così elencare le parti resta veloce. Il nome del file scaricato si calcola da strumenti e titolo (`Strumento_NomePartitura.pdf`, senza spazi) e quindi resta coerente se qualcosa viene rinominato.
 - **Più bande**: ogni tabella di lavoro ha la colonna `banda_id` (campo `@TenantId` di Hibernate): Hibernate filtra da solo tutte le ricerche per la banda del token e la scrive in ogni inserimento. Account e bande non hanno `banda_id`. I permessi per ruolo sono in `auth/PermessiApi.java` (vedi [autenticazione](autenticazione.md)).
 - **Eliminazioni sicure**: autori, famiglie, strumenti e voci hanno un endpoint `/{id}/utilizzo` che elenca dove sono usati; l'interfaccia lo mostra prima di eliminare.
+- **Dati di prova**: `seed/DemoDataSeeder.java` crea, solo se acceso con `PARTITURAE_DEMO=true` e mai con `app.security.cookie-secure=true`, un account per ogni ruolo, una seconda banda e qualche partitura con le parti (i PDF li genera `seed/PdfDiProva.java`). Vedi [autenticazione](autenticazione.md).
 - **Catalogo di partenza**: gli strumenti iniziali sono in `seed/InstrumentCatalog.java` (solo dati). Ogni banda ha il suo catalogo: viene inserito per le bande che non hanno ancora nessuna famiglia.
 
 ## Modello dati
@@ -75,6 +77,7 @@ Tutte le risorse stanno sotto `/api`. Le operazioni standard sono `GET` (elenco 
 | `/api/famiglie`, `/api/strumenti`, `/api/strumenti-figli` | filtri `?famigliaId=` e `?strumentoId=`; `/{id}/utilizzo` |
 | `/api/autori`, `/api/partiture` | `/{id}/utilizzo` per gli autori |
 | `/api/parti` | filtri `?partituraId=`, `?strumentoFiglioId=`, `?strumentoId=`; `PUT /{id}/strumenti`; `POST` e `GET /{id}/pdf` |
+| `/api/mie-parti` | le parti dei propri strumenti (`?partituraId=` per una sola partitura); `GET /{id}/pdf` scarica una propria parte |
 | `/api/raccolte` | `POST /{id}/partiture`, `DELETE /{id}/partiture/{partituraId}`, `PUT /{id}/partiture/ordine` |
 | `/api/eventi` | `/{eventoId}/presenze` e `PUT /{eventoId}/presenze/{socioId}` |
 | `/api/auth` | `login`, `refresh`, `logout`, `me`, `banda` per cambiare banda (vedi [autenticazione](autenticazione.md)) |
