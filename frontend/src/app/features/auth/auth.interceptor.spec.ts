@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
+import { NotificheService } from '../../shared/notifiche.service';
 import { AuthResponse } from './auth.model';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from './auth.service';
@@ -112,6 +113,19 @@ describe('authInterceptor', () => {
     expect(errore).not.toBeNull();
     expect(auth.isAuthenticated()).toBe(false);
     expect(navigate).toHaveBeenCalled();
+  });
+
+  it('con un 403 avvisa che manca il permesso e non rinnova la sessione', () => {
+    accedi();
+    let errore: { status: number } | null = null;
+
+    http.get(`${API}/soci`).subscribe({ error: (e) => (errore = e) });
+    backend.expectOne(`${API}/soci`).flush({}, { status: 403, statusText: 'Forbidden' });
+
+    expect(errore!.status).toBe(403);
+    expect(auth.isAuthenticated()).toBe(true);
+    expect(TestBed.inject(NotificheService).notifiche()[0].testo).toContain('permessi');
+    backend.expectNone(`${API}/auth/refresh`);
   });
 
   it('un errore diverso da 401 non fa partire nessun rinnovo', () => {

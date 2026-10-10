@@ -5,6 +5,7 @@ import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxj
 
 import { environment } from '../../../environments/environment';
 import { Account, AuthResponse, Ruolo } from './auth.model';
+import { Area, haPermesso } from './permessi';
 
 // Promemoria (non segreto) che dice "in questo browser c'è stata una sessione": serve solo
 // a evitare una richiesta di rinnovo inutile quando si apre il sito per la prima volta.
@@ -100,6 +101,14 @@ export class AuthService {
     if (!urlCorrente.startsWith('/login')) {
       this.router.navigate(['/login'], { queryParams: { redirect: urlCorrente } });
     }
+  }
+
+  puoLeggere(area: Area): boolean {
+    return this.isAuthenticated() && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'leggere');
+  }
+
+  puoScrivere(area: Area): boolean {
+    return this.isAuthenticated() && haPermesso(this.accountSignal()?.ruoli ?? [], area, 'scrivere');
   }
 
   hasRole(...ruoli: Ruolo[]): boolean {

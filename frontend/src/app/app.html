@@ -8,26 +8,43 @@
 
       <nav>
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-        <a routerLink="/partiture" routerLinkActive="active">Partiture</a>
-        <a routerLink="/raccolte" routerLinkActive="active">Raccolte</a>
-        <a routerLink="/strumenti" routerLinkActive="active">Strumenti</a>
-        <a routerLink="/calendario" routerLinkActive="active">Calendario</a>
 
-        <div class="nav-group">
-          <button type="button" class="nav-group-toggle" [class.open]="formazioneMenuOpen()" (click)="toggleFormazioneMenu()">
-            <span>Formazione</span>
-            <span class="chevron">&rsaquo;</span>
-          </button>
+        @if (auth.puoLeggere('partiture')) {
+          <a routerLink="/partiture" routerLinkActive="active">Partiture</a>
+        }
+        @if (auth.puoLeggere('raccolte')) {
+          <a routerLink="/raccolte" routerLinkActive="active">Raccolte</a>
+        }
+        @if (auth.puoLeggere('catalogo')) {
+          <a routerLink="/strumenti" routerLinkActive="active">Strumenti</a>
+        }
+        @if (auth.puoLeggere('calendario')) {
+          <a routerLink="/calendario" routerLinkActive="active">Calendario</a>
+        }
 
-          @if (formazioneMenuOpen()) {
-            <div class="nav-group-items">
-              <a routerLink="/soci" routerLinkActive="active">Libro soci</a>
-              <a routerLink="/formazione" routerLinkActive="active">Direttivo</a>
-            </div>
-          }
-        </div>
+        @if (mostraGruppoFormazione()) {
+          <div class="nav-group">
+            <button type="button" class="nav-group-toggle" [class.open]="formazioneMenuOpen()" (click)="toggleFormazioneMenu()">
+              <span>Formazione</span>
+              <span class="chevron">&rsaquo;</span>
+            </button>
 
-        <a routerLink="/impostazioni" routerLinkActive="active">Impostazioni</a>
+            @if (formazioneMenuOpen()) {
+              <div class="nav-group-items">
+                @if (auth.puoLeggere('soci')) {
+                  <a routerLink="/soci" routerLinkActive="active">Libro soci</a>
+                }
+                @if (auth.puoLeggere('formazione')) {
+                  <a routerLink="/formazione" routerLinkActive="active">Direttivo</a>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (auth.puoScrivere('catalogo')) {
+          <a routerLink="/impostazioni" routerLinkActive="active">Impostazioni</a>
+        }
       </nav>
 
       <div class="user-box">
@@ -45,4 +62,13 @@
   <main class="content">
     <router-outlet></router-outlet>
   </main>
+</div>
+
+<div class="toasts" aria-live="polite">
+  @for (n of notifiche.notifiche(); track n.id) {
+    <div class="toast" [class.errore]="n.tipo === 'errore'" [class.successo]="n.tipo === 'successo'" role="status">
+      <span>{{ n.testo }}</span>
+      <button type="button" class="chiudi" (click)="notifiche.chiudi(n.id)" aria-label="Chiudi">&times;</button>
+    </div>
+  }
 </div>
